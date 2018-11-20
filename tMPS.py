@@ -48,6 +48,36 @@ def LamGam_form(B, N, chi, d):
         
     Gam.append(np.array([1,0]))
     return Lam, Gam
+    
+def LamGam_test(A, N, chi, d):
+    Lam = []
+    Gam = []
+    for n in range(N+1):
+        Gam.append(np.ones([1]))
+        Lam.append(np.ones([1]))
+    
+    for i in range(N-2,-1,-1):
+        chia = A[i].shape[1]
+        chib = A[i+1].shape[2]
+        theta = np.tensordot(A[i], A[i+1], (2,1))
+        theta = np.tensordot(theta, np.diag(Lam[i+2]), (3,0))
+        theta = np.reshape(theta, (d*chia, d*chib))
+        
+        U, S, V = np.linalg.svd(theta)
+        V = V.T
+        
+        chic = min([np.sum(S>10**-12), chi])
+        
+        U = np.reshape(U[:d*chia,:chic], (d,chia, chic))
+        V = np.transpose(np.reshape(V[:d*chib,:chic], (d,chib, chic)), (0,2,1))
+        
+        Gam[i+1] = np.tensordot(V, np.diag(Lam[i+2]**-1), (2,0))
+        Lam[i+1] = S[:chic]/np.sqrt(np.sum(S[:chic]**2))
+        A[i] = U
+        A[i+1] = V
+    Gam[0] = A[0]
+    
+    return Lam, Gam
 
 ### MAIN PROGRAM #######################################
 def main():
@@ -59,9 +89,10 @@ def main():
     dt = 0.01      #Time step
     N = 4          #Site number
     step_number = int(6.5/dt) #Number of time steps
+    order = "second"    #Trotter order
     
     #H belongs to class Hamiltonian which features time evolution and model construction
-    H = storage.Hamiltonian(J,h,N,dt,d,chi,which= "AFTIC",TO = "second")
+    H = storage.Hamiltonian(J,h,N,dt,d,chi,which= "AFTIC",TO = order)
     
     #Energy operators on each bond
     Hchain = H.Hchain
@@ -88,12 +119,14 @@ def main():
     
     #Using a two-site Hamiltonian at each bond and find total energy per site
     
-    #Brings state from lambda/gamma to B notation
+    #Brings state from lambda/gamma to B/A notation
     # for i in range(N):
     #     B[i] = np.tensordot(B[i], np.diag(Lam[i+1]), (2,0))
+    # for i in range(N):
+    #     B[i] = np.transpose(np.tensordot(np.diag(Lam[i]), B[i], (1,1)), (1,0,2))
     
-    #Brings state from B notation to lambda/gamma notation
-    Lam, B = LamGam_form(B, N, chi, d)
+    #Brings state from A/B notation to lambda/gamma notation
+    Lam, B = LamGam_test(B, N, chi, d)
     
     E = get_ener(Lam, B, Hchain, N)
         
