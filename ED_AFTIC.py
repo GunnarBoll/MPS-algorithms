@@ -281,7 +281,7 @@ def get_4OTS():
     
     return Istate, Hchain
 
-Istate, Hchain = get_FOTS()
+Istate, Hchain = get_SOTS()
 Iden = list(itertools.repeat(I,N-1))
 
 E = []

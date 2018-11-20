@@ -28,57 +28,6 @@ class Hamiltonian:
             for p in plist:
                 self.Uodd, self.Ueven = model_constructor(Hlist, p, self.I, N, dt, d, FO)
             
-            #To be fixed...
-            # elif self.TO == "fourth":
-            #     sz = np.array([[1.,0.],[0.,-1.]]) 
-            #     sx = np.array([[0.,1.],[1.,0.]])
-            #     Hfirst = J*np.kron(sz,sz) + h*np.kron(sx,np.eye(2)) + h/2*np.kron(np.eye(2),sx)
-            #     Hbond = J*np.kron(sz,sz) + h/2*np.kron(sx,np.eye(2)) + h/2*np.kron(np.eye(2),sx)
-            #     Hlast = J*np.kron(sz,sz) + h/2*np.kron(sx,np.eye(2)) + h*np.kron(np.eye(2),sx)
-            #     
-            #     ef, vf = np.linalg.eig(Hfirst)
-            #     e , v = np.linalg.eig(Hbond)
-            #     el, vl = np.linalg.eig(Hlast)
-            #     
-            #     p = 1/(4-4**(1/3))
-            #     expHf1 = np.tensordot(vf,np.tensordot(np.diag(np.exp(-dt*p*ef/2)), np.linalg.inv(vf),(1,0)),(1,0))
-            #     expHf2 = np.tensordot(vf,np.tensordot(np.diag(np.exp(-dt*(1-4*p)*ef/2)), np.linalg.inv(vf),(1,0)),(1,0))
-            #     expHodd1 = np.tensordot(v,np.tensordot(np.diag(np.exp(-dt*p*e/2)), np.linalg.inv(v),(1,0)),(1,0))
-            #     expHodd2 = np.tensordot(v,np.tensordot(np.diag(np.exp(-dt*(1-4*p)*e/2)), np.linalg.inv(v),(1,0)),(1,0))
-            #     expHeven1 = np.tensordot(v,np.tensordot(np.diag(np.exp(-dt*p*e)), np.linalg.inv(v),(1,0)),(1,0))
-            #     expHeven2 = np.tensordot(v,np.tensordot(np.diag(np.exp(-dt*(1-4*p)*e)), np.linalg.inv(v),(1,0)),(1,0))
-            #     expHl1 = np.tensordot(vl,np.tensordot(np.diag(np.exp(-dt*p*el/2)), np.linalg.inv(vl),(1,0)),(1,0))
-            #     expHl2 = np.tensordot(vl,np.tensordot(np.diag(np.exp(-dt*(1-4*p)*el/2)), np.linalg.inv(vl),(1,0)),(1,0))
-            #     
-            #     expHf1 = np.transpose(np.reshape(expHf1, (2,2,2,2)), (0,2,1,3))
-            #     expHf2 = np.transpose(np.reshape(expHf2, (2,2,2,2)), (0,2,1,3))
-            #     expHodd1 = np.transpose(np.reshape(expHodd1, (2,2,2,2)), (0,2,1,3))
-            #     expHodd2 = np.transpose(np.reshape(expHodd2, (2,2,2,2)), (0,2,1,3))
-            #     expHeven1 = np.transpose(np.reshape(expHeven1, (2,2,2,2)), (0,2,1,3))
-            #     expHeven2 = np.transpose(np.reshape(expHeven2, (2,2,2,2)), (0,2,1,3))
-            #     expHl1 = np.transpose(np.reshape(expHl1, (2,2,2,2)), (0,2,1,3))
-            #     expHl2 = np.transpose(np.reshape(expHl2, (2,2,2,2)), (0,2,1,3))
-            #     
-            #     self.Ut1 = []
-            #     self.Ut2 = []
-            #     self.Hchain = []
-            #     for i in range(N-1):
-            #         if i == 0:
-            #             self.Ut1.append(expHf1)
-            #             self.Ut2.append(expHf2)
-            #             self.Hchain.append(Hfirst)
-            #         elif i == N-2:
-            #             self.Ut1.append(expHl1)
-            #             self.Ut2.append(expHl2)
-            #             self.Hchain.append(Hlast)
-            #         elif np.mod(i,2) == 0:
-            #             self.Ut1.append(expHodd1)
-            #             self.Ut2.append(expHodd2)
-            #             self.Hchain.append(Hbond)
-            #         else:
-            #             self.Ut1.append(expHeven1)
-            #             self.Ut2.append(expHeven2)
-            #             self.Hchain.append(Hbond)
             return
         else:
             return
@@ -119,36 +68,10 @@ class Hamiltonian:
             #One final half step on odd bonds
             B, Lam = sweep(B, Lam, self.I, self.Uodd, self.chi, self.d, algo, forward = True)
         
-        
-        
-        #Fourth order Trotter time evolution
-        # elif self.TO == "fourth":
-        #     for t in range(step_number):
-        #         for i in range(2):
-        #             for i in range(0,self.N-1,2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #             for i in range(self.N-3,0,-2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #             for i in range(0,self.N-1,2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #             
-        #         for i in range(0,self.N-1,2):
-        #             B, Lam = tebd(B, Lam, self.Ut2, i, self.chi, self.d)
-        #         for i in range(self.N-3,0,-2):
-        #             B, Lam = tebd(B, Lam, self.Ut2, i, self.chi, self.d)
-        #         for i in range(0,self.N-1,2):
-        #             B, Lam = tebd(B, Lam, self.Ut2, i, self.chi, self.d)
-        #         
-        #         for i in range(2):
-        #             for i in range(0,self.N-1,2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #             for i in range(self.N-3,0,-2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #             for i in range(0,self.N-1,2):
-        #                 B, Lam = tebd(B, Lam, self.Ut1, i, self.chi, self.d)
-        #                 
-        # 
         return B, Lam
+
+
+
 
 #Creates two-site Hamiltonians for an Anti-Ferromagnetic Transverse Ising Chain (AFTIC)
 def get_AFTIC(J,h):
