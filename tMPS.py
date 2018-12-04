@@ -2,10 +2,10 @@
 Written by: Gunnar Bollmark
 """
 import numpy as np
-import storage
+import storage as st
 import imp
-import ED_AFTIC as ed
-imp.reload(storage)
+import ExactDiag as ed
+imp.reload(st)
 imp.reload(ed)
 
 ### MAIN PROGRAM #######################################
@@ -31,17 +31,17 @@ def main():
     d = params[3]          #One-particle Hilbert space dim
     chi = params[4]        #Maximum MPS dim      
     N = params[5]          #Site number
-    step_number = int(30/dt) #Number of time steps
+    step_number = int(20/dt) #Number of time steps
     order = params[6]    #Trotter order
     algo = params[7]     #Which algorithm to use
     
     #H belongs to class Hamiltonian which features time evolution and model construction
-    H = storage.Hamiltonian(J,h,N,dt,d,chi,which= "AFTIC",TO = order)
+    H = st.Hamiltonian(J,h,N,dt,d,chi,which= "AFTIC",TO = order)
     #Energy operators on each bond
     Hchain = H.Hchain
     
     # Build the initial state #
-    Psi = storage.StateChain(N, chi, d, algo)
+    Psi = st.StateChain(N, chi, d, algo)
         
     #Time evolve the state
     Psi = H.time_evolve(Psi, step_number, algo)
@@ -67,20 +67,21 @@ def main():
     print("\nED trotter bond energies: ", E_ed)
     
     #Build product state from MPS
-    B = Psi.B
-    psi = B[0]
-    for i in range(len(B)-1):
-        psi = np.tensordot(psi,B[i+1], (i+2,1))
-    
-    psi = np.reshape(psi, (d**N))
-    print("Algorithm energy from product state: ",sum(ED.get_ener(psi)))
+    # B = Psi.B
+    # psi = B[0]
+    # for i in range(len(B)-1):
+    #     psi = np.tensordot(psi,B[i+1], (i+2,1))
+    # 
+    # psi = np.reshape(psi, (d**N))
+    # print("Algorithm energy from product state: ",sum(ED.get_ener(psi)))
+    # print(psi)
     
     #Comparison of MPS and ED trotter GS
-    print("\nNon-zero components of product states")
-    for i in range(len(psi)):
-        if abs(psi[i])>10**-8 or abs(ED.trot_state[i]) > 10**-8:
-            
-            print("Algorithm: ", psi[i]," ED trotter: ",ED.trot_state[i])
+    # print("\nNon-zero components of product states")
+    # for i in range(len(psi)):
+    #     if abs(psi[i])>10**-8 or abs(ED.trot_state[i]) > 10**-8:
+    #         
+    #         print("Algorithm: ", psi[i]," ED trotter: ",ED.trot_state[i])
             
     print("\nOther output")
     print("Lowest energies ",ED.elist)
@@ -89,7 +90,21 @@ def main():
     print("Truncation error: ",Psi.err)
     print("Final maximum bond dimension: ",H.chi)
     
-    
+    sz = np.array([[1.,0.],[0.,-1.]])
+    sy = np.array([[0,complex(0,-1)],[complex(0,1),0]])
+    sx = np.array([[0.,1.],[1.,0.]])
+    S = [sy]
+    site1 = 1
+    site2 = 2
+    C=0
+    ED_corr = 0
+    M = st.Measure()
+    for op in S:
+        C += M.correl(Psi,op,op,site1,site2)
+        ED_corr += ED.ED_correl(ED.GS[:d**N,0],op,op,site1,site2)
+    print("Spin-spin correlator between site",site1,"and",site2,":",C)
+    print("ED correlator:", ED_corr)
+        
     return 0
     
 main()

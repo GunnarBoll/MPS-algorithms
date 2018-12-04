@@ -10,6 +10,18 @@ import numpy as np
 import itertools
 import scipy.linalg
 
+class SiteTensor:
+    def __init__(self, array):
+        self.comp = array
+        self.con_ind = self.comp.shape[-1]
+        
+        return
+        
+    def __mul__(self,x):
+        res = np.tensordot(self.comp,x, (self.con_ind,1))
+        return SiteTensor(res)
+        
+
 #Class for the state
 class StateChain:
     def __init__(self,N, chi, d, algo):
@@ -33,6 +45,8 @@ class StateChain:
             self.notation = "B"
         
         return
+        
+        
     
     def update(self, U, S, V, i, forward):
         if self.notation == "LG":
@@ -87,14 +101,15 @@ class Hamiltonian:
         self.J = J
         self.h = h
         self.d = d
-        self.chi = chi
+        self.chi = 8
         self.N = N
         self.dt = dt
         self.TO = TO
         self.which = which
+        self.chi_max = chi
         
-        if which == "AFTIC":
-            self.Hlist = self.get_AFTIC(J,h)
+        if which == "Heisen":
+            self.Hlist = self.get_heisen(J,h)
             for n in range(len(self.Hlist)):
                 if np.all(self.Hlist[n].imag == np.zeros(self.Hlist[n].shape)):
                     self.Hlist[n] = self.Hlist[n].real            
@@ -111,6 +126,9 @@ class Hamiltonian:
                 plist = [1]
                 FO = False
                 
+            elif self.TO == "fourth":
+                plist = [1,2,3,4,5,6,7,8,9]
+                FO = False
             
             #Construct even and odd bond time evolution operators
             for p in plist:
@@ -120,15 +138,15 @@ class Hamiltonian:
             return
     
     #Creates two-site Hamiltonians for an Anti-Ferromagnetic Transverse Ising Chain (AFTIC)
-    def get_AFTIC(self,J,h):
+    def get_heisen(self,J,h):
         Hlist = []
         parlist = [[J,h,h/2],[J,h/2,h/2],[J,h/2,h]]
         for params in parlist:
-            Hlist.append(self.kron_AFTIC(params[0],params[1],params[2]))
+            Hlist.append(self.kron_heisen(params[0],params[1],params[2]))
         return Hlist
     
     #Construction of a single two-site Hamiltonian (AFTIC)
-    def kron_AFTIC(self,J,h1,h2):
+    def kron_heisen(self,J,h1,h2):
         sz = np.array([[1.,0.],[0.,-1.]])
         sy = np.array([[0,-complex(0,1)],[complex(0,1),0]])
         sx = np.array([[0.,1.],[1.,0.]])
@@ -218,14 +236,18 @@ class Hamiltonian:
                     Utful.append(self.Uodd[n+1])
             
             #Second order trotter sweeping order
-            Psi = self.second_order(Psi, step_number, Utful, algo)
+            order = [self.Uodd, self.Ueven, Utful, self.Ueven, self.Uodd]
+            Psi = self.sweeping_order(Psi, step_number, algo, order)
             
             #Fixes the error??
             Psi= self.sweep(Psi, list(itertools.repeat(self.I,self.N-1)), algo, forward = False)
+        
+        elif self.TO == "fourth":
+            order = []
+            Psi = self.sweeping_order(Psi, step_number, algo, order)
         return Psi
 
-    def second_order(self, Psi, step_number, Utful, algo):
-        order = [self.Uodd, self.Ueven, Utful, self.Ueven, self.Uodd]
+    def sweeping_order(self, Psi, step_number, algo, order):
         t = 0
         direc = True
         while t < step_number+1 and Psi.err < 10**-6:
@@ -315,7 +337,8 @@ class Hamiltonian:
         err = 2*np.sum(S[chic:]**2)
         
         while err > 10**-10:
-            self.chi += 1
+            if self.chi < self.chi_max:
+                self.chi += 1
             chic = min([np.sum(S>10**-16), self.chi])
             err = 2*np.sum(S[chic:]**2)
         
@@ -331,5 +354,56 @@ class Measure:
     def __init__(self):
         
         return
+    
+    #Calculates correlation of two single site operators (op1, op2) at site i and j resp.
+    def correl(self, Psi, op1, op2, i, j):
+        if j < i:
+            temp = i
+            i = j
+            j = temp
         
+        B_bar1 = np.tensordot(op1,Psi.B[i], (1,0))
+        B_bar2 = np.tensordot(op2,Psi.B[j], (1,0))
+        
+        Phi = [B_bar1]
+        psi_bra = [np.conj(Psi.B[i])]
+        for l in range(i+1,j):
+            Phi.append(Psi.B[l])
+            psi_bra.append(np.conj(Psi.B[l]))
+        psi_bra.append(np.conj(Psi.B[j]))
+        Phi.append(B_bar2)
+        
+        if Psi.notation == "B":
+            Phi[0] = np.transpose(np.tensordot(np.diag(Psi.L[i]),Phi[0], (1,1)), (1,0,2))
+            psi_bra[0] = np.transpose(np.tensordot(np.conj(np.diag(Psi.L[i])),psi_bra[0], (1,1)), (1,0,2))
+        elif Psi.notation == "A":
+            Phi[j] = np.transpose(np.tensordot(np.diag(Psi.L[j+1]),Phi[-1], (1,1)), (1,0,2))
+            psi_bra[j] = np.transpose(np.tensordot(np.conj(np.diag(Psi.L[j+1])),psi_bra[-1], (1,1)), (1,0,2))
+        
+        #Wrong for some reason (FIXED, index error)
+        corr = np.tensordot(psi_bra[0],Phi[0], ([0,1],[0,1]))
+        for k in range(1,j-i+1):
+            corr = np.tensordot(corr, psi_bra[k], (0,1))
+            corr = np.tensordot(corr, Phi[k],([1,0],[0,1]))
+        
+        #Gives correct answer
+        # corr = np.tensordot(psi_bra[-1],Phi[-1], ([0,2],[0,2]))
+        # for k in range(j-i-1,-1,-1):
+        #     corr = np.tensordot(corr, psi_bra[k], (0,2))
+        #     corr = np.tensordot(corr, Phi[k],([1,0],[0,2]))
+        
+        corr = np.trace(corr)
+        
+        return corr
+    
+    def struc_func(self,Psi, i, op):
+        corrs = []
+        
+        for l in range(Psi.N-1,i,-1):
+            corrs.append(self.correl(Psi,op,op,i,l))
+        
+        
+        return corrs
+    
+    
     
