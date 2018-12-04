@@ -9,7 +9,7 @@ import scipy.sparse.linalg.eigen.arpack as arp
 imp.reload(storage)
 
 class ExactD(storage.Hamiltonian):
-    def __init__(self, J, h, N ,dt, d,which = "AFTIC", TO = "second"):
+    def __init__(self, J, h, N ,dt, d,which = "Heisen", TO = "second"):
         sz = np.array([[1.,0.],[0.,-1.]])
         sy = np.array([[0,-complex(0,1)],[complex(0,1),0]])
         sx = np.array([[0.,1.],[1.,0.]])
@@ -29,7 +29,7 @@ class ExactD(storage.Hamiltonian):
         for i in range(N-1):
             for k in range(len(S)):
                 self.op[i] = self.op[i+1] = S[k]
-                self.H += J*Nkron(self.op).real
+                self.H += J[k]*Nkron(self.op).real
             self.op[i] = sz
             self.op[i+1] = self.Id
             self.H += h*Nkron(self.op)

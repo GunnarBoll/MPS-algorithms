@@ -153,7 +153,7 @@ class Hamiltonian:
         S = np.array([sx, sy, sz])
         H_int = 0
         for i in range(3):
-            H_int += J*np.kron(S[i],S[i])
+            H_int += J[i]*np.kron(S[i],S[i])
         H = H_int + h1*np.kron(sz,np.eye(2)) + h2*np.kron(np.eye(2),sz)
         return H
         

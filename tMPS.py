@@ -14,41 +14,51 @@ def main():
     
     f = open("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/TEBD/params.txt","r")
     inputlist = []
+    keylist = {}
     for line in f:
-        inputlist.append(line.rstrip('\n'))
+        if line.startswith('#'):
+            continue
+        inputlist.append(line.rstrip('\n').split(" = "))
+        x = inputlist[-1][0]
+        y = inputlist[-1][1]
+        try:
+            d = int(y)
+        except ValueError:
+            try:
+                d = float(y)
+            except ValueError:
+                d = y
+        finally:
+            keylist[x] = d
     f.close()
-    params = []
-    for i in range(len(inputlist)):
-        if i<3:
-            params.append(float(inputlist[i]))
-        elif i>2 and i < 6:
-            params.append(int(inputlist[i]))
-        else:
-            params.append(inputlist[i])
-    J = params[0]        #Spin-spin coupling
-    h = params[1]        #External field coupling
-    dt = params[2]       #Time step
-    d = params[3]          #One-particle Hilbert space dim
-    chi = params[4]        #Maximum MPS dim      
-    N = params[5]          #Site number
-    step_number = int(20/dt) #Number of time steps
-    order = params[6]    #Trotter order
-    algo = params[7]     #Which algorithm to use
+    
+    Jx = keylist['Jx']
+    Jy = keylist['Jy']
+    Jz = keylist['Jz']
+    J = [Jx, Jy, Jz]        #Spin-spin coupling
+    h = keylist['h']        #External field coupling
+    dt = keylist['dt']       #Time step
+    d = keylist['d']          #One-particle Hilbert space dim
+    chi = keylist['chi']        #Maximum MPS dim      
+    N = keylist['N']          #Site number
+    T = keylist['T']         #Total time evolved
+    step_number = int(T/dt) #Number of time steps
+    order = keylist['order']    #Trotter order
+    algo = keylist['algo']     #Which algorithm to use
     
     #H belongs to class Hamiltonian which features time evolution and model construction
-    H = st.Hamiltonian(J,h,N,dt,d,chi,which= "AFTIC",TO = order)
+    H = st.Hamiltonian(J,h,N,dt,d,chi,which= "Heisen",TO = order)
+    
     #Energy operators on each bond
     Hchain = H.Hchain
     
     # Build the initial state #
     Psi = st.StateChain(N, chi, d, algo)
         
-    #Time evolve the state
+    #Time evolve the state (imaginary time)
     Psi = H.time_evolve(Psi, step_number, algo)
 
-    
     #Energy calculation
-    #Using a two-site Hamiltonian at each bond and find total energy per site
     E = Psi.get_ener(Hchain)
     print("GS energies")
     print("GS energy from algorithm",algo,": ",sum(E))
@@ -57,11 +67,13 @@ def main():
     ED = ed.ExactD(J,h,N,dt,d, TO = order)
     ED.trotter_time(step_number)
     E_ed = ED.get_ener(ED.trot_state)
+    
     #Exact GS energy
     ED.exact_GS()
     print("GS energy from ED Trotter: ", sum(E_ed))
     print("GS energy: ", ED.E_GS)
     
+    #Energies at each bond
     print("\nBond energies")
     print("Algorithm bond energies: ",E)
     print("\nED trotter bond energies: ", E_ed)
@@ -82,7 +94,8 @@ def main():
     #     if abs(psi[i])>10**-8 or abs(ED.trot_state[i]) > 10**-8:
     #         
     #         print("Algorithm: ", psi[i]," ED trotter: ",ED.trot_state[i])
-            
+    
+    #Other output of possible interest
     print("\nOther output")
     print("Lowest energies ",ED.elist)
     ED.exact_time(step_number)
@@ -90,20 +103,21 @@ def main():
     print("Truncation error: ",Psi.err)
     print("Final maximum bond dimension: ",H.chi)
     
-    sz = np.array([[1.,0.],[0.,-1.]])
-    sy = np.array([[0,complex(0,-1)],[complex(0,1),0]])
-    sx = np.array([[0.,1.],[1.,0.]])
-    S = [sy]
-    site1 = 1
-    site2 = 2
-    C=0
-    ED_corr = 0
-    M = st.Measure()
-    for op in S:
-        C += M.correl(Psi,op,op,site1,site2)
-        ED_corr += ED.ED_correl(ED.GS[:d**N,0],op,op,site1,site2)
-    print("Spin-spin correlator between site",site1,"and",site2,":",C)
-    print("ED correlator:", ED_corr)
+    #Correlator testing
+    # sz = np.array([[1.,0.],[0.,-1.]])
+    # sy = np.array([[0,complex(0,-1)],[complex(0,1),0]])
+    # sx = np.array([[0.,1.],[1.,0.]])
+    # S = [sx,sy,sz]
+    # site1 = 1
+    # site2 = 2
+    # C=0
+    # ED_corr = 0
+    # M = st.Measure()
+    # for op in S:
+    #     C += M.correl(Psi,op,op,site1,site2)
+    #     ED_corr += ED.ED_correl(ED.GS[:d**N,0],op,op,site1,site2)
+    # print("Spin-spin correlator between site",site1,"and",site2,":",C)
+    # print("ED correlator:", ED_corr)
         
     return 0
     
