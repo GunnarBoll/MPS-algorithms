@@ -1,5 +1,0 @@
-#what = is this
-#Is this = a comment?
-a = 1.0
-b = 4
-c = what
