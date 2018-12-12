@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.linalg as scl
 import itertools
-import ED_AFTIC as ed
+import ExactDiag as ed
 
 def tebd(G,L,Ut,i, forw):
     chia = G[i].shape[1]
@@ -22,7 +22,7 @@ def tebd(G,L,Ut,i, forw):
     phi = np.transpose(np.tensordot(Ut,theta,([1,3],[0,2])), (0,2,1,3))
     phi = np.reshape(phi, (d*chia,d*chib))
     
-    U, S, V = np.linalg.svd(phi)
+    U, S, V = np.linalg.svd(phi,full_matrices = False)
     V = V.T
     
     chic = min([np.sum(S>10**-16), chi])
@@ -69,7 +69,7 @@ def get_ener(G,L,Hlist):
         E.append(np.tensordot(np.conj(theta),C, ([0,3,1,2],[0,1,2,3])))
     return E
     
-J = 1.
+J = [1.,1.,1.]
 h = 0.1
 N = 4
 d = 2
@@ -95,7 +95,7 @@ sx = np.array([[0.,1.],[1.,0.]])
 
 S2 = np.array([np.kron(sx,sx),np.kron(sy,sy),np.kron(sz,sz)]).real
 
-H_int = J*(S2[0]+S2[1]+S2[2])
+H_int = (J[0]*S2[0]+J[1]*S2[1]+J[2]*S2[2])
 Hf = H_int + h*np.kron(sz,np.eye(2)) + h/2*np.kron(np.eye(2), sz)
 Hb = H_int + h/2*np.kron(sz,np.eye(2))+h/2*np.kron(np.eye(2), sz)
 Hl = H_int + h/2*np.kron(sz,np.eye(2)) + h*np.kron(np.eye(2), sz)
@@ -171,8 +171,10 @@ for l in range(step_number):
 #         G[st] = np.tensordot(G[st],np.diag(L[st+1]), (2,0))
 #     forw = not forw
 
-# for i in range(0,N-1):
-#     G, L = tebd(G,L,I4,i,forw)
+print(L)
+for i in range(0,N-1):
+    G, L = tebd(G,L,I4,i,forw)
+print(L)
 
 # if forw:
 #     for i in range(0,N-1):
