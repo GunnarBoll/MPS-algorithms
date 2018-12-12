@@ -8,19 +8,6 @@ opertors which they generate. Further contains the time evolution algorithms.
 
 import numpy as np
 import itertools
-import scipy.linalg
-
-class SiteTensor:
-    def __init__(self, array):
-        self.comp = array
-        self.con_ind = self.comp.shape[-1]
-        
-        return
-        
-    def __mul__(self,x):
-        res = np.tensordot(self.comp,x, (self.con_ind,1))
-        return SiteTensor(res)
-        
 
 #Class for the state
 class StateChain:
@@ -32,10 +19,10 @@ class StateChain:
         self.B = []
         self.err = 0
         for i in range(N+1):
-            if i <N:
-                self.B.append(np.zeros([d,1,1]))
-                self.B[-1][0,0,0] = 1/np.sqrt(2)
-                self.B[-1][1,0,0] = 1/np.sqrt(2)
+            if i < N:
+                self.B.append(np.ones([d,1,1]))
+                for j in range(d):
+                    self.B[-1][j,0,0] = self.B[-1][j,0,0]/np.sqrt(d)
             self.L.append(np.ones([1]))
         
         
@@ -58,15 +45,17 @@ class StateChain:
             self.B[i+1] = V
             self.L[i+1] = S/np.sqrt(np.sum(S**2))
             
-            
             if i==0 and not forward:
-                self.B[i] = np.tensordot(self.B[i], np.diag(self.L[i+1]), (2,0))
+                phi = np.reshape(np.transpose(np.tensordot(self.B[i], np.diag(self.L[i+1]), (2,0)), (1,0,2)), (1,self.d*len(self.L[i+1])))
+                U1, S1, V1 = np.linalg.svd(phi,full_matrices = False)
+                self.B[i] = np.transpose(np.reshape(V1, (1,self.d,len(self.L[i+1]))), (1,0,2))
                 self.notation = "B"
-            elif i == self.N-2 and forward:
-                self.B[i+1] = np.transpose(np.tensordot(np.diag(self.L[i+1]), self.B[i+1], (1,1)), (1,0,2))
-                self.notation = "A"
 
-        
+            elif i == self.N-2 and forward:
+                phi = np.reshape(np.transpose(np.tensordot(np.diag(self.L[i+1]), self.B[i+1], (1,1)), (1,0,2)), (self.d*len(self.L[i+1]), 1))
+                U1, S1, V1 = np.linalg.svd(phi, full_matrices = False)
+                self.B[i+1] = np.reshape(U1, (self.d, len(self.L[i+1]), 1))
+                self.notation = "A"
         return 
     
     def get_ener(self, Hchain):        
@@ -97,7 +86,7 @@ class StateChain:
 
 #Class for Hamiltonian
 class Hamiltonian:
-    def __init__(self,J,h,N,dt,d, chi, which, TO, ED = False):
+    def __init__(self,J,h,N,dt,d, chi, model, TO, ED = False):
         self.J = J
         self.h = h
         self.d = d
@@ -105,37 +94,44 @@ class Hamiltonian:
         self.N = N
         self.dt = dt
         self.TO = TO
-        self.which = which
+        self.model = model
         self.chi_max = chi
+        self.Uall = []
         
-        if which == "Heisen":
+        if model == "Heisen":
             self.Hlist = self.get_heisen(J,h)
-            for n in range(len(self.Hlist)):
-                if np.all(self.Hlist[n].imag == np.zeros(self.Hlist[n].shape)):
-                    self.Hlist[n] = self.Hlist[n].real            
-            
-            self.Hchain = self.ener_chain(self.Hlist, N)
-            self.I = np.transpose(np.reshape(np.kron(np.eye(2),np.eye(2)), (2,2,2,2)), (0,2,1,3))
-            
-            #If first order do not put a half factor on odd operators
-            if self.TO == "first":
-                plist = [1]
-                FO = True 
-            
-            elif self.TO == "second":
-                plist = [1]
-                FO = False
-                
-            elif self.TO == "fourth":
-                plist = [1,2,3,4,5,6,7,8,9]
-                FO = False
-            
-            #Construct even and odd bond time evolution operators
-            for p in plist:
-                self.Uodd, self.Ueven = self.model_constructor(self.Hlist, p, self.I, N, dt, d, FO, ED)
-            return
+        elif model == "HCboson":
+            self.Hlist = self.get_HC_boson(J,h)
         else:
             return
+        
+        for n in range(len(self.Hlist)):
+            if np.all(self.Hlist[n].imag == np.zeros(self.Hlist[n].shape)):
+                self.Hlist[n] = self.Hlist[n].real            
+        
+        self.Hchain = self.ener_chain(self.Hlist, N)
+        self.I = np.transpose(np.reshape(np.kron(np.eye(d),np.eye(d)), (2,2,2,2)), (0,2,1,3))
+        if ED:
+            self.I = np.kron(np.eye(self.d),np.eye(self.d))
+        
+        #If first/fourth order do not put a half factor on odd operators
+        if self.TO == "first":
+            plist = [1]
+            evenodd = True 
+        
+        elif self.TO == "second":
+            plist = [1]
+            evenodd = False
+            
+        elif self.TO == "fourth":
+            plist = [1/12,-1/6]
+            evenodd = True
+        
+        #Construct even and odd bond time evolution operators
+        for p in plist:
+            Uodd, Ueven = self.model_constructor(self.Hlist, p, self.I, evenodd, ED)
+            self.Uall.append([Uodd,Ueven])
+        return
     
     #Creates two-site Hamiltonians for an Anti-Ferromagnetic Transverse Ising Chain (AFTIC)
     def get_heisen(self,J,h):
@@ -144,12 +140,28 @@ class Hamiltonian:
         for params in parlist:
             Hlist.append(self.kron_heisen(params[0],params[1],params[2]))
         return Hlist
+        
+    def get_HC_boson(self, t, mu):
+        Hlist = []
+        parlist = [[t,mu,mu/2],[t,mu/2,mu/2],[t,mu/2,mu]]
+        for params in parlist:
+            Hlist.append(self.kron_hcb(params[0],params[1],params[2]))
+        return Hlist
+    
+    def kron_hcb(self,t,mu1,mu2):
+        adag = np.array([[0,1],[0,0]])
+        a = np.array([[0,0],[1,0]])
+        n = np.matmul(adag,a)
+
+        H = (-t[0]*(np.kron(adag,a) + np.kron(a,adag)) - mu1*np.kron(n-np.eye(self.d)/2,np.eye(self.d)) - 
+        mu2*np.kron(np.eye(self.d),n-np.eye(self.d)/2) + t[1]*np.kron(n-np.eye(self.d)/2, n-np.eye(self.d)/2) )
+        return H
     
     #Construction of a single two-site Hamiltonian (AFTIC)
     def kron_heisen(self,J,h1,h2):
-        sz = np.array([[1.,0.],[0.,-1.]])
-        sy = np.array([[0,-complex(0,1)],[complex(0,1),0]])
-        sx = np.array([[0.,1.],[1.,0.]])
+        sz = np.array([[1.,0.],[0.,-1.]])/2
+        sy = np.array([[0,-complex(0,1)],[complex(0,1),0]])/2
+        sx = np.array([[0.,1.],[1.,0.]])/2
         S = np.array([sx, sy, sz])
         H_int = 0
         for i in range(3):
@@ -167,21 +179,21 @@ class Hamiltonian:
         return Hchain
     
     #Creates the time evolution for even and odd sites
-    def model_constructor(self, Hlist, p,I,N,dt,d,FO = False, ED = False):
+    def model_constructor(self, Hlist, p,I,evenodd = False, ED = False):
         podd = peven = p
-        if not FO:
+        if not evenodd:
             podd = podd/2
         time_ops = []
         for ps, odd in [[podd,True],[peven, False]]:
-            time_ops.append(self.timeop_chain(Hlist,I,N,dt,d,ps,odd, ED))
+            time_ops.append(self.timeop_chain(Hlist,I,ps,odd, ED))
         return time_ops
         
     #Constructs a chain of time evolution operators (even or odd spaces)
-    def timeop_chain(self,Hlist, I, N, dt, d, p, odd = True, ED = False):
+    def timeop_chain(self,Hlist, I, p, odd = True, ED = False):
         Ulist = []
         expHlist = []
         for H in Hlist:
-            expHlist.append(self.get_timeop(H,dt,d,p, ED))
+            expHlist.append(self.get_timeop(H,p, ED))
         
         iter_list = [I, expHlist[1]]
         i = 0
@@ -190,7 +202,7 @@ class Hamiltonian:
             iter_list[0], iter_list[1] = iter_list[1], iter_list[0]
         
         Ulist.append(expHlist[0])
-        while len(Ulist)<N-2:
+        while len(Ulist)<self.N-2:
             Ulist.append(iter_list[np.mod(i,2)])
             i+=1
         Ulist.append(expHlist[-1])
@@ -198,17 +210,19 @@ class Hamiltonian:
         return Ulist
     
     #Constructs a time evolution operator given a Hamiltonian
-    def get_timeop(self,H, dt, d, p = 1, ED = False):
-        Ut = scipy.linalg.expm(-dt*p*H)
+    def get_timeop(self,H, p = 1, ED = False):
+        e, v = np.linalg.eig(H)
+        Ut = np.tensordot(v,np.tensordot(np.diag(np.exp(-self.dt*p*e)),np.linalg.inv(v),(1,0)),(1,0))
         
-        Ut = np.reshape(np.transpose(np.reshape(Ut, (d,d,d,d)), (0,2,1,3)), (4,4))
+        Ut = np.reshape(np.transpose(np.reshape(Ut, (self.d,self.d,self.d,self.d)), (0,2,1,3)), (4,4))
         U, S, V = np.linalg.svd(Ut)
-        U1 = np.reshape(np.tensordot(U,np.diag(np.sqrt(S)), (1,0)), (d,d,len(S)))
-        U2 = np.reshape(np.tensordot(np.diag(np.sqrt(S)), V, (1,0)), (len(S),d,d))
+        U1 = np.reshape(np.tensordot(U,np.diag(np.sqrt(S)), (1,0)), (self.d,self.d,len(S)))
+        U2 = np.reshape(np.tensordot(np.diag(np.sqrt(S)), V, (1,0)), (len(S),self.d,self.d))
         Ut = np.tensordot(U1,U2, (2,0))
-        
+                
         if ED:
-            Ut = np.reshape(np.transpose(Ut, (0,2,1,3)), (d**2,d**2))
+            Ut = np.reshape(np.transpose(Ut, (0,2,1,3)), (self.d**2,self.d**2))
+        
         return Ut
     
     
@@ -217,12 +231,12 @@ class Hamiltonian:
         #First order algorithm
         if self.TO == "first":
             
-            sweep_order = [self.Uodd, self.Ueven]
+            sweep_order = [self.Uall[0][0], self.Uall[0][1]]
             direc = True #True for forward sweep
             
             for t in range(step_number):
                 for oper in sweep_order:
-                    Psi = self.sweep(Psi, self.I, oper, self.chi, self.d, algo, forward = direc)
+                    Psi = self.sweep(Psi, oper, algo, forward = direc)
                     direc = not direc
                 
         
@@ -231,40 +245,52 @@ class Hamiltonian:
             #Time evolution operators for full time steps
             Utful = []
             for n in range(0,self.N-1,2):
-                Utful.append(np.transpose( np.tensordot(self.Uodd[n], self.Uodd[n], ([1,3],[0,2]) ), (0,2,1,3)))
+                Utful.append(np.transpose( np.tensordot(self.Uall[0][0][n], self.Uall[0][0][n], ([1,3],[0,2]) ), (0,2,1,3)))
                 if n != self.N-2:
-                    Utful.append(self.Uodd[n+1])
+                    Utful.append(self.Uall[0][0][n+1])
             
             #Second order trotter sweeping order
-            order = [self.Uodd, self.Ueven, Utful, self.Ueven, self.Uodd]
-            Psi = self.sweeping_order(Psi, step_number, algo, order)
+            order = [self.Uall[0][1], Utful]
+            Psi = self.sweep(Psi,self.Uall[0][0],algo, forward = True)
+            
+            Psi = self.sweeping_order(Psi, step_number-1, algo, order, forward = False)
+            
+            Psi = self.sweep(Psi,self.Uall[0][1],algo, forward = False)
+            Psi = self.sweep(Psi,self.Uall[0][0],algo, forward = True)
             
             #Fixes the error??
             Psi= self.sweep(Psi, list(itertools.repeat(self.I,self.N-1)), algo, forward = False)
-        
+                    
         elif self.TO == "fourth":
-            order = []
-            Psi = self.sweeping_order(Psi, step_number, algo, order)
+            fourU = [[],[]]
+            for i in range(len(self.Uall)):
+                for k in range(self.N-1):
+                    if np.mod(k,2) == 0:
+                        fourU[i].append(self.Uall[i][0][k])
+                    else:
+                        fourU[i].append(self.Uall[i][1][k])
+            
+            Uid = list(itertools.repeat(self.I,self.N-1))
+            
+            order = [fourU[0], fourU[0], fourU[0], fourU[1], fourU[0], Uid, fourU[0], Uid,fourU[0], Uid, fourU[0], fourU[0], fourU[0],
+            fourU[0], Uid, fourU[0], Uid, fourU[0], Uid, fourU[0], fourU[1], fourU[0], fourU[0], fourU[0]]
+            
+            Psi = self.sweeping_order(Psi, step_number, algo, order, forward = True)
+            Psi= self.sweep(Psi, list(itertools.repeat(self.I,self.N-1)), algo, forward = True)
+            Psi= self.sweep(Psi, list(itertools.repeat(self.I,self.N-1)), algo, forward = False)
+            
         return Psi
 
-    def sweeping_order(self, Psi, step_number, algo, order):
+    def sweeping_order(self, Psi, step_number, algo, order, forward = True):
         t = 0
-        direc = True
-        while t < step_number+1 and Psi.err < 10**-6:
-            if t == 0:
-                operlist = [order[0]]
-            elif t == step_number:
-                operlist = order[3:5]
-            else:
-                operlist = order[1:3]
-            
-            #operlist = [order[0],order[1],order[0]]
-                
+        operlist = order
+        while t < step_number:
             for oper in operlist:
-                Psi = self.sweep(Psi, oper, algo, direc)
-                direc = not direc
+                Psi = self.sweep(Psi, oper, algo, forward)
+                forward = not forward
                 if Psi.err > 10**-6:
                     break
+            
             t += 1
         return Psi
 
@@ -330,10 +356,11 @@ class Hamiltonian:
     #Performs an SVD and truncates the singular values to specified bond dimension
     def svd_truncator(self,phi, chia, chib):
         
-        U, S, V = np.linalg.svd(phi)
+        U, S, V = np.linalg.svd(phi,full_matrices=False)
         V = V.T
         
-        chic = min([np.sum(S>10**-16), self.chi])
+        chic = min([np.sum(S>10**-14), self.chi])
+        
         err = 2*np.sum(S[chic:]**2)
         
         while err > 10**-10:
@@ -342,10 +369,10 @@ class Hamiltonian:
             chic = min([np.sum(S>10**-16), self.chi])
             err = 2*np.sum(S[chic:]**2)
         
-        U = np.reshape(U[:self.d*chia,:chic], (self.d,chia,chic))
-        V = np.transpose(np.reshape(V[:self.d*chib, :chic], (self.d,chib,chic)), (0,2,1))
         err = np.sum(S[chic:]**2)
         S = S[:chic]
+        U = np.reshape(U[:self.d*chia,:chic], (self.d,chia,chic))
+        V = np.transpose(np.reshape(V[:self.d*chib, :chic], (self.d,chib,chic)), (0,2,1))
         
         return [U, S ,V, err, chic]
 
@@ -361,6 +388,9 @@ class Measure:
             temp = i
             i = j
             j = temp
+        elif j == i:
+            oper = np.matmul(op1,op2)
+            return self.expec(Psi,oper,i)
         
         B_bar1 = np.tensordot(op1,Psi.B[i], (1,0))
         B_bar2 = np.tensordot(op2,Psi.B[j], (1,0))
@@ -377,24 +407,26 @@ class Measure:
             Phi[0] = np.transpose(np.tensordot(np.diag(Psi.L[i]),Phi[0], (1,1)), (1,0,2))
             psi_bra[0] = np.transpose(np.tensordot(np.conj(np.diag(Psi.L[i])),psi_bra[0], (1,1)), (1,0,2))
         elif Psi.notation == "A":
-            Phi[j] = np.transpose(np.tensordot(np.diag(Psi.L[j+1]),Phi[-1], (1,1)), (1,0,2))
-            psi_bra[j] = np.transpose(np.tensordot(np.conj(np.diag(Psi.L[j+1])),psi_bra[-1], (1,1)), (1,0,2))
+            Phi[-1] = np.tensordot(Phi[-1],np.diag(Psi.L[j+1]), (2,0))
+            psi_bra[-1] = np.tensordot(psi_bra[-1],np.conj(np.diag(Psi.L[j+1])), (2,0))
         
-        #Wrong for some reason (FIXED, index error)
+        
         corr = np.tensordot(psi_bra[0],Phi[0], ([0,1],[0,1]))
         for k in range(1,j-i+1):
             corr = np.tensordot(corr, psi_bra[k], (0,1))
             corr = np.tensordot(corr, Phi[k],([1,0],[0,1]))
         
-        #Gives correct answer
-        # corr = np.tensordot(psi_bra[-1],Phi[-1], ([0,2],[0,2]))
-        # for k in range(j-i-1,-1,-1):
-        #     corr = np.tensordot(corr, psi_bra[k], (0,2))
-        #     corr = np.tensordot(corr, Phi[k],([1,0],[0,2]))
-        
         corr = np.trace(corr)
         
         return corr
+    
+    def expec(self, Psi, op, i):
+        B_bar = np.tensordot(np.diag(Psi.L[i]),np.tensordot(op,Psi.B[i], (1,0)), (1,1))
+        psi = np.tensordot(np.conj(np.diag(Psi.L[i])),np.conj(Psi.B[i]),(1,1))
+        exval = np.tensordot(psi,B_bar, ([1,0],[1,0]))
+        exval = np.trace(exval)
+        
+        return exval
     
     def struc_func(self,Psi, i, op):
         corrs = []
@@ -405,5 +437,25 @@ class Measure:
         
         return corrs
     
-    
-    
+class Freeferm:
+    def __init__(self,t,mu,N):
+        self.t = t
+        self.mu = mu
+        self.N = N
+        
+        self.E_GS = 0
+        self.H = np.zeros([N,N])
+        
+        for i in range(N-1):
+            self.H[i,i] = -mu
+            self.H[i,i+1] = -t
+            self.H[i+1,i] = -t
+        self.H[N-1,N-1] = -mu
+        
+        e, v = np.linalg.eigh(self.H)
+        
+        for ener in e:
+            if not ener < 0:
+                break
+            self.E_GS += ener
+        return
