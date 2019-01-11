@@ -12,7 +12,7 @@ import storage
 imp.reload(storage)
 
 class ExactD(storage.Hamiltonian):
-    def __init__(self, g1, g2, N, dt, d, model, TO="second"):
+    def __init__(self, g1, g2, N, d, model, TO="second", dt=0.1):
         super(ExactD,self).__init__(g1, g2, N, dt, d, 8, model, TO, ED=True)
                 
         initspinor = np.array([1, 1]) / np.sqrt(2)
