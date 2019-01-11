@@ -15,10 +15,16 @@ imp.reload(st)
 imp.reload(ed)
 
 def algo_output(Psi, H):
+    adag = np.array([[0, 1], [0, 0]])
+    a = np.array([[0, 0], [1, 0]])
     print("\nMPS algorithm results")
     E = Psi.get_ener(H.Hchain)
     print("GS energy:", sum(E))
     print("Bond energies:", E)
+    
+    M = st.Measure()
+    print("Algo corr check:", M.correl(Psi, adag, a, 10, 15))
+    
     if H.N < 12:
         B = Psi.B
         psi = B[0]
@@ -26,11 +32,16 @@ def algo_output(Psi, H):
             psi = np.tensordot(psi, B[i + 1], (i+2, 1))
         psi = np.reshape(psi, (H.d ** H.N))
         print("Energy from product state: ", sum(ed.ExactD.get_ener(H, psi)))
+        print("Product state corr:", ed.ExactD.ED_correl(H, psi, adag, a, 10, 15))
             
 def exact_output(ED):
+    adag = np.array([[0, 1], [0, 0]])
+    a = np.array([[0, 0], [1, 0]])
     print("\nExact diagonalization results")
     print("Exact groundstate energy:", ED.E_GS)
-    print("Exact energies:",ED.elist)    
+    print("Exact energies:",ED.elist)
+    
+    print("ED corr check:", ED.ED_correl(ED.GS, adag, a, 10, 15))
 
 def obser_test(ED, op):
     corr_list = []
@@ -97,8 +108,8 @@ def filewrite(Psi, H, ED, T, keylist):
 # Main program
 def main():
     model = input("Enter model (Heisen, HCboson): ")
-    directory = ("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/"
-                 + "models/" + model + ".txt")
+    directory = ("D:/Documents/Ph.D/Learning/DMRG/Tryout code/"
+                  + "models/" + model + ".txt")
     f = open(directory, "r")
     inputlist = []
     keylist = {}
@@ -135,16 +146,19 @@ def main():
     
     # H belongs to class Hamiltonian which features time evolution and model
     # construction.
-    H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order)
+    H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order, grow_chi=False)
     
     # Build the initial state
-    Psi = st.StateChain(N, d, algo)
+    Psi = st.StateChain(N, d, algo, bis_err=10**-11)
         
     # Time evolve the state (imaginary time)
     start = t.process_time()
+    actstart = t.time()
     Psi = H.time_evolve(Psi, step_number, algo)
     end = t.process_time()
-    print("Time taken for algorithm is:", end-start)
+    actend = t.time()
+    print("Process time taken for algorithm is:", end-start)
+    print("Actual time taken:", actend-actstart)
     
     # Output data to terminal
     algo_output(Psi, H)
@@ -152,19 +166,19 @@ def main():
     # Exact diagonalization trotter
     if N <= 22:
         start = t.process_time()
-        ED = ed.ExactD(g1, g2, N, dt, d, model, TO=order)
+        ED = ed.ExactD(g1, g2, N, d, model, TO=order)
         end1 = t.process_time()
         ED.exact_GS()
         end2 = t.process_time()
-        # exact_output(ED)
-        print("\nTime taken for full Hamiltonian:", end1-start)
-        print("\nTime taken for ED is:", end2-end1)
+        exact_output(ED)
+        print("\nProcess time taken for full Hamiltonian:", end1-start)
+        print("\nProcess time taken for ED is:", end2-end1)
     
     if model == "HCboson":
         Free = st.FreeFerm(g1, g2, N)
         # print("\nFree fermion result:", Free.E_GS)
     
-    filewrite(Psi, H, ED, T, keylist)
-    
+    # filewrite(Psi, H, ED, T, keylist)
+    print(Psi.err)
     return 0
 main()

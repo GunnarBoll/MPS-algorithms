@@ -1,14 +1,20 @@
 """Storage for classes used in the tMPS algorithm
-The class state_chain stores the current state in whatever notation is used 
-and contains measurement of energy (to be moved). It also contains the update
-procedure given the state notation.
+The class StateChain stores the current state in whatever notation is used 
+and contains measurement of energy. It also contains the update procedure
+given the state notation.
 
 The class Hamiltonian constructs the two-site Hamiltonians of a given model
 and the time evolution opertors which they generate. Further contains the time
 evolution algorithms.
+
+The class Measure contains measurement routines for (mostly) correlators.
+
+The FreeFerm class contains algorithms for finding a free fermion solution
+given a set of parameters (features its own measurement methods).
 """
 
 import numpy as np
+import scipy as sp
 import itertools
 
 # Class storing the state of a 1-D chain
@@ -91,11 +97,14 @@ class StateChain:
 
 # Class containing MPS Hamiltonian and time evolution
 class Hamiltonian:
-    def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False):
+    def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False, grow_chi = True):
         self.g1 = g1
         self.g2 = g2
         self.d = d
-        self.chi = 8
+        if grow_chi:    
+            self.chi = 8
+        else:
+            self.chi = chi
         self.N = N
         self.dt = dt
         self.TO = TO
@@ -151,10 +160,10 @@ class Hamiltonian:
     def kron_hcb(self, t, mu1, mu2):
         adag = np.array([[0, 1], [0, 0]])
         a = np.array([[0, 0], [1, 0]])
-        n = np.matmul(adag, a)
-        num_op = n# - np.eye(self.d / 2)
+        num_op = np.matmul(adag, a)
+        #num_op = num_op - np.eye(self.d / 2)
         
-        H = (-t[0] * (np.kron(adag, a)+np.kron(a, adag))
+        H = (- t[0] * (np.kron(adag, a)+np.kron(a, adag))
              - mu1[0] * np.kron(num_op, (np.eye(self.d)))
              - mu2[0] * np.kron(np.eye(self.d), num_op)
              + t[1] * np.kron(num_op, num_op)
@@ -310,7 +319,7 @@ class Hamiltonian:
                 forward = not forward
             t += 1
         if Psi.err > 10**-3:
-            print("Warning: Accumulated truncation error is", Psi.err)
+            print("Warning: Accumulated truncation error is:", Psi.err)
         return Psi
 
     # Applies time evolution to the chain (sweeping forward or backward)
@@ -370,21 +379,18 @@ class Hamiltonian:
     # Performs an SVD and truncates the singular values to specified bond
     # dimension.
     def svd_truncator(self, phi, chia, chib, max_err):
-        
-        U, S, V = np.linalg.svd(phi, full_matrices=False)
+        U, S, V = sp.linalg.svd(phi, full_matrices=False)
         V = V.T
         
         chic = min([np.sum(S > 10**-14), self.chi])
         
-        err = 2 * np.sum(S[chic:] ** 2)
-        
-        while err > max_err:
-            if self.chi < self.chi_max:
-                self.chi += 1
-            chic = min([np.sum(S > 10**-16), self.chi])
-            err = 2 * np.sum(S[chic:] ** 2)
-        
         err = np.sum(S[chic:] ** 2)
+        
+        while err > max_err and self.chi < self.chi_max:
+            self.chi += 1
+            chic = min([np.sum(S > 10**-14), self.chi])
+            err = np.sum(S[chic:] ** 2)
+        
         S = S[: chic]
         U = np.reshape(U[:self.d*chia, :chic], (self.d, chia, chic))
         VT = np.reshape(V[:self.d*chib, :chic], (self.d, chib, chic))
@@ -436,17 +442,52 @@ class Measure:
     def expec(self, Psi, op, i):
         B_bar = np.tensordot(np.diag(Psi.L[i]),
                              np.tensordot(op, Psi.B[i], (1, 0)), (1, 1))
-        psi = np.tensordot(np.conj(np.diag(Psi.L[i])), np.conj(Psi.B[i]),
+        B_psi = np.tensordot(np.conj(np.diag(Psi.L[i])), np.conj(Psi.B[i]),
                            (1, 1))
-        exval = np.tensordot(psi, B_bar, ([1, 0], [1, 0]))
+        exval = np.tensordot(B_psi, B_bar, ([1, 0], [1, 0]))
         exval = np.trace(exval)
         return exval
     
-    def struc_func(self, Psi, i, op):
-        corrs = []
-        for m in range(Psi.N-1, i, -1):
-            corrs.append(self.correl(Psi, op, op, i, m))
-        return corrs
+    def corr_mat(self, Psi, op1, op2):
+        mat = np.zeros([Psi.N, Psi.N])
+        expec_op = np.matmul(op1, op2)
+        oplist = [op1, op2]
+        revoplist = [op2, op1]
+            
+        
+        for ind1 in range(Psi.N):
+            left = []
+            for op in oplist:
+                B_bar = np.tensordot(op, Psi.B[ind1], (1, 0))
+                if Psi.notation == "B":
+                    B_bar = np.tensordot(np.diag(Psi.L[ind1]), B_bar, (1, 1))
+                    B_star = np.tensordot(np.diag(Psi.L[ind1]), Psi.B[ind1],
+                                          (1, 1))
+                    B_bar = np.transpose(B_bar, (1, 0, 2))
+                    B_star = np.transpose(B_star, (1, 0, 2))
+                else:
+                    B_star = Psi.B[ind1]
+                B_pair = np.tensordot(B_star.conj(), B_bar, ([0, 1], [0, 1]))
+                left.append(B_pair)
+            mat[ind1, ind1] = self.expec(Psi, expec_op, ind1)
+            for ind2 in range(ind1+1, Psi.N):
+                for ind3 in range(2):
+                    Rp = np.tensordot(revoplist[ind3], Psi.B[ind2], (1, 0))
+                    if Psi.notation == "A":
+                        B_right = np.tensordot(Psi.B[ind2],
+                                               np.diag(Psi.L[ind2 + 1]),
+                                               (2, 0))
+                        Rp = np.tensordot(Rp, Psi.L[ind2 + 1], (2, 0))
+                    else:
+                        B_right = Psi.B[ind2]
+                    Lp = np.tensordot(B_right.conj(), left[ind3], (1, 0))
+                    mat[ind1, ind2] = np.trace(np.tensordot(Lp, Rp,
+                                               ([0, 2], [0, 1])))
+                    left[ind3] = np.tensordot(left[ind3], Psi.B[ind2], (1, 1))
+                    left[ind3] = np.tensordot(Psi.B[ind2].conj(), left[ind3],
+                                              ([0, 1], [1, 0]))
+                    mat = mat.T
+        return mat
     
 class FreeFerm:
     def __init__(self, t, mu, N):

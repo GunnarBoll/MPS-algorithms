@@ -11,43 +11,36 @@ import ExactDiag as ed
 imp.reload(st)
 imp.reload(ed)
 
-def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err):
-    H = st.Hamiltonian(g1, g2, N, dt, d, chi_max, model, order)
+def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err,
+             trunc_err_check):
+    H = st.Hamiltonian(g1, g2, N, dt, d, chi_max, model, order,
+                       grow_chi=trunc_err_check)
     Psi = st.StateChain(N, d, algo, bis_err)
     step_num = int(T / dt)
     H.time_evolve(Psi, step_num, algo)
-    ED = ed.ExactD(g1, g2, N, dt, d, model)
-    ED.exact_GS()
-    return Psi, H, ED
+    return Psi, H
 
-def filewrite(Psi, H, ED, direc, T):
-    writing_mat = []
-    a = np.array([[0, 1], [0, 0]])
-    adag = np.array([[1, 0], [0, 0]])
+def filewrite(Psi, H, direc, T):
+    a = np.array([[0, 0], [1, 0]])
+    adag = np.array([[0, 1], [0, 0]])
     E_GS = sum(Psi.get_ener(H.Hchain))
-    writing_mat.append(E_GS)
-    writing_mat.append(ED.E_GS)
-    corr_algo = []
-    ED_corr = []
     meas = st.Measure()
-    for ind1 in range(H.N):
-        for ind2 in range(H.N):
-            corr_algo.append(meas.correl(Psi, adag, a, ind1, ind2))
-            ED_corr.append(ED.ED_correl(ED.GS, adag, a, ind1, ind2))
-    writing_mat += corr_algo + ED_corr
+    corr_mat = meas.corr_mat(Psi, adag, a)
     
     name = ("chi=" + str(H.chi_max) + ",T=" + str(T) + ",dt=" + str(H.dt)
             + ",BE=" + str(Psi.bis_err))
     with open(direc+name+".txt",'x') as fw:
-        for data in writing_mat:
-            fw.write(str(data)+"\n")
+        fw.write(str(E_GS) + "\n")
+        fw.write(str(Psi.err) + "\n")
+        for correlations in corr_mat.reshape(Psi.N ** 2):
+            fw.write(str(correlations) + "\n")
     fw.close()
 
 def main():
     model = "HCboson"
     date = str(datetime.date.today())
     run_number = 1
-    direc = ("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
+    direc = ("D:/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
              + date)
     while True:
         try:
@@ -58,23 +51,42 @@ def main():
             run_number += 1
     direc = direc + "_run#" + str(run_number) + "/"
     
-    g1 = [1.0, 0.0]
-    g2 = [0.0, 1.0]
-    dt_list = [0.05, 0.075, 0.1, 0.125, 0.15, 0.175, 0.2]
-    T_list = [20, 30, 40, 50, 60, 70, 80, 90, 100]
+    g1 = [1.0, 1.0]
+    g2 = [1.0, 0.01]
+    dt_list = [0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1]
+    T_list = [20, 24, 28, 30, 34, 40, 65, 100]
     T_list.reverse()
-    chi_max_list = [20, 25, 30, 35, 40, 45, 50]
+    chi_max_list = [10, 12, 14, 16, 18, 20, 30, 50, 70]
     chi_max_list.reverse()
-    bis_err_list = [10**-6, 10**-7, 10**-8, 10**-9, 10**-10]
+    bis_err_list = [10**-7, 5*10**-8, 10**-8, 5*10**-9, 10**-9, 5*10**-10,
+                    10**-10, 5*10**-11, 10**-11]
     bis_err_list.reverse()
     order = "fourth"
     algo = "tDMRG"
     d = 2
-    N = 4
+    N = 20
     
     start = time.process_time()
+    ed_file = direc+"ED.txt"
+    with open(ed_file, "x") as fed:
+        a = np.array([[0, 0], [1, 0]])
+        adag = np.array([[0, 1], [0, 0]])
+        ED = ed.ExactD(g1, g2, N, d, model, order)
+        write_mat = []
+        ED.exact_GS()
+        write_mat.append(ED.E_GS)
+        for ind1 in range(N):
+            for ind2 in range(N):
+                write_mat.append(ED.ED_correl(ED.GS, adag, a, ind1, ind2))
+        for data in write_mat:
+            fed.write(str(data) + "\n")
+        fed.close()
+    
     iter_lists = [dt_list, T_list[1:], chi_max_list[1:], bis_err_list[1:]]
+    trunc_err_check = False
     for ind in range(4):
+        if ind == 3:
+            trunc_err_check = True
         params = [dt_list[0], T_list[0], chi_max_list[0], bis_err_list[0]]
         param_list = iter_lists[ind]
         for params[ind] in param_list:
@@ -82,9 +94,9 @@ def main():
             T = params[1]
             chi_max = params[2]
             bis_err = params[3]
-            Psi, H, ED = run_algo(g1, g2, N, dt, d, chi_max, model, order, T,
-                                  algo, bis_err)
-            filewrite(Psi, H, ED, direc, T)
+            Psi, H = run_algo(g1, g2, N, dt, d, chi_max, model, order, T,
+                                  algo, bis_err, trunc_err_check)
+            filewrite(Psi, H, direc, T)
         
     end = time.process_time()
     print("Time:", end-start)
