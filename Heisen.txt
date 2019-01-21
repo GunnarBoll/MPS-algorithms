@@ -1,0 +1,13 @@
+#Input is entered in format (Variable name = Value)
+#The use of spaces is specific
+g1 = 1.0,1.0,0.0
+g2 = 0.0
+dt = 1
+d = 2
+chi = 64
+N = 4
+#Which order of trotter you want (first, second, fourth)
+order = fourth
+#Which algorithm you want to use (tDMRG, TEBD)
+algo = tDMRG
+T = 60
