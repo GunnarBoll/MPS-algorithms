@@ -7,6 +7,7 @@ import scipy.sparse as sp
 import datetime
 import imp
 import pathlib
+import sys
 
 import storage as st
 import ExactDiag as ed
@@ -23,7 +24,7 @@ def algo_output(Psi, H):
     print("Bond energies:", E)
     
     M = st.Measure()
-    print("Algo corr check:", M.correl(Psi, adag, a, 10, 15))
+    print("Algo corr check:", M.correl(Psi, adag, a, 0, 2))
     
     if H.N < 12:
         B = Psi.B
@@ -32,7 +33,9 @@ def algo_output(Psi, H):
             psi = np.tensordot(psi, B[i + 1], (i+2, 1))
         psi = np.reshape(psi, (H.d ** H.N))
         print("Energy from product state: ", sum(ed.ExactD.get_ener(H, psi)))
-        print("Product state corr:", ed.ExactD.ED_correl(H, psi, adag, a, 10, 15))
+        print("Product state corr:", ed.ExactD.ED_correl(H, psi, adag, a, 0,
+                                                         2)
+              )
             
 def exact_output(ED):
     adag = np.array([[0, 1], [0, 0]])
@@ -41,7 +44,7 @@ def exact_output(ED):
     print("Exact groundstate energy:", ED.E_GS)
     print("Exact energies:",ED.elist)
     
-    print("ED corr check:", ED.ED_correl(ED.GS, adag, a, 10, 15))
+    print("ED corr check:", ED.ED_correl(ED.GS, adag, a, 0, 2))
 
 def obser_test(ED, op):
     corr_list = []
@@ -108,7 +111,7 @@ def filewrite(Psi, H, ED, T, keylist):
 # Main program
 def main():
     model = input("Enter model (Heisen, HCboson): ")
-    directory = ("D:/Documents/Ph.D/Learning/DMRG/Tryout code/"
+    directory = ("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/"
                   + "models/" + model + ".txt")
     f = open(directory, "r")
     inputlist = []
@@ -179,6 +182,5 @@ def main():
         # print("\nFree fermion result:", Free.E_GS)
     
     # filewrite(Psi, H, ED, T, keylist)
-    print(Psi.err)
     return 0
 main()

@@ -4,6 +4,7 @@ import time
 import datetime
 import pathlib
 import imp
+import os
 
 import storage as st
 import ExactDiag as ed
@@ -40,8 +41,7 @@ def main():
     model = "HCboson"
     date = str(datetime.date.today())
     run_number = 1
-    direc = ("D:/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
-             + date)
+    direc = (os.getcwd() + date)
     while True:
         try:
             pathlib.Path(direc + "_run#" + str(run_number) + "/").mkdir(
@@ -64,9 +64,10 @@ def main():
     order = "fourth"
     algo = "tDMRG"
     d = 2
-    N = 20
+    N = 4
     
     start = time.process_time()
+    start2 = time.time()
     ed_file = direc+"ED.txt"
     with open(ed_file, "x") as fed:
         a = np.array([[0, 0], [1, 0]])
@@ -84,7 +85,7 @@ def main():
     
     iter_lists = [dt_list, T_list[1:], chi_max_list[1:], bis_err_list[1:]]
     trunc_err_check = False
-    for ind in range(4):
+    for ind in range(3):
         if ind == 3:
             trunc_err_check = True
         params = [dt_list[0], T_list[0], chi_max_list[0], bis_err_list[0]]
@@ -99,7 +100,9 @@ def main():
             filewrite(Psi, H, direc, T)
         
     end = time.process_time()
+    end2 = time.time()
     print("Time:", end-start)
+    print("Real time:", end2-start2)
     return 0
 
 main()

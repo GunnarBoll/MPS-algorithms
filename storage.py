@@ -15,6 +15,7 @@ given a set of parameters (features its own measurement methods).
 
 import numpy as np
 import scipy as sp
+import scipy.linalg
 import itertools
 
 # Class storing the state of a 1-D chain
@@ -97,7 +98,8 @@ class StateChain:
 
 # Class containing MPS Hamiltonian and time evolution
 class Hamiltonian:
-    def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False, grow_chi = True):
+    def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False,
+                 grow_chi=True):
         self.g1 = g1
         self.g2 = g2
         self.d = d
@@ -161,7 +163,7 @@ class Hamiltonian:
         adag = np.array([[0, 1], [0, 0]])
         a = np.array([[0, 0], [1, 0]])
         num_op = np.matmul(adag, a)
-        #num_op = num_op - np.eye(self.d / 2)
+        # num_op = num_op - np.eye(self.d / 2)
         
         H = (- t[0] * (np.kron(adag, a)+np.kron(a, adag))
              - mu1[0] * np.kron(num_op, (np.eye(self.d)))

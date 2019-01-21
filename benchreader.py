@@ -4,13 +4,24 @@ import datetime
 from matplotlib import pyplot as plt
 
 def figcloser():
-    for fignr in range(9, 0, -1):
+    for fignr in range(9, -1, -1):
         plt.close(fignr)
+
+def make_fig(xdat, ydat, xlab, ylab, fignr, loglog=False):
+    plt.figure(fignr)
+    if not loglog:
+        plt.plot(xdat, ydat, xdat, ydat, "ro")
+    else:
+        plt.loglog(xdat, ydat, xdat, ydat, "ro")
+    plt.xlabel(xlab)
+    plt.ylabel(ylab)
+    if not loglog:
+        plt.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
 
 def main():
     date = "2019-01-10"
     run_num = "_run#1/"
-    direc = ("D:/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
+    direc = ("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
              + date + run_num)
     
     g1 = [1.0, 1.0]
@@ -38,7 +49,7 @@ def main():
         fr.close()
     
     iter_lists = [dt_list, T_list, chi_max_list, bis_err_list]
-    for ind in range(4):
+    for ind in range(3):
         params = [dt_list[0], T_list[0], chi_max_list[0], bis_err_list[0]]
         param_list = iter_lists[ind]
         E = E_lists[ind]
@@ -61,31 +72,33 @@ def main():
                 fr.close()
         corr_lists.append(np.array(corr))
     
+    label_list = [r"Time step, $\Delta t$", "Total time, T",
+                  r"Bond dimension, $\chi$"]
+    
     figcloser()
-    for i in range(4):
-        ener_err = abs(np.array(E_lists[i]) - np.array(ED_GSE))
-        plt.figure(i+1)
-        if i != 3:
-            plt.plot(iter_lists[i], ener_err)
-        else:
-            plt.loglog(iter_lists[i], ener_err)
+    logplot = True
+    for i in range(3):
+        ener_err = ( abs(np.array(E_lists[i]) - np.array(ED_GSE))
+                     / abs(np.array(E_lists[i]))
+                   )
+        make_fig(iter_lists[i], ener_err, label_list[i],
+                 "Ground state energy error", i+1, loglog=logplot)
     
-    for j in range(4):
-        corr_err = abs(corr_lists[j][:, 10, 15] - ED_corr[10, 15])
-        plt.figure(j+5)
-        if j != 3:
-            plt.plot(iter_lists[j], corr_err)
-        else:
-            plt.loglog(iter_lists[j], corr_err)
+    corr_ind1 = 0
+    corr_ind2 = 19
+    for j in range(3):
+        corr_err = ( abs(corr_lists[j][:, corr_ind1, corr_ind2] 
+                         - ED_corr[corr_ind1, corr_ind2])
+                    / abs(corr_lists[j][:, corr_ind1, corr_ind2])
+                   )
+        make_fig(iter_lists[j], corr_err, label_list[j], "Correlator error",
+                 i+j+2, loglog=logplot)
     
-    plt.figure(9)
-    plt.plot(trunc_err_lists[2][:len(E_lists[2])-2],
-             E_lists[2][:len(E_lists[2])-2],
-             trunc_err_lists[2][:len(E_lists[2])-2],
-             E_lists[2][:len(E_lists[2])-2],
-             "ko")
-    plt.xlabel(r"$\chi$")
-    plt.ylabel(r"$E_{GS}$")
+    
+    make_fig(trunc_err_lists[2][:len(E_lists[2])-2],
+              E_lists[2][:len(E_lists[2])-2], r"Truncation error",
+              r"Ground state energy, $E_{GS}$", i+j+3)
+    
     plt.show()
     
     return 0
