@@ -1,4 +1,7 @@
-
+"""
+Program creates data for benchmarking the MPS algorithm written and stored in
+storage.py.
+"""
 import numpy as np
 import time
 import datetime
