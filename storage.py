@@ -306,6 +306,7 @@ class Hamiltonian:
             
             Psi = self.sweeping_order(Psi, step_number, algo, order,
                                       forward=True)
+            #Clean-up sweeps
             Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                             algo, forward=True)
             Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
@@ -331,7 +332,6 @@ class Hamiltonian:
             sites = range(self.N-2, -1, -1)
         
         for i in sites:
-            # Change tebd function for other algorithm
             if algo == "TEBD":
                 Psi = self.tebd(Psi, time_ops, i, forward)
             elif algo == "tDMRG":

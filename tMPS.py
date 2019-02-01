@@ -13,6 +13,9 @@ import ExactDiag as ed
 imp.reload(st)
 imp.reload(ed)
 
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+
 def algo_output(Psi, H):
     adag = np.array([[0, 1], [0, 0]])
     a = np.array([[0, 0], [1, 0]])
@@ -69,7 +72,8 @@ def obser_test(ED, op):
 
 # Main program
 def main():
-    model = input("Enter model (Heisen, HCboson): ")
+    # model = input("Enter model (Heisen, HCboson): ")
+    model = "HCboson"
     directory = (os.path.dirname(os.path.realpath(__file__)) + "/" + model
                  + ".txt")
     f = open(directory, "r")
@@ -140,5 +144,5 @@ def main():
         Free = st.FreeFerm(g1, g2, N)
         # print("\nFree fermion result:", Free.E_GS)
     
-    return 0
+    return
 main()

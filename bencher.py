@@ -44,7 +44,7 @@ def main():
     model = "HCboson"
     date = str(datetime.date.today())
     run_number = 1
-    direc = (os.getcwd() + date)
+    direc = (os.getcwd() + "/" + date)
     while True:
         try:
             pathlib.Path(direc + "_run#" + str(run_number) + "/").mkdir(
