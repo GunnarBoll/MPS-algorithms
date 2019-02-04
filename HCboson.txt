@@ -3,9 +3,9 @@
 g1 = 1.0,1.0
 g2 = 1.0,0.01
 dt = 0.1
-T = 100
-chi = 70
+T = 30
+chi = 20
 d = 2
-N = 20
+N = 4
 order = fourth
 algo = tDMRG

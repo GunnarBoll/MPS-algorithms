@@ -164,13 +164,15 @@ class Hamiltonian:
         a = np.array([[0, 0], [1, 0]])
         num_op = np.matmul(adag, a)
         # num_op = num_op - np.eye(self.d / 2)
+        alp1 = 4 * mu1[1] * 1 / np.sqrt(self.N/2)
+        alp2 = 4 * mu2[1] * 1 / np.sqrt(self.N/2)
         
         H = (- t[0] * (np.kron(adag, a)+np.kron(a, adag))
              - mu1[0] * np.kron(num_op, (np.eye(self.d)))
              - mu2[0] * np.kron(np.eye(self.d), num_op)
              + t[1] * np.kron(num_op, num_op)
-             + mu1[1] * np.kron(adag+a, np.eye(self.d))
-             + mu2[1] * np.kron(np.eye(self.d), adag+a)
+             + alp1 * np.kron(adag+a, np.eye(self.d))
+             + alp2 * np.kron(np.eye(self.d), adag+a)
              )
         return H
     

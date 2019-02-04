@@ -14,12 +14,12 @@ def thing(L):
             res += L[i] * L[j]
     return res
 
-listy = list(itertools.repeat(1, 10000))
+listy = list(itertools.repeat(1, 1000))
 if __name__ == '__main__':
     __spec__ = None
     begin = t.time()
     
-    pool = mp.Pool(1)
+    pool = mp.Pool(2)
     result = pool.map_async(thing, [listy, listy])
     pool.close()
     pool.join()

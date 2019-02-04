@@ -6,6 +6,7 @@ import time as t
 import scipy.sparse as sp
 import imp
 import os
+import multiprocessing as mp
 
 import storage as st
 import ExactDiag as ed
@@ -13,8 +14,9 @@ import ExactDiag as ed
 imp.reload(st)
 imp.reload(ed)
 
-os.environ['MKL_NUM_THREADS'] = '1'
-os.environ['OPENBLAS_NUM_THREADS'] = '1'
+thr_num = '2'
+os.environ['MKL_NUM_THREADS'] = thr_num
+os.environ['OPENBLAS_NUM_THREADS'] = thr_num
 
 def algo_output(Psi, H):
     adag = np.array([[0, 1], [0, 0]])
@@ -23,10 +25,7 @@ def algo_output(Psi, H):
     E = Psi.get_ener(H.Hchain)
     print("GS energy:", sum(E))
     print("Bond energies:", E)
-    
-    M = st.Measure()
-    print("Algo corr check:", M.correl(Psi, adag, a, 0, 2))
-    
+        
     if H.N < 12:
         B = Psi.B
         psi = B[0]
@@ -34,9 +33,6 @@ def algo_output(Psi, H):
             psi = np.tensordot(psi, B[i + 1], (i+2, 1))
         psi = np.reshape(psi, (H.d ** H.N))
         print("Energy from product state: ", sum(ed.ExactD.get_ener(H, psi)))
-        print("Product state corr:", ed.ExactD.ED_correl(H, psi, adag, a, 0,
-                                                         2)
-              )
             
 def exact_output(ED):
     adag = np.array([[0, 1], [0, 0]])
@@ -45,8 +41,7 @@ def exact_output(ED):
     print("Exact groundstate energy:", ED.E_GS)
     print("Exact energies:",ED.elist)
     
-    print("ED corr check:", ED.ED_correl(ED.GS, adag, a, 0, 2))
-
+    
 def obser_test(ED, op):
     corr_list = []
     maglist = []

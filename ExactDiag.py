@@ -74,11 +74,13 @@ class ExactD(storage.Hamiltonian):
         adag = sp.coo_matrix([[0, 1], [0, 0]])
         a = sp.coo_matrix([[0, 0], [1, 0]])
         n_op = adag*a # - sp.eye(self.d)/2
+        alp1 = 4 * self.g2[1] / np.sqrt(self.N/2)
+        alp2 = 4 * self.g2[1] / np.sqrt(self.N/2)
         
         tsop = [[adag, a], [a, adag], [n_op, n_op]]
         ssop = [n_op, adag, a]
         glist = [-self.g1[0], -self.g1[0], self.g1[1]]
-        hlist = [-self.g2[0], self.g2[1], self.g2[1]]
+        hlist = [-self.g2[0], alp1, alp2]
         return ssop, tsop, glist, hlist
         
     def trotter_time(self, step_number):
