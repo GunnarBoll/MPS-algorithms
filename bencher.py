@@ -48,7 +48,7 @@ def main():
     while True:
         try:
             pathlib.Path(direc + "_run#" + str(run_number) + "/").mkdir(
-                parents=True, exist_ok=False)
+                         parents=True, exist_ok=False)
             break
         except FileExistsError:
             run_number += 1
