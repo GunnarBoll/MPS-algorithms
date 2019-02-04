@@ -4,7 +4,7 @@ Written by: Gunnar Bollmark
 import numpy as np
 import time as t
 import scipy.sparse as sp
-import imp
+import importlib as imp
 import os
 import multiprocessing as mp
 
@@ -13,10 +13,11 @@ import ExactDiag as ed
 
 imp.reload(st)
 imp.reload(ed)
+imp.reload(np)
 
-thr_num = '2'
-os.environ['MKL_NUM_THREADS'] = thr_num
-os.environ['OPENBLAS_NUM_THREADS'] = thr_num
+# thr_num = '2'
+# os.environ['MKL_NUM_THREADS'] = thr_num
+# os.environ['OPENBLAS_NUM_THREADS'] = thr_num
 
 def algo_output(Psi, H):
     adag = np.array([[0, 1], [0, 0]])

@@ -28,7 +28,7 @@ def main():
     
     g1 = [1., 0.]
     g2 = [0., 0.01]
-    tperp = 0.1
+    tperp = 0.05
     dt = 0.1
     T = 100
     step_num = int(T / dt)

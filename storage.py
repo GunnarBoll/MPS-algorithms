@@ -145,18 +145,18 @@ class Hamiltonian:
     
     # Creates two-site Hamiltonians for a Heisenberg model in 1-D
     def get_heisen(self, g1, g2):
-        Hlist = []
         parlist = [[g1, g2, g2/2], [g1, g2/2, g2/2], [g1, g2/2, g2]]
-        for params in parlist:
-            Hlist.append(self.kron_heisen(params[0], params[1], params[2]))
+        Hlist = [self.kron_heisen(params[0], params[1], params[2])
+                 for params in parlist
+                 ]
         return Hlist
         
     def get_HC_boson(self, g1, g2):
-        Hlist = []
         g2 = np.array(g2)
         parlist = [[g1, g2, g2/2], [g1, g2/2, g2/2], [g1, g2/2, g2]]
-        for params in parlist:
-            Hlist.append(self.kron_hcb(params[0], params[1], params[2]))
+        Hlist = [self.kron_hcb(params[0], params[1], params[2]) 
+                 for params in parlist
+                 ]
         return Hlist
     
     def kron_hcb(self, t, mu1, mu2):
@@ -171,8 +171,8 @@ class Hamiltonian:
              - mu1[0] * np.kron(num_op, (np.eye(self.d)))
              - mu2[0] * np.kron(np.eye(self.d), num_op)
              + t[1] * np.kron(num_op, num_op)
-             + alp1 * np.kron(adag+a, np.eye(self.d))
-             + alp2 * np.kron(np.eye(self.d), adag+a)
+             + mu1[1] * np.kron(adag+a, np.eye(self.d))
+             + mu2[1] * np.kron(np.eye(self.d), adag+a)
              )
         return H
     
@@ -190,11 +190,8 @@ class Hamiltonian:
         
     # Constructs the bond Hamiltonians for energy calculation
     def ener_chain(self, Hlist, N):
-        Hchain = []
-        Hchain.append(Hlist[0])
-        for i in range(N - 3):
-            Hchain.append(Hlist[1])
-        Hchain.append(Hlist[-1])
+        Hmid = [Hlist[1] for i in range(N - 3)]
+        Hchain = [Hlist[0]] + Hmid + [Hlist[-1]]
         return Hchain
     
     # Creates the time evolution for even and odd sites
@@ -210,19 +207,13 @@ class Hamiltonian:
     # Constructs a chain of time evolution operators (even or odd spaces)
     def timeop_chain(self, Hlist, I, p, odd=True, ED=False):
         Ulist = []
-        expHlist = []
-        for H in Hlist:
-            expHlist.append(self.get_timeop(H, p, ED))
+        expHlist = [self.get_timeop(H, p, ED) for H in Hlist]
         iter_list = [I, expHlist[1]]
-        i = 0
         if not odd:
             expHlist[0] = expHlist[-1] = I
             iter_list[0], iter_list[1] = iter_list[1], iter_list[0]
-        Ulist.append(expHlist[0])
-        while len(Ulist) < self.N-2:
-            Ulist.append(iter_list[np.mod(i, 2)])
-            i += 1
-        Ulist.append(expHlist[-1])
+        Umid = [iter_list[i % 2] for i in range(self.N-3)]
+        Ulist = [expHlist[0]] + Umid + [expHlist[-1]]
         return Ulist
     
     # Constructs a time evolution operator given a Hamiltonian
@@ -285,11 +276,13 @@ class Hamiltonian:
             Psi = self.sweep(Psi, self.Uall[0][1], algo, forward=False)
             Psi = self.sweep(Psi, self.Uall[0][0], algo, forward=True)
             
-            # Curative sweep
+            # Clean-up sweep
             Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                             algo, forward=False)
                     
         elif self.TO == "fourth":
+            # Even and odd site operators. One set for each value of p (See 
+            # __init__).
             fourU = [[], []]
             for i in range(len(self.Uall)):
                 for k in range(self.N - 1):
@@ -308,7 +301,7 @@ class Hamiltonian:
             
             Psi = self.sweeping_order(Psi, step_number, algo, order,
                                       forward=True)
-            #Clean-up sweeps
+            # Clean-up sweeps
             Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                             algo, forward=True)
             Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
@@ -383,7 +376,7 @@ class Hamiltonian:
     # Performs an SVD and truncates the singular values to specified bond
     # dimension.
     def svd_truncator(self, phi, chia, chib, max_err):
-        U, S, V = sp.linalg.svd(phi, full_matrices=False)
+        U, S, V = np.linalg.svd(phi, full_matrices=False)
         V = V.T
         
         chic = min([np.sum(S > 10**-14), self.chi])

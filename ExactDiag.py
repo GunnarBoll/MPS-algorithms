@@ -80,7 +80,7 @@ class ExactD(storage.Hamiltonian):
         tsop = [[adag, a], [a, adag], [n_op, n_op]]
         ssop = [n_op, adag, a]
         glist = [-self.g1[0], -self.g1[0], self.g1[1]]
-        hlist = [-self.g2[0], alp1, alp2]
+        hlist = [-self.g2[0], self.g2[1], self.g2[1]]
         return ssop, tsop, glist, hlist
         
     def trotter_time(self, step_number):
