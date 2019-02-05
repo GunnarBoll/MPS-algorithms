@@ -44,19 +44,18 @@ def main():
     model = "HCboson"
     date = str(datetime.date.today())
     run_number = 1
-    direc = (os.getcwd() + "/" + date)
+    g1 = [1.0, 1.0]
+    g2 = [1.0, 0.1]
+    direc = (os.getcwd() + "/" + "alf=" + str(g2[1]) + "_"  + date)
     while True:
         try:
-            pathlib.Path(direc + "_run#" + str(run_number) + "/").mkdir(
+            pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
                          parents=True, exist_ok=False)
             break
         except FileExistsError:
             run_number += 1
-    direc = direc + "_run#" + str(run_number) + "/"
+    direc = direc + "_" + str(run_number) + "/"
     
-    g1 = [1.0, 1.0]
-    g2 = [1.0, 0.01]
-    direc = "alf=" + str(g2[1]) + "_" + direc
     dt_list = [0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1]
     T_list = [20, 24, 28, 30, 34, 40, 65, 100]
     T_list.reverse()
@@ -68,7 +67,7 @@ def main():
     order = "fourth"
     algo = "tDMRG"
     d = 2
-    N = 4
+    N = 20
     
     start = time.process_time()
     start2 = time.time()
