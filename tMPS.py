@@ -6,7 +6,6 @@ import time as t
 import scipy.sparse as sp
 import importlib as imp
 import os
-import multiprocessing as mp
 
 import storage as st
 import ExactDiag as ed

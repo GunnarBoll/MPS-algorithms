@@ -14,9 +14,9 @@ given a set of parameters (features its own measurement methods).
 """
 
 import numpy as np
-import scipy as sp
-import scipy.linalg
+import scipy as sci
 import itertools
+import math
 
 # Class storing the state of a 1-D chain
 class StateChain:
@@ -367,6 +367,7 @@ class Hamiltonian:
         phi = np.reshape(phi, (self.d * chia, self.d * chib))
         
         U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
+        # U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, Psi.bis_err)
         # Truncation error accumulation
         Psi.err += err
         # State update
@@ -393,6 +394,40 @@ class Hamiltonian:
         VT = np.reshape(V[:self.d*chib, :chic], (self.d, chib, chic))
         V = np.transpose(VT, (0, 2, 1))
         return [U, S ,V, err, chic]
+    
+    def eigen_truncator(self, phi, chia, chib, max_err):
+        sq_vals1, V = sci.linalg.eigh(np.matmul(phi.T.conj(), phi))
+        sq_vals2, U = sci.linalg.eigh(np.matmul(phi, phi.T.conj()))
+        
+        
+        sval = (sq_vals1 if len(sq_vals1) < len(sq_vals2) else sq_vals2)
+        lval = (sq_vals2 if len(sq_vals1) < len(sq_vals2) else sq_vals1)
+        sval = np.flip(sval, 0)
+        lval = np.flip(lval, 0)
+        vals = [sval[i] for i in range(len(sval)) 
+                if math.isclose(sval[i],lval[i])]
+        
+        u, s, v = sci.linalg.svd(phi)
+        
+        s = s[:np.sum(s > 10**-12)]
+        
+        V = np.flip(V, 1)
+        U = np.flip(U, 1)
+        S = np.sqrt(vals)
+        chic = min([np.sum(S > 10**-12), self.chi])
+        err = np.sum(S[chic:] ** 2)
+        
+        while err > max_err and self.chi < self.chi_max:
+            self.chi += 1
+            chic = min([np.sum(S > 10**-12), self.chi])
+            err = np.sum(S[chic:] ** 2)
+        
+        S = S[: chic]
+        U = np.reshape(U[:self.d*chia, :chic], (self.d, chia, chic))
+        V = np.reshape(V[:self.d*chib, :chic], (self.d, chib, chic))
+        V = np.transpose(V, (0, 2, 1))
+        
+        return [U, S, V, err, chic]
 
 
 class Measure:
