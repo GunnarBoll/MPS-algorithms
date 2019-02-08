@@ -26,23 +26,24 @@ def extrap_res(g1, g2, N, dt, d, chi, model, order, algo, step_num, a):
     return extr_ord
 
 def main():
-    name = "SMF_" + str(datetime.date.today())
-    direc = os.getcwd() + "/" + name
-    run_number = 1
-    while True:
-        try:
-            pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
-                parents=True, exist_ok=False)
-            break
-        except FileExistsError:
-            run_number += 1
     
-    direc += "_" + str(run_number) + "/"
     
     N_list = [20]
     U_list = [1.5,2.]
     
     for N in N_list:
+        name = "SMF_" + "N=" + str(N)
+        direc = os.getcwd() + "/" + name
+        run_number = 1
+        while True:
+            try:
+                pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
+                    parents=True, exist_ok=False)
+                break
+            except FileExistsError:
+                run_number += 1
+        
+        direc += "_" + str(run_number) + "/"
         for U in U_list:
             g1 = [1., U]
             g2 = [0., 0.01]

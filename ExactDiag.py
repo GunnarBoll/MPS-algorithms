@@ -3,7 +3,7 @@ Written by: Gunnar Bollmark"""
 
 import numpy as np
 import scipy.sparse as sp
-import scipy.sparse.linalg.eigen.arpack as arp
+import scipy.sparse.linalg as sp_linalg
 import itertools
 import imp
 
@@ -150,7 +150,7 @@ class ExactD(storage.Hamiltonian):
         return
         
     def exact_GS(self):
-        self.elist, self.GSl = arp.eigsh(self.H, k=3, v0 = self.i_state,
+        self.elist, self.GSl = sp_linalg.eigsh(self.H, k=3, v0 = self.i_state,
                                          which="SA")
         self.E_GS = min(self.elist)
         self.GS = self.GSl[: 2**self.N, 0]
