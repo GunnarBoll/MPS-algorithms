@@ -8,6 +8,7 @@ import datetime
 import pathlib
 import imp
 import os
+import multiprocessing as mp
 
 import storage as st
 import ExactDiag as ed
@@ -67,7 +68,7 @@ def main():
     order = "fourth"
     algo = "tDMRG"
     d = 2
-    N = 20
+    N = 4
     
     start = time.process_time()
     start2 = time.time()
