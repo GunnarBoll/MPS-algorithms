@@ -1,11 +1,13 @@
 """Loop for self-consistent static mean-field calculation."""
 
-import numpy as np
+
 import importlib as imp
 import datetime
 import os
+# os.environ["OMP_NUM_THREADS"] = "1"
 import pathlib
 import multiprocessing as mp
+import numpy as np
 
 import storage as st
 from static_MF_loop import SMF_loop
@@ -30,20 +32,20 @@ def mk_dat(U, N):
     g1 = [1., U]
     g2 = [0., 0.01]
     tperp = 0.05
-    T = 150
-    chi = 100
+    T = 100
+    chi = 70
     
     # Args: (tperp, g1, g2, N, chi, T)
-    ord_pars = SMF_loop(tperp, g1, g2, N, chi, T)        
+    ord_pars, Psi = SMF_loop(tperp, g1, g2, N, chi, T)        
     file_name = "N=" + str(N) + ",U=" + str(U)
-    return ord_pars + [file_name]
+    return [ord_pars + [file_name], Psi]
 
 def main():
     
     if __name__ == "__main__":
-        N_list = [32]
-        n_core = 5
-        U_list = [0., 0.5, 1.0, 1.5, 2.]
+        N_list = [20]
+        n_core = 2
+        U_list = [0.,0.5]
         
         for N in N_list:
             
@@ -53,7 +55,8 @@ def main():
             pool.close()
             pool.join()
             
-            dat_list = [dat for dat in res.get()]
+            dat_list = [dat[0] for dat in res.get()]
+            Psi_list = [dat[1] for dat in res.get()]
             
             name = "SMF_" + "N=" + str(N)
             direc = os.getcwd() + "/" + name

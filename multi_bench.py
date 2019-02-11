@@ -1,14 +1,17 @@
-import numpy as np
+
 import time
 import datetime
 import pathlib
 import imp
 import os
+# os.environ["OMP_NUM_THREADS"] = "1"
 import multiprocessing as mp
+import numpy as np
 
 import storage as st
 import ExactDiag as ed
 
+imp.reload(np)
 imp.reload(st)
 imp.reload(ed)
 
@@ -53,12 +56,13 @@ def main():
     
     if __name__ == '__main__':
         model = "HCboson"
+        n_core = 2
         date = str(datetime.date.today())
         run_number = 1
         g1 = [1.0, 1.0]
-        g2 = [1.0, 0.1]
+        g2 = [1.0, 0.0]
         
-        N = 4
+        N = 6
         d = 2
         order = "fourth"
         algo = "tDMRG"
@@ -76,11 +80,13 @@ def main():
                 params]        
         
         start = time.time()
-        pool = mp.Pool(2)
+        pool = mp.Pool(n_core)
         res = pool.starmap_async(process_func, arglist)
         pool.close()
         pool.join()
         end = time.time()
+        
+        print("Time cost:", end-start)
         
         dat_mat = [dat_list for dat_list in res.get()]
         
@@ -102,7 +108,7 @@ def main():
                 for dat_point in data:
                     fw.write(str(dat_point) + "\n")
         
-        print("Time cost:", end-start)
+        
     
     return
 

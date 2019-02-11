@@ -22,7 +22,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
     ord_pars = [a_exp_guess]
     mu_list = [g2[0]]
     
-    while i < 10 and err > 10 ** -4:
+    while i < 20 and err > 10 ** -4:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(N, d, algo)
@@ -45,4 +45,4 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
         g2[1] = 4*new_ord_par*tperp
         i += 1
         ord_pars.append(abs(new_ord_par))
-    return ord_pars
+    return ord_pars, Psi
