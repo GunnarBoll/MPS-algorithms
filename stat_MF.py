@@ -7,6 +7,7 @@ import os
 import pathlib
 import numpy as np
 import sys
+import time
 
 import storage as st
 from static_MF_loop import SMF_loop
@@ -40,21 +41,26 @@ def mk_dat(U, N):
     return [ord_pars + [file_name], Psi]
 
 def main():
+    start = time.time()
     
     N = int(sys.argv[1])
     U = float(sys.argv[2])
     
-    dat_list, Psi_list = mk_dat(U, N)
+    dat_list, Psi = mk_dat(U, N)
     
-    print(Psi_list.B)
-    print("\n", Psi_list.L)
+    GS_mat = [Psi.N, Psi.d, Psi.err, Psi.notation]
+    for tens in Psi.B:
+        GS_mat += [elem for elem in 
+                   tens.reshape(tens.shape[0]*tens.shape[1]*tens.shape[2])]
     
+    for lams in Psi.L:
+        GS_mat += [lam_elem for lam_elem in lams]
     
     
     name = "SMF_" + "N=" + str(N)
     run_number = 1
     filename = dat_list.pop()
-    GS_name = "GS" + filename
+    GS_name = "GS_" + filename
     while True:
         try:
             direc = os.getcwd() + "/" + name
@@ -64,11 +70,16 @@ def main():
             with open(direc+filename+".txt", "x") as fw:
                 for data_point in dat_list:
                     fw.write(str(data_point) + "\n")
+                    
+            with open(direc+GS_name+".txt", "x") as fw:
+                for comp in GS_mat:
+                    fw.write(str(comp) + "\n")
             break
         except FileExistsError:
             run_number += 1
     
-        
+    end = time.time()
+    print("Time cost:", end-start)
     return
     
 __spec__ = None
