@@ -110,7 +110,7 @@ def main():
     H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order, grow_chi=False)
     
     # Build the initial state
-    Psi = st.StateChain(N, d, algo, bis_err=10**-11)
+    Psi = st.StateChain(N, d, chi, algo, bis_err=10**-11)
         
     # Time evolve the state (imaginary time)
     start = t.process_time()

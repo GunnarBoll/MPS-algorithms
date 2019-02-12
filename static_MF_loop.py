@@ -25,7 +25,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
     while i < 20 and err > 10 ** -4:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
-        Psi = st.StateChain(N, d, algo)
+        Psi = st.StateChain(N, d, chi, algo)
         Psi = H.time_evolve(Psi, step_num, algo)
         
         if i == 0:

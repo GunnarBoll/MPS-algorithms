@@ -48,7 +48,7 @@ def main():
     
     dat_list, Psi = mk_dat(U, N)
     
-    GS_mat = [Psi.N, Psi.d, Psi.err, Psi.notation]
+    GS_mat = [Psi.N, Psi.d, Psi.err, Psi.notation, Psi.chi]
     for tens in Psi.B:
         GS_mat += [elem for elem in 
                    tens.reshape(tens.shape[0]*tens.shape[1]*tens.shape[2])]

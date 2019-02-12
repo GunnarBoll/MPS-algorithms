@@ -33,7 +33,7 @@ def process_func(g1, g2, N, d, model, order, algo, parlist, ED_calc):
 def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo):
     H = st.Hamiltonian(g1, g2, N, dt, d, chi_max, model, order,
                        grow_chi=False)
-    Psi = st.StateChain(N, d, algo)
+    Psi = st.StateChain(N, d, chi_max, algo)
     step_num = int(T / dt)
     H.time_evolve(Psi, step_num, algo)
     return Psi, H

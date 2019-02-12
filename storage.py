@@ -20,23 +20,32 @@ import math
 
 # Class storing the state of a 1-D chain
 class StateChain:
-    def __init__(self, N, d, algo, bis_err=10**-10):
+    def __init__(self, N, d, chi, algo, bis_err=10**-10, load_state=False,
+                 load_mat=[]):
         self.N = N
         self.d = d
         self.L = []
         self.B = []
+        self.chi = chi
         self.err = 0
         self.bis_err = bis_err
-        for i in range(N+1):
-            if i < N:
-                self.B.append(np.ones([d, 1, 1]))
-                for j in range(d):
-                    self.B[-1][j, 0, 0] = self.B[-1][j, 0, 0] / np.sqrt(d)
-            self.L.append(np.ones([1]))
-        if algo == "TEBD":
-            self.notation = "LG"
-        elif algo == "tDMRG":
-            self.notation = "B"
+        if load_state:
+            self.err = load_mat[0]
+            self.L = load_mat[2]
+            self.B = load_mat[3]
+            self.notation = load_mat[1]
+            pass
+        else:
+            for i in range(N+1):
+                if i < N:
+                    self.B.append(np.ones([d, 1, 1]))
+                    for j in range(d):
+                        self.B[-1][j, 0, 0] = self.B[-1][j, 0, 0] / np.sqrt(d)
+                self.L.append(np.ones([1]))
+            if algo == "TEBD":
+                self.notation = "LG"
+            elif algo == "tDMRG":
+                self.notation = "B"
         return
         
     def update(self, U, S, V, i, forward):
