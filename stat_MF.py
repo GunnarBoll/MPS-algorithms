@@ -4,10 +4,9 @@
 import importlib as imp
 import datetime
 import os
-# os.environ["OMP_NUM_THREADS"] = "1"
 import pathlib
-import multiprocessing as mp
 import numpy as np
+import sys
 
 import storage as st
 from static_MF_loop import SMF_loop
@@ -32,8 +31,8 @@ def mk_dat(U, N):
     g1 = [1., U]
     g2 = [0., 0.01]
     tperp = 0.05
-    T = 100
-    chi = 70
+    T = 30
+    chi = 10
     
     # Args: (tperp, g1, g2, N, chi, T)
     ord_pars, Psi = SMF_loop(tperp, g1, g2, N, chi, T)        
@@ -42,40 +41,34 @@ def mk_dat(U, N):
 
 def main():
     
-    if __name__ == "__main__":
-        N_list = [20]
-        n_core = 2
-        U_list = [0.,0.5]
-        
-        for N in N_list:
-            
-            
-            pool = mp.Pool(n_core)
-            res = pool.starmap_async(mk_dat, [(U, N) for U in U_list])
-            pool.close()
-            pool.join()
-            
-            dat_list = [dat[0] for dat in res.get()]
-            Psi_list = [dat[1] for dat in res.get()]
-            
-            name = "SMF_" + "N=" + str(N)
-            direc = os.getcwd() + "/" + name
-            run_number = 1
-            while True:
-                try:
-                    pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
-                        parents=True, exist_ok=False)
-                    direc += "_" + str(run_number) + "/"
-                    break
-                except FileExistsError:
-                    run_number += 1
-            
-            for data in dat_list:
-                filename = data.pop()
-                with open(direc+filename+".txt", "x") as fw:
-                    for data_point in data:
-                        fw.write(str(data_point) + "\n")
+    N = int(sys.argv[1])
+    U = float(sys.argv[2])
     
+    dat_list, Psi_list = mk_dat(U, N)
+    
+    print(Psi_list.B)
+    print("\n", Psi_list.L)
+    
+    
+    
+    name = "SMF_" + "N=" + str(N)
+    run_number = 1
+    filename = dat_list.pop()
+    GS_name = "GS" + filename
+    while True:
+        try:
+            direc = os.getcwd() + "/" + name
+            pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
+                parents=True, exist_ok=True)
+            direc += "_" + str(run_number) + "/"
+            with open(direc+filename+".txt", "x") as fw:
+                for data_point in dat_list:
+                    fw.write(str(data_point) + "\n")
+            break
+        except FileExistsError:
+            run_number += 1
+    
+        
     return
     
 __spec__ = None
