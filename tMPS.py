@@ -139,5 +139,6 @@ def main():
         Free = st.FreeFerm(g1, g2, N)
         # print("\nFree fermion result:", Free.E_GS)
     
+    print(Psi.err)
     return
 main()

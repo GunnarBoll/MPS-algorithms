@@ -127,6 +127,7 @@ class Hamiltonian:
         elif model == "HCboson":
             self.Hlist = self.get_HC_boson(g1, g2)
         else:
+            print("No correct model specified")
             return
         for n in range(len(self.Hlist)):
             if np.all(self.Hlist[n].imag == np.zeros(self.Hlist[n].shape)):
@@ -311,19 +312,29 @@ class Hamiltonian:
             Psi = self.sweeping_order(Psi, step_number, algo, order,
                                       forward=True)
             # Clean-up sweeps
-            Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
-                            algo, forward=True)
-            Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
-                            algo, forward=False)
+            # Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
+            #                 algo, forward=True)
+            # Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
+            #                 algo, forward=False)
         return Psi
 
     def sweeping_order(self, Psi, step_number, algo, order, forward=True):
         t = 0
         operlist = order
+        E0 = [sum(Psi.get_ener(self.Hchain))]
         while t < step_number:
             for oper in operlist:
                 Psi = self.sweep(Psi, oper, algo, forward)
                 forward = not forward
+            if t % 10 == 0:
+                Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
+                                algo, forward=forward)
+                forward = not forward
+                E_new = sum(Psi.get_ener(self.Hchain))
+                E_err = abs(E0[-1] - E_new) / abs(E0[-1])
+                E0.append(E_new)
+                if E_err < 10 ** -6:
+                    break
             t += 1
         if Psi.err > 10**-3:
             print("Warning: Accumulated truncation error is:", Psi.err)
@@ -332,14 +343,15 @@ class Hamiltonian:
     # Applies time evolution to the chain (sweeping forward or backward)
     def sweep(self, Psi, time_ops, algo, forward=True):
         sites = range(self.N - 1)
+        
         if not forward:
             sites = range(self.N-2, -1, -1)
         
         for i in sites:
-            if algo == "TEBD":
-                Psi = self.tebd(Psi, time_ops, i, forward)
-            elif algo == "tDMRG":
-                Psi = self.tdmrg(Psi, time_ops, i, forward)
+            # if algo == "TEBD":
+            #     Psi = self.tebd(Psi, time_ops, i, forward)
+            # elif algo == "tDMRG":
+            Psi = self.tdmrg(Psi, time_ops, i, forward)
             
         return Psi
     
