@@ -18,7 +18,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens):
     for ind in range(5):
         mu_ham = st.Hamiltonian(coup1, coup2, N, dt, d, chi, model, TO=order,
                                 grow_chi=False)
-        mu_psi = st.StateChain(N, d, chi, "tDMRG")
+        mu_psi = st.StateChain(N, d, chi, "tDMRG", fast_run=True)
         
         steps = int(T / dt)
         #for ind2 in range(5):
@@ -74,7 +74,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(N, d, chi, algo)
-        Psi = H.time_evolve(Psi, step_num, algo)
+        Psi = H.time_evolve(Psi, step_num, algo, fast_run=True)
         
         new_dens = 0
         for k in range(N):

@@ -251,7 +251,7 @@ class Hamiltonian:
     
     
     
-    def time_evolve(self,Psi, step_number, algo):
+    def time_evolve(self,Psi, step_number, algo, fast_run=False):
         # First order algorithm
         if self.TO == "first":
             
@@ -281,7 +281,7 @@ class Hamiltonian:
             Psi = self.sweep(Psi, self.Uall[0][0], algo, forward=True)
             
             Psi = self.sweeping_order(Psi, step_number-1, algo, order,
-                                      forward=False)
+                                      forward=False, fast=fast_run)
             
             Psi = self.sweep(Psi, self.Uall[0][1], algo, forward=False)
             Psi = self.sweep(Psi, self.Uall[0][0], algo, forward=True)
@@ -310,15 +310,18 @@ class Hamiltonian:
                      ]
             
             Psi = self.sweeping_order(Psi, step_number, algo, order,
-                                      forward=True)
-            # Clean-up sweeps
-            # Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
-            #                 algo, forward=True)
-            # Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
-            #                 algo, forward=False)
+                                      forward=True, fast=fast_run)
+            # Clean-up sweeps, runs if the calculation is not cut-off at
+            # certain error. The clean sweep is incorporated in a fast run.
+            if not fast_run:
+                Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
+                                algo, forward=True)
+                Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
+                                algo, forward=False)
         return Psi
 
-    def sweeping_order(self, Psi, step_number, algo, order, forward=True):
+    def sweeping_order(self, Psi, step_number, algo, order, forward=True,
+                       fast=False):
         t = 0
         operlist = order
         E0 = [sum(Psi.get_ener(self.Hchain))]
@@ -326,7 +329,7 @@ class Hamiltonian:
             for oper in operlist:
                 Psi = self.sweep(Psi, oper, algo, forward)
                 forward = not forward
-            if t % 10 == 0:
+            if t % 10 == 0 and fast:
                 Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                                 algo, forward=forward)
                 forward = not forward
