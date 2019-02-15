@@ -28,21 +28,20 @@ def ED_MF_loop():
     N = int(sys.argv[2])
     tperp = float(sys.argv[3])
     ord_par = float(sys.argv[4])
-    # mu = float(sys.argv[5])
+    mu = float(sys.argv[5])
     
     d = 2
     model = "HCboson"
     g1 = [1., U]
     g2 = [0. , 0.]
-    mu_list = [-1., 0.5, 0., 0.5, 1.0, 1.5, 2.]
     
     g2[1] = 4 * tperp * ord_par
     
-    dens_list = [get_dens(g1, [mu, g2[1]], N, d, model) for mu in mu_list]
-    data = dens_list + mu_list
+    dens = get_dens(g1, [mu, g2[1]], N, d, model)
+    data = dens + mu
     
     direc_name = "rho_of_mu_tperp=" + str(tperp) + ",U=" + str(U)
-    file_name = "ordpar=" + str(ord_par) + ".txt"
+    file_name = "ordpar=" + str(ord_par) + ",mu=" + str(mu) + ".txt"
     store.cwd_store(direc_name, file_name, data)
     end = time.time()
     
