@@ -38,7 +38,7 @@ def ED_MF_loop():
     g2[1] = 4 * tperp * ord_par
     
     dens = get_dens(g1, [mu, g2[1]], N, d, model)
-    data = dens + mu
+    data = [dens, mu]
     
     direc_name = "rho_of_mu_tperp=" + str(tperp) + ",U=" + str(U)
     file_name = "ordpar=" + str(ord_par) + ",mu=" + str(mu) + ".txt"
