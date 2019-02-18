@@ -30,10 +30,10 @@ def extrap_res(g1, g2, N, dt, d, chi, model, order, algo, step_num, a):
 
 def mk_dat(U, N):
     g1 = [1., U]
-    g2 = [1., 0.01]
+    g2 = [0., 0.01]
     tperp = 0.05
-    T = 30
-    chi = 10
+    T = 100
+    chi = 50
     
     # Args: (tperp, g1, g2, N, chi, T)
     ord_pars, Psi = SMF_loop(tperp, g1, g2, N, chi, T)        

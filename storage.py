@@ -318,6 +318,7 @@ class Hamiltonian:
                                 algo, forward=True)
                 Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                                 algo, forward=False)
+            
         return Psi
 
     def sweeping_order(self, Psi, step_number, algo, order, forward=True,
@@ -496,10 +497,16 @@ class Measure:
         return corr
     
     def expec(self, Psi, op, i):
-        B_bar = np.tensordot(np.diag(Psi.L[i]),
-                             np.tensordot(op, Psi.B[i], (1, 0)), (1, 1))
-        B_psi = np.tensordot(np.conj(np.diag(Psi.L[i])), np.conj(Psi.B[i]),
-                           (1, 1))
+        if Psi.notation == "B":
+            B_bar = np.tensordot(np.diag(Psi.L[i]),
+                                 np.tensordot(op, Psi.B[i], (1, 0)), (1, 1))
+            B_psi = np.tensordot(np.conj(np.diag(Psi.L[i])), np.conj(Psi.B[i]),
+                                 (1, 1))
+        elif Psi.notation == "A":
+            B_bar = np.tensordot(np.tensordot(op, Psi.B[i], (1, 0)),
+                                 np.diag(Psi.L[i+1]), (2, 0))
+            B_psi = np.tensordot(np.conj(Psi.B[i]), 
+                                 np.conj(np.diag(Psi.L[i+1])), (2, 0))
         exval = np.tensordot(B_psi, B_bar, ([1, 0], [1, 0]))
         exval = np.trace(exval)
         return exval

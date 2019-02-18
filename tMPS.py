@@ -21,6 +21,7 @@ imp.reload(np)
 def algo_output(Psi, H):
     adag = np.array([[0, 1], [0, 0]])
     a = np.array([[0, 0], [1, 0]])
+    num_op = np.matmul(adag,a)
     print("\nMPS algorithm results")
     E = Psi.get_ener(H.Hchain)
     print("GS energy:", sum(E))
@@ -33,13 +34,24 @@ def algo_output(Psi, H):
             psi = np.tensordot(psi, B[i + 1], (i+2, 1))
         psi = np.reshape(psi, (H.d ** H.N))
         print("Energy from product state: ", sum(ed.ExactD.get_ener(H, psi)))
+        
+    M = st.Measure()
+    dens = 0
+    for i in range(H.N):
+        dens += M.expec(Psi, num_op, i)
+    print("Expec algo:", dens/H.N)
             
 def exact_output(ED):
     adag = np.array([[0, 1], [0, 0]])
     a = np.array([[0, 0], [1, 0]])
+    num_op = np.matmul(adag,a)
     print("\nExact diagonalization results")
     print("Exact groundstate energy:", ED.E_GS)
     print("Exact energies:",ED.elist)
+    dens = 0
+    for i in range(ED.N):
+        dens += ED.ED_correl(ED.GS, adag, a, i, i)
+    print("Exact dens", dens/ED.N)
     
     
 def obser_test(ED, op):
@@ -115,7 +127,7 @@ def main():
     # Time evolve the state (imaginary time)
     start = t.process_time()
     actstart = t.time()
-    Psi = H.time_evolve(Psi, step_number, algo)
+    Psi = H.time_evolve(Psi, step_number, algo, fast_run=True)
     end = t.process_time()
     actend = t.time()
     print("Process time taken for algorithm is:", end-start)
@@ -139,6 +151,7 @@ def main():
         Free = st.FreeFerm(g1, g2, N)
         # print("\nFree fermion result:", Free.E_GS)
     
-    print(Psi.err)
+
+    
     return
 main()

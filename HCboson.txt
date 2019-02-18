@@ -1,7 +1,7 @@
 # The coupling g = t,V where t is for hopping and V for interaction
 # U = mu,alpha is coupling for single site terms (mu is chem. pot. and alpha is pair injection amplitude)
-g1 = 1.0,1.0
-g2 = 0.0,0.01
+g1 = 1.0,0.0
+g2 = 0.0,0.1414
 dt = 0.1
 T = 100
 chi = 50
