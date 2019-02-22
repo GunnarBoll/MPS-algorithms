@@ -337,7 +337,7 @@ class Hamiltonian:
                 E_new = sum(Psi.get_ener(self.Hchain))
                 E_err = abs(E0[-1] - E_new) / abs(E0[-1])
                 E0.append(E_new)
-                if E_err < 10 ** -6:
+                if E_err < 10 ** -8:
                     break
             t += 1
         if Psi.err > 10**-3:
@@ -391,9 +391,9 @@ class Hamiltonian:
                            (0, 2, 1, 3))
         phi = np.reshape(phi, (self.d * chia, self.d * chib))
         
-        U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
-        # U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, Psi.bis_err)
-        # Truncation error accumulation
+        # U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
+        U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, Psi.bis_err)
+        
         Psi.err += err
         # State update
         Psi.update(U, S, V, i, forward)
@@ -402,11 +402,15 @@ class Hamiltonian:
     # Performs an SVD and truncates the singular values to specified bond
     # dimension.
     def svd_truncator(self, phi, chia, chib, max_err):
-        U, S, V = np.linalg.svd(phi, full_matrices=False)
+        try:
+            assert np.all(np.isfinite(phi))
+            U, S, V = np.linalg.svd(phi, full_matrices=False)
+        except AssertionError:
+            print("AssertionError caught! The matrix contains NaN!")
+            U, S, V = np.linalg.svd(phi, full_matrices=False)
         V = V.T
         
         chic = min([np.sum(S > 10**-14), self.chi])
-        
         err = np.sum(S[chic:] ** 2)
         
         while err > max_err and self.chi < self.chi_max:
@@ -418,33 +422,24 @@ class Hamiltonian:
         U = np.reshape(U[:self.d*chia, :chic], (self.d, chia, chic))
         VT = np.reshape(V[:self.d*chib, :chic], (self.d, chib, chic))
         V = np.transpose(VT, (0, 2, 1))
+        
         return [U, S ,V, err, chic]
     
     def eigen_truncator(self, phi, chia, chib, max_err):
-        sq_vals1, V = sci.linalg.eigh(np.matmul(phi.T.conj(), phi))
-        sq_vals2, U = sci.linalg.eigh(np.matmul(phi, phi.T.conj()))
+        sq_vals1, V = np.linalg.eigh(np.matmul(phi.T.conj(), phi))
         
-        
-        sval = (sq_vals1 if len(sq_vals1) < len(sq_vals2) else sq_vals2)
-        lval = (sq_vals2 if len(sq_vals1) < len(sq_vals2) else sq_vals1)
-        sval = np.flip(sval, 0)
-        lval = np.flip(lval, 0)
-        vals = [sval[i] for i in range(len(sval)) 
-                if math.isclose(sval[i],lval[i])]
-        
-        u, s, v = sci.linalg.svd(phi)
-        
-        s = s[:np.sum(s > 10**-12)]
-        
+        vals = abs(np.flip(sq_vals1, 0))
         V = np.flip(V, 1)
-        U = np.flip(U, 1)
         S = np.sqrt(vals)
-        chic = min([np.sum(S > 10**-12), self.chi])
+        
+        chic = min([np.sum(S > 10**-14), self.chi])
         err = np.sum(S[chic:] ** 2)
+        
+        U = (1/S) * np.matmul(phi, V)
         
         while err > max_err and self.chi < self.chi_max:
             self.chi += 1
-            chic = min([np.sum(S > 10**-12), self.chi])
+            chic = min([np.sum(S > 10**-14), self.chi])
             err = np.sum(S[chic:] ** 2)
         
         S = S[: chic]

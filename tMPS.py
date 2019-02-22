@@ -137,7 +137,7 @@ def main():
     algo_output(Psi, H)
 
     # Exact diagonalization trotter
-    if N <= 22:
+    if N <= 20:
         start = t.process_time()
         ED = ed.ExactD(g1, g2, N, d, model, TO=order)
         end1 = t.process_time()
@@ -151,7 +151,10 @@ def main():
         Free = st.FreeFerm(g1, g2, N)
         # print("\nFree fermion result:", Free.E_GS)
     
-
+    # ener = 0
+    # M = st.Measure()
+    # for i in range(N):
+    #     ener += M.correl()
     
-    return
-main()
+    return Psi
+psi2 = main()
