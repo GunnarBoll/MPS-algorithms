@@ -114,7 +114,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
     mu_list = [g2[0]]
     dens = 1 / 2
     
-    while i < 20 and err > 10 ** -4:
+    while i < 100 and err > 10 ** -4:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(N, d, chi, algo)
@@ -137,10 +137,14 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
         mu_list.append(g2[0])
             
         new_ord_par = M.expec(Psi, a, int(N / 2))
+        print(new_ord_par)
         err = abs((abs(ord_pars[i]) - abs(new_ord_par)) / abs(ord_pars[i]))
         g2[1] = abs(4*new_ord_par*tperp)
         i += 1
         ord_pars.append(abs(new_ord_par))
-    if i == 20:
-        print("Error is:", err)
+        if i == 20 or i ==40:
+            print("Error in order parameter is:", err)
+            print("Truncation error:", Psi.err)
+    print("Error in order parameter is:", err)
+    print("Truncation error:", Psi.err)
     return ord_pars, Psi

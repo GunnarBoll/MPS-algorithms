@@ -337,7 +337,7 @@ class Hamiltonian:
                 E_new = sum(Psi.get_ener(self.Hchain))
                 E_err = abs(E0[-1] - E_new) / abs(E0[-1])
                 E0.append(E_new)
-                if E_err < 10 ** -8:
+                if E_err < 10 ** -6:
                     break
             t += 1
         if Psi.err > 10**-3:
