@@ -17,14 +17,12 @@ def tail(filename):
 
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [20, 30, 40, 50, 60]
+    N_list = [20]
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
         direc = data_direc + name
-        if N < 50:
-            U_list = [0., 0.5, 1., 1.5, 2.]
-        else:
-            U_list = [0., 0.5, 1., 1.5]
+        U_list = [0., 0.5, 1., 1.5, 2., 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+
         
         files = [direc+"N="+str(N)+",U="+str(U)+".txt" for U in U_list]
         ord_par = [tail(file) for file in files]

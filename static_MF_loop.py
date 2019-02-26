@@ -8,7 +8,8 @@ import ExactDiag as ed
 imp.reload(st)
 imp.reload(ed)
 
-def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens):
+def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
+           rho_maxerr=1e-4):
     goal_dens = 1 / 2
     Meas = st.Measure()
     order = "fourth"
@@ -42,7 +43,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens):
             mu0 = coup2[0]
             dens0 = mu_dens
         
-        if abs(dens_err) < 10**-3 or ind == 9:
+        if abs(dens_err) < rho_maxerr or ind == 9:
             mu = coup2[0]
             if ind == 9:
                 print("Density error:", dens_err)
@@ -93,7 +94,7 @@ def guess_mu(ord_par, U, tperp, over, run_nr=1):
     
     return mug
 
-def SMF_loop(tperp, g1, g2, N, chi, T):
+def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     dt = 0.1
     model = "HCboson"
     order = "fourth"
@@ -114,7 +115,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
     mu_list = [g2[0]]
     dens = 1 / 2
     
-    while i < 100 and err > 10 ** -4:
+    while i < 100 and err > orp_maxerr:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(N, d, chi, algo)
@@ -125,7 +126,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T):
             new_dens += M.expec(Psi, num_op, k)
         new_dens /= N
         
-        if abs(new_dens - dens)/dens > 10**-3:
+        if abs(new_dens - dens)/dens > rho_maxerr:
             if new_dens > dens:
                 over = True
             else:
