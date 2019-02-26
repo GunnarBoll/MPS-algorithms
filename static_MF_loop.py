@@ -77,6 +77,7 @@ def guess_mu(ord_par, U, tperp, over, run_nr=1):
     HF_flag = False
     if over:
         den_list.reverse()
+        mu_list.reverse()
         for i in range(len(den_list)):
             if den_list[i] < 0.49:
                 mug = mu_list[i]
@@ -138,7 +139,6 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
         mu_list.append(g2[0])
             
         new_ord_par = M.expec(Psi, a, int(N / 2))
-        print(new_ord_par)
         err = abs((abs(ord_pars[i]) - abs(new_ord_par)) / abs(ord_pars[i]))
         g2[1] = abs(4*new_ord_par*tperp)
         i += 1

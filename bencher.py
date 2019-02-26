@@ -1,21 +1,28 @@
 """
 Program creates data for benchmarking the MPS algorithm written and stored in
-storage.py.
+storage.py. The data created is for a 20-site system of Hardcore bosons and is
+compared to an exact diagonalization algorithm stored in ExactDiag.py.
 """
+
+# Import system modules
 import numpy as np
 import time
 import datetime
 import pathlib
 import imp
 import os
-import multiprocessing as mp
 
+# Import personal modules
 import storage as st
 import ExactDiag as ed
 
+# Reload local .py files for fast editing
 imp.reload(st)
 imp.reload(ed)
 
+# Function which runs the algorithm for a set of parameters. A Hamiltonian and
+# initial state is defined and is evolved in time. The state and Hamiltonian
+# is returned.
 def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err,
              trunc_err_check):
     H = st.Hamiltonian(g1, g2, N, dt, d, chi_max, model, order,
@@ -25,6 +32,8 @@ def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err,
     H.time_evolve(Psi, step_num, algo)
     return Psi, H
 
+# Function which COMPUTES and writes data to file given a state and
+# Hamiltonian. The files are labeled with input parameters.
 def filewrite(Psi, H, direc, T):
     a = np.array([[0, 0], [1, 0]])
     adag = np.array([[0, 1], [0, 0]])
@@ -41,6 +50,7 @@ def filewrite(Psi, H, direc, T):
             fw.write(str(correlations) + "\n")
     fw.close()
 
+# Main program
 def main():
     model = "HCboson"
     date = str(datetime.date.today())
@@ -48,6 +58,8 @@ def main():
     g1 = [1.0, 1.0]
     g2 = [1.0, 0.1]
     direc = (os.getcwd() + "/" + "alf=" + str(g2[1]) + "_"  + date)
+    
+    # Attempt to create a directory until an unoccupied name is found
     while True:
         try:
             pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
@@ -57,6 +69,8 @@ def main():
             run_number += 1
     direc = direc + "_" + str(run_number) + "/"
     
+    # The trotter step dt, total evolved time T and bond dimension chi are set.
+    # Bisection error is no longer tested
     dt_list = [0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1]
     T_list = [20, 24, 28, 30, 34, 40, 65, 100]
     T_list.reverse()
@@ -72,6 +86,8 @@ def main():
     
     start = time.process_time()
     start2 = time.time()
+    
+    # Exact Diagonalization
     ed_file = direc+"ED.txt"
     with open(ed_file, "x") as fed:
         a = np.array([[0, 0], [1, 0]])
@@ -87,6 +103,7 @@ def main():
             fed.write(str(data) + "\n")
         fed.close()
     
+    # Algorithm
     iter_lists = [dt_list, T_list[1:], chi_max_list[1:], bis_err_list[1:]]
     trunc_err_check = False
     for ind in range(3):
