@@ -1,4 +1,5 @@
-"""Storage for classes used in the tMPS algorithm
+"""
+Storage for classes used in the tMPS algorithm
 The class StateChain stores the current state in whatever notation is used 
 and contains measurement of energy. It also contains the update procedure
 given the state notation.
@@ -11,31 +12,38 @@ The class Measure contains measurement routines for (mostly) correlators.
 
 The FreeFerm class contains algorithms for finding a free fermion solution
 given a set of parameters (features its own measurement methods).
+
+The class OpChain is for calculation in the FreeFerm class.
 """
 
 import numpy as np
-import scipy as sci
 import itertools
-import math
 
-# Class storing the state of a 1-D chain
+# Class storing the state of a 1-D chain. It is instantiated with a lot of
+# labels so that the appropriate Hamiltonian can be reconstructured from a
+# given StateChain object. The flag load_state tells if the state is being
+# loaded from file or created from scratch.
 class StateChain:
-    def __init__(self, N, d, chi, algo, bis_err=10**-10, load_state=False,
-                 load_mat=[]):
+    def __init__(self, g1, g2, N, d, chi, algo, bis_err=10**-10,
+                 load_state=False, load_mat=[]):
         self.N = N
         self.d = d
-        self.L = []
-        self.B = []
-        self.chi = chi
-        self.err = 0
         self.bis_err = bis_err
+        
         if load_state:
-            self.err = load_mat[0]
-            self.L = load_mat[2]
-            self.B = load_mat[3]
-            self.notation = load_mat[1]
-            pass
+            self.g1 = load_mat[0]
+            self.g2 = load_mat[1]
+            self.err = load_mat[2]
+            self.notation = load_mat[3]
+            self.L = load_mat[4]
+            self.B = load_mat[5]
         else:
+            self.g1 = g1
+            self.g2 = g2
+            self.L = []
+            self.B = []
+            self.chi = chi
+            self.err = 0
             for i in range(N+1):
                 if i < N:
                     self.B.append(np.ones([d, 1, 1]))
@@ -47,7 +55,10 @@ class StateChain:
             elif algo == "tDMRG":
                 self.notation = "B"
         return
-        
+    
+    # State updating method called in the time evolution function of a
+    # Hamiltonian object. When at the end of a chain (determined by i) a
+    # decomposition with SVD is performed.
     def update(self, U, S, V, i, forward):
         if self.notation == "LG":
             self.B[i+1] = np.tensordot(V, np.diag(self.L[i+2] ** (-1)), (2, 0))
@@ -76,6 +87,8 @@ class StateChain:
                 self.notation = "A"
         return 
     
+    # Specific measurement method for energy. Gets a theta tensor for each
+    # pair of sites and applies a local Hamiltonian stored in Hchain.
     def get_ener(self, Hchain):        
         E = []
         for b in range(0, self.N - 1):
@@ -85,7 +98,8 @@ class StateChain:
             C = np.tensordot(np.conj(LBLBL), C, ([0, 3, 1, 2], [0, 1, 2, 3]))
             E.append(C)
         return E
-        
+    
+    # Retrieves a theta tensor dependent on the notation for MPS used.
     def get_theta(self, b):
         if self.notation == "LG":
             LB = np.tensordot(np.diag(self.L[b]), self.B[b], (1, 1))
@@ -105,7 +119,8 @@ class StateChain:
 
 
 
-# Class containing MPS Hamiltonian and time evolution
+# Class containing MPS Hamiltonian and time evolution. Two models are
+# available: Heisenberg chain and Hardcore boson chain.
 class Hamiltonian:
     def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False,
                  grow_chi=True):
@@ -135,8 +150,7 @@ class Hamiltonian:
         self.Hchain = self.ener_chain(self.Hlist, N)
         I4 = np.reshape(np.kron(np.eye(d), np.eye(d)), (2, 2, 2, 2))
         self.I = np.transpose(I4, (0, 2, 1, 3))
-        if ED:
-            self.I = np.kron(np.eye(self.d), np.eye(self.d))
+        
         # If first/fourth order do not put a half factor on odd operators
         if self.TO == "first":
             plist = [1]
@@ -250,7 +264,9 @@ class Hamiltonian:
         return Ut
     
     
-    
+    # The functions uses Trotter decomposition of the time evolution operator
+    # to time evolve the state. There are three orders of decomposition
+    # available: first, second and fourth order.
     def time_evolve(self,Psi, step_number, algo, fast_run=False):
         # First order algorithm
         if self.TO == "first":
@@ -320,7 +336,10 @@ class Hamiltonian:
                                 algo, forward=False)
             
         return Psi
-
+    
+    # Functions which performs sweeps with operators given in the list order.
+    # Has an exit condition if the relative change of state energy is less than
+    # 10^-6 and the flag fast is turned on.
     def sweeping_order(self, Psi, step_number, algo, order, forward=True,
                        fast=False):
         t = 0
@@ -359,7 +378,7 @@ class Hamiltonian:
             
         return Psi
     
-    # TEBD algorithm (utilizing inverse lambda matrices)
+    # TEBD algorithm (utilizing inverse lambda matrices). Is very ineffcient.
     def tebd(self, Psi, Ut, i, forward):
         chia = Psi.B[i].shape[1]
         chib = Psi.B[i + 1].shape[2]
@@ -425,6 +444,13 @@ class Hamiltonian:
         
         return [U, S ,V, err, chic]
     
+    # Truncates the singular values down to specified bond dimension. The
+    # decomposition into U,S,V is done with an eigensolver. This is useful
+    # as it does not crash and parallelizes better.
+    # 
+    # Issue: Precision for small singular values is low due to the square root.
+    # Solution: Quad precision? Too slow? Necessary?
+    # Do not try to get U and V from different eigh calls.
     def eigen_truncator(self, phi, chia, chib, max_err):
         sq_vals1, V = np.linalg.eigh(np.matmul(phi.T.conj(), phi))
         
@@ -451,7 +477,7 @@ class Hamiltonian:
         
         return [U, S, V, err, chic]
 
-
+# Class containing various measurement methods for MPS
 class Measure:
     def __init__(self):
         return
@@ -493,6 +519,7 @@ class Measure:
         corr = np.trace(corr)
         return corr
     
+    # Calculates the expectation value of a single site operator op at site i
     def expec(self, Psi, op, i):
         if Psi.notation == "B":
             B_bar = np.tensordot(np.diag(Psi.L[i]),
@@ -508,6 +535,9 @@ class Measure:
         exval = np.trace(exval)
         return exval
     
+    # Creates a matrix C_ij of correlators between the single site operators
+    # op1 and op2 in state Psi. This is faster than using correl since it uses
+    # previous contractions as a start for new ones.
     def corr_mat(self, Psi, op1, op2):
         mat = np.zeros([Psi.N, Psi.N])
         expec_op = np.matmul(op1, op2)
@@ -548,7 +578,10 @@ class Measure:
                                               ([0, 1], [1, 0]))
                     mat = mat.T
         return mat
-    
+
+# Class containing measurement for free fermion models. Given some hopping and
+# some chemical potential parameter the spectrum of the Hamiltonian is found
+# and the ground state energy is computed by adding up negative energies.
 class FreeFerm:
     def __init__(self, t, mu, N):
         self.t = t[0]
@@ -576,6 +609,12 @@ class FreeFerm:
         # self.E_GS += N * self.mu/2
         return
     
+    # Measures the expectation value of a list of operators opl composed of
+    # creation and annihilation operators. The operators are given as strings
+    # with names "adag" and "a". The operators act on a single site indexed by
+    # indicies in the list indl.
+    # First creates an Opchain object which it puts in normal order with
+    # appropriate sign.
     def measure(self, opl, indl):
         chain = OpChain(opl, indl, sign=1)
         chains = self.order(chain)
@@ -585,6 +624,9 @@ class FreeFerm:
                                               opchain.ind[opchain.acount:])
         return res
     
+    # Orders a list of creation and annihilation operators into normal order.
+    # The anti-commutation of operators requires to keep a check on the sign.
+    # This function is recursive.
     def order(self, opers):
         rest = []        
         for i in range(len(opers.op)-1, -1, -1):
@@ -602,7 +644,9 @@ class FreeFerm:
         for k in range(len(rest)):
             new_stuff = new_stuff + self.order(rest[k])
         return new_stuff
-        
+    
+    # Uses a measurement method given in:
+    # http://linkinghub.elsevier.com/retrieve/pii/S001046550500189X
     def correl(self,a_list,dag_list):
         P_A = self.P
         P_B = self.P
@@ -615,6 +659,8 @@ class FreeFerm:
         corr = np.linalg.det(np.matmul(np.conj(P_A).T, P_B))
         return corr
     
+    # Applies a minus sign to a certain row and adds a row with a single
+    # element 1.
     def get_Pmat(self, P, row):
         part = -P[:row]
         Zcol = np.zeros([self.N, 1])
@@ -623,6 +669,8 @@ class FreeFerm:
         P = np.hstack([np.concatenate([part, P[row:]]), Zcol])
         return P
 
+# Class used by FreeFerm.measure to organize and order the list of operators
+# whose expectation value we are interested in.
 class OpChain:
     def __init__(self, oplist, indlist, sign):
         self.op = oplist
@@ -633,6 +681,7 @@ class OpChain:
             if op == "a":
                 self.acount += 1
     
+    # Swaps the places of two operators in the OpChain.
     def swap(self, i, j):
         self.op[i], self.op[j] = self.op[j], self.op[i]
         self.ind[i], self.ind[j] = self.ind[j], self.ind[i]

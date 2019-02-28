@@ -1,3 +1,7 @@
+"""
+Self-consistency loop for the order parameter. Attempts to keep the density at
+half-filling such that superfluidity arises.
+"""
 import numpy as np
 import importlib as imp
 import os
@@ -8,8 +12,11 @@ import ExactDiag as ed
 imp.reload(st)
 imp.reload(ed)
 
+# Function which tries to find the correct chemical potential for half-filling
+# to a precision rho_maxerr via interpolation. This function requires one
+# chemical potential correspondent to a density below goal_dens and one above.
 def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
-           rho_maxerr=1e-4):
+           rho_maxerr):
     goal_dens = 1 / 2
     Meas = st.Measure()
     order = "fourth"
@@ -23,7 +30,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
     for ind in range(20):
         mu_ham = st.Hamiltonian(coup1, coup2, N, dt, d, chi, model, TO=order,
                                 grow_chi=False)
-        mu_psi = st.StateChain(N, d, chi, "tDMRG")
+        mu_psi = st.StateChain(coup1, coup2, N, d, chi, "tDMRG")
         
         steps = int(T / dt)
         #for ind2 in range(5):
@@ -56,6 +63,9 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
                     
     return mu
 
+# Function which provides a guess at a chemical potential close and on the 
+# opposite side of the chemical potential given by the main loop. This is done
+# with reference data produced by get_chemdens.py
 def guess_mu(ord_par, U, tperp, over, run_nr=1):
     
     dname = (os.path.expanduser("~") + "/Data/" + "/Density_ref/"
@@ -95,6 +105,9 @@ def guess_mu(ord_par, U, tperp, over, run_nr=1):
     
     return mug
 
+# Main self-consistency loop. Given maximum allowed errors in density and
+# order parameters calculates an order parameter by looping the algorithm until
+# input order parameter and output order parameter agree.
 def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     dt = 0.1
     model = "HCboson"
@@ -116,10 +129,12 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     mu_list = [g2[0]]
     dens = 1 / 2
     
+    # Loops for at most 100 iterations. Some runs do not converge even at this
+    # point.
     while i < 100 and err > orp_maxerr:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
-        Psi = st.StateChain(N, d, chi, algo)
+        Psi = st.StateChain(g1, g2, N, d, chi, algo)
         Psi = H.time_evolve(Psi, step_num, algo, fast_run=True)
         
         new_dens = 0
@@ -127,6 +142,9 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
             new_dens += M.expec(Psi, num_op, k)
         new_dens /= N
         
+        # Only finds a new chemical potential if density deviates too much from
+        # the goal density. Finds a guess which should lie on the other side
+        # of goal density.
         if abs(new_dens - dens)/dens > rho_maxerr:
             if new_dens > dens:
                 over = True
@@ -134,7 +152,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
                 over = False
             mu_guess = guess_mu(g2[1], g1[1], tperp, over)
             g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op,
-                           g2[0], new_dens)
+                           g2[0], new_dens, rho_maxerr)
         
         mu_list.append(g2[0])
             
@@ -144,9 +162,11 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
         g2[1] = abs(4*new_ord_par*tperp)
         i += 1
         ord_pars.append(abs(new_ord_par))
+        
+        # Some print statements to see if the convergence is coming along
         if i == 20 or i ==40:
             print("Error in order parameter is:", err)
             print("Truncation error:", Psi.err)
     print("Error in order parameter is:", err)
     print("Truncation error:", Psi.err)
-    return ord_pars, Psi
+    return ord_pars, Psi, mu_list

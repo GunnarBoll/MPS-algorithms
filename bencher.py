@@ -27,7 +27,7 @@ def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err,
              trunc_err_check):
     H = st.Hamiltonian(g1, g2, N, dt, d, chi_max, model, order,
                        grow_chi=trunc_err_check)
-    Psi = st.StateChain(N, d, chi_max, algo, bis_err)
+    Psi = st.StateChain(g1, g2, N, d, chi_max, algo, bis_err)
     step_num = int(T / dt)
     H.time_evolve(Psi, step_num, algo)
     return Psi, H

@@ -1,8 +1,9 @@
-"""Loop for self-consistent static mean-field calculation."""
-
+"""
+Program for self-consistent static mean-field calculation. The actual loop is
+contained in static_MF_loop.py.
+"""
 
 import importlib as imp
-import datetime
 import os
 import pathlib
 import numpy as np
@@ -14,9 +15,11 @@ from static_MF_loop import SMF_loop
 
 imp.reload(st)
 
+# Fittable exponential function
 def exp_func(x, a, b, c):
     return a*np.exp(-b*x) + c
-    
+
+# Function for extrapolating the order parameter without continuing the loop
 def extrap_res(g1, g2, N, dt, d, chi, model, order, algo, step_num, a):
     M = st.Measure()
     H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
@@ -28,6 +31,9 @@ def extrap_res(g1, g2, N, dt, d, chi, model, order, algo, step_num, a):
     
     return extr_ord
 
+# Calls the main loop function for parameter U and N. Returns a list with
+# the order parameters from the loop and a file name for them, the ground state
+# Psi and a list of chemical potentials.
 def mk_dat(U, N):
     g1 = [1., U]
     g2 = [0., 0.01]
@@ -36,19 +42,25 @@ def mk_dat(U, N):
     chi = 50
     
     # Args: (tperp, g1, g2, N, chi, T)
-    ord_pars, Psi = SMF_loop(tperp, g1, g2, N, chi, T)        
+    ord_pars, Psi, mus = SMF_loop(tperp, g1, g2, N, chi, T)        
     file_name = "N=" + str(N) + ",U=" + str(U)
-    return [ord_pars + [file_name], Psi]
+    return [ord_pars + [file_name], Psi, mus]
 
+# Main program, takes arguments N and U from console. Calls a data collection
+# algorithm and saves the order parameters, chemical potentials and ground
+# state in files.
 def main():
     start = time.time()
     
     N = int(sys.argv[1])
     U = float(sys.argv[2])
     
-    dat_list, Psi = mk_dat(U, N)
+    dat_list, Psi, mu_dat = mk_dat(U, N)
     
-    GS_mat = [Psi.N, Psi.d, Psi.err, Psi.notation, Psi.chi]
+    # Data for ground state
+    print(Psi.g1, Psi.g2)
+    GS_mat = ([coup for coup in Psi.g1] + [coup2 for coup2 in Psi.g2]
+              + [Psi.N, Psi.d, Psi.err, Psi.notation, Psi.chi])
     for tens in Psi.B:
         GS_mat += [elem for elem in 
                    tens.reshape(tens.shape[0]*tens.shape[1]*tens.shape[2])]
@@ -67,10 +79,18 @@ def main():
             pathlib.Path(direc + "_" + str(run_number) + "/").mkdir(
                 parents=True, exist_ok=True)
             direc += "_" + str(run_number) + "/"
+            
+            # Create file for order parameters
             with open(direc+filename+".txt", "x") as fw:
                 for data_point in dat_list:
                     fw.write(str(data_point) + "\n")
-                    
+            
+            # Create file for chemical potentials
+            with open(direc+"mu_"+filename+".txt", "x") as fw:
+                for mu in mu_dat:
+                    fw.write(str(mu) + "\n")
+            
+            # Create file for ground state
             with open(direc+GS_name+".txt", "x") as fw:
                 for comp in GS_mat:
                     fw.write(str(comp) + "\n")

@@ -1,4 +1,5 @@
-"""tMPS algorithm solving an antiferromagnetic transverse Ising chain
+"""
+tMPS algorithm solving an either a Heisenberg or Hardcore boson model.
 Written by: Gunnar Bollmark
 """
 import numpy as np
@@ -14,10 +15,8 @@ imp.reload(st)
 imp.reload(ed)
 imp.reload(np)
 
-# thr_num = '2'
-# os.environ['MKL_NUM_THREADS'] = thr_num
-# os.environ['OPENBLAS_NUM_THREADS'] = thr_num
-
+# Calculates and prints some interesting output if called. For small systems
+# it makes a double check with a full Hilbert space groundstate.
 def algo_output(Psi, H):
     adag = np.array([[0, 1], [0, 0]])
     a = np.array([[0, 0], [1, 0]])
@@ -40,7 +39,9 @@ def algo_output(Psi, H):
     for i in range(H.N):
         dens += M.expec(Psi, num_op, i)
     print("Expec algo:", dens/H.N)
-            
+
+# Given an Exact Diagonalization object prints some interesting quantities
+# for comparison with the algorithm results.
 def exact_output(ED):
     adag = np.array([[0, 1], [0, 0]])
     a = np.array([[0, 0], [1, 0]])
@@ -53,7 +54,9 @@ def exact_output(ED):
         dens += ED.ED_correl(ED.GS, adag, a, i, i)
     print("Exact dens", dens/ED.N)
     
-    
+# Checks the variance and expectation value of an observable op. This is useful
+# for finding states of definite value in some observable ( i.e. conserved
+# particle number)
 def obser_test(ED, op):
     corr_list = []
     maglist = []
@@ -81,6 +84,8 @@ def obser_test(ED, op):
 def main():
     # model = input("Enter model (Heisen, HCboson): ")
     model = "HCboson"
+    
+    # Fetches parameters from a file in current directory with name model.txt
     directory = (os.path.dirname(os.path.realpath(__file__)) + "/" + model
                  + ".txt")
     f = open(directory, "r")
@@ -122,7 +127,7 @@ def main():
     H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order, grow_chi=False)
     
     # Build the initial state
-    Psi = st.StateChain(N, d, chi, algo, bis_err=10**-11)
+    Psi = st.StateChain(g1, g2, N, d, chi, algo, bis_err=10**-11)
         
     # Time evolve the state (imaginary time)
     start = t.process_time()
