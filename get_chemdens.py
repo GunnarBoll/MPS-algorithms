@@ -1,3 +1,8 @@
+"""
+Main program constructs reference data for the static MF algorithm. The data is
+found "exactly" using exact diagonalization. For the reference data to be used
+a recompiling algorithm (refdata_comp.py) must be used.
+"""
 import importlib as imp
 import numpy as np
 import sys
@@ -9,6 +14,7 @@ import cwd_storage as store
 imp.reload(ed)
 imp.reload(store)
 
+# Given the model parameters returns the system particle density
 def get_dens(coup1, coup2, N, d, model):
     a = np.array([[0, 0], [1, 0]])
     adag = np.array([[0, 1], [0, 0]])
@@ -22,8 +28,11 @@ def get_dens(coup1, coup2, N, d, model):
     
     return dens
 
-def ED_MF_loop():
+# Main program
+def ED_MF_refdata():
     start = time.time()
+    
+    # Takes arguments from console
     U = float(sys.argv[1])
     N = int(sys.argv[2])
     tperp = float(sys.argv[3])
@@ -37,6 +46,7 @@ def ED_MF_loop():
     
     g2[1] = 4 * tperp * ord_par
     
+    # Gets a density given a chemical potential mu and stores them in a file
     dens = get_dens(g1, [mu, g2[1]], N, d, model)
     data = [dens, mu]
     
@@ -47,4 +57,4 @@ def ED_MF_loop():
     
     print("Time cost:", end-start)
     return
-ED_MF_loop()
+ED_MF_refdata()

@@ -1,5 +1,9 @@
-""" ED for short quantum Heisenberg chain
-Written by: Gunnar Bollmark"""
+""" 
+File contains a class with methods that feature the diagonalization of a
+Hamiltonian describing a 1D chain. The class has methods for simulating a
+Trotter step to compare with a DMRG algorithm if needed.
+Written by: Gunnar Bollmark
+"""
 
 import numpy as np
 import scipy.sparse as sp
@@ -11,18 +15,23 @@ import storage
 
 imp.reload(storage)
 
+# The class ExactD has Hamiltonian from storage.py as parent
 class ExactD(storage.Hamiltonian):
     def __init__(self, g1, g2, N, d, model, TO="second", dt=0.1):
+        
         super(ExactD,self).__init__(g1, g2, N, dt, d, 8, model, TO, ED=True)
                 
         initspinor = np.array([1, 1]) / np.sqrt(2)
         self.i_state = Nkron(list(itertools.repeat(initspinor, self.N)))
-        # Create full Hilbert space Hamiltonian
-        self.Id = sp.eye(d)
+        
+        self.Id = sp.eye(d) # Identity matrix in sparse matrix format
         self.op = list(itertools.repeat(self.Id, N))
+        
+        # Create full Hilbert space Hamiltonian based on what model is used
         self.H = self.full_ham(model)
         
-        # List of time operators for each bond
+        # List of the time operators that will be applied each bond when using
+        # Trotter stepping.
         self.Ulist = []
         self.Ulist2 = []
         for i in range(N - 1):
@@ -40,6 +49,8 @@ class ExactD(storage.Hamiltonian):
                     pass
         return
     
+    # Function which creates a Hamiltonian matrix in coordinate sparse
+    # formulation dependent on what model is passed.
     def full_ham(self, model):
         H = 0
         if model == "Heisen":
@@ -60,7 +71,9 @@ class ExactD(storage.Hamiltonian):
         for l in range(len(ssop)):
             H += hlist[l] * spkron([sp.eye(self.d ** (self.N-1)), ssop[l]])
         return H
-        
+    
+    # Function which returns single particle and two-particle operators and
+    # a list of coupling constants for the Heisenberg model.
     def heisen_opers(self):
         sz = sp.coo_matrix([[1., 0.], [0., -1.]]) / 2
         sy = sp.coo_matrix([[0, -complex(0, 1)], [complex(0, 1), 0]]) / 2
@@ -70,6 +83,8 @@ class ExactD(storage.Hamiltonian):
         ssop = [sz]
         return ssop, tsop, self.g1, [self.g2]
     
+    # Function which returns single particle and two-particle operators and
+    # a list of coupling constants for the hardcore boson model.
     def hcb_opers(self):
         adag = sp.coo_matrix([[0, 1], [0, 0]])
         a = sp.coo_matrix([[0, 0], [1, 0]])
@@ -82,7 +97,10 @@ class ExactD(storage.Hamiltonian):
         glist = [-self.g1[0], -self.g1[0], self.g1[1]]
         hlist = [-self.g2[0], self.g2[1], self.g2[1]]
         return ssop, tsop, glist, hlist
-        
+    
+    # Function which time evolves an initial state in time steps by splitting 
+    # up the time evolution operator. This can be done to different orders in 
+    # the error. Possible orders: first, second and fourth
     def trotter_time(self, step_number):
         state = self.i_state
         Iden = self.op[:self.N-1]
@@ -126,6 +144,8 @@ class ExactD(storage.Hamiltonian):
         self.trot_state = state
         return
     
+    # Function which sweeps through the state with time evolution given some
+    # order of time evolution operators.
     def ED_sweeping_order(self, state, step_number, order, Iden,
                           forward = True):
         t = 0
@@ -136,9 +156,10 @@ class ExactD(storage.Hamiltonian):
             t+=1
         return state
     
+    # Exact time evolution by matrix multiplication
     def exact_time(self, step_number):
         state = self.i_state
-        e, v = np.linalg.eig(self.H)
+        e, v = np.linalg.eigh(self.H)
         
         DO = np.matmul(np.diag(np.exp(-self.dt * e)), np.linalg.inv(v))
         expH = np.matmul(v, DO)
@@ -148,14 +169,19 @@ class ExactD(storage.Hamiltonian):
         self.E_evol = np.dot(state, np.dot(self.H, state))
         self.evol_state = state
         return
-        
+    
+    # Exact ground state by diagonalization with a Lanczos algorithm. Stores
+    # the three lowest states as class properties and returns the ground state
+    # energy and ground state
     def exact_GS(self):
         self.elist, self.GSl = sp_linalg.eigsh(self.H, k=3, v0 = self.i_state,
                                          which="SA")
         self.E_GS = min(self.elist)
         self.GS = self.GSl[: 2**self.N, 0]
         return self.E_GS, self.GS
-
+    
+    # Retrieves the energy of a state in the format of states given by method
+    # exact_GS (vector).
     def get_ener(self,state):
         E = []
         Id = np.eye(self.d)
@@ -166,7 +192,9 @@ class ExactD(storage.Hamiltonian):
             E.append(np.dot(state, np.dot(Enop, state)))
             Iden[k] = Id
         return E
-        
+    
+    # Performs a Trotter sweep and is called by function ED_sweeping_order().
+    # Returns the time evolved state.
     def ED_sweep(self, Ut, Iden, Istate, I, forw=True):
         start = 0
         end = self.N - 1
@@ -183,7 +211,9 @@ class ExactD(storage.Hamiltonian):
             Istate = U.dot(Istate)
             Istate = Istate / np.sqrt(sum(Istate ** 2))
         return Istate
-        
+    
+    # Calculates the correlator of single site operator op1 at i and op2 at j
+    # in a state psi and returns the result.
     def ED_correl(self, psi, op1, op2, i, j):
         op1 = spkron([sp.eye(self.d ** i), op1,
                       sp.eye(self.d ** (self.N-i-1))
@@ -196,7 +226,9 @@ class ExactD(storage.Hamiltonian):
         phi = op1.dot(op2.dot(psi))
         corr = np.dot(psi, phi)
         return corr
-        
+    
+    # Using a state in vector format calculates the lambda tensor in MPS
+    # formalism at bond i.
     def get_lam(self, state, i):
         phi = np.reshape(state, (self.d ** i, self.d ** (self.N-i)))
         lam = np.linalg.svd(phi, full_matrices=False, compute_uv=False)
@@ -209,6 +241,7 @@ def Nkron(matlist):
     else:
         return np.kron(matlist[0], Nkron(matlist[1 :]))
 
+# Kronecker product of N matrices in sparse matrix format (coordinate)
 def spkron(smatlist):
     if smatlist == []:
         return 1

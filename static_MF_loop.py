@@ -20,7 +20,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
     else:
         mu1 = old_mu
         dens1 = start_dens
-    for ind in range(10):
+    for ind in range(20):
         mu_ham = st.Hamiltonian(coup1, coup2, N, dt, d, chi, model, TO=order,
                                 grow_chi=False)
         mu_psi = st.StateChain(N, d, chi, "tDMRG")
@@ -43,9 +43,9 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
             mu0 = coup2[0]
             dens0 = mu_dens
         
-        if abs(dens_err) < rho_maxerr or ind == 9:
+        if abs(dens_err) < rho_maxerr or ind == 19:
             mu = coup2[0]
-            if ind == 9:
+            if ind == 19:
                 print("Density error:", dens_err)
             break
         else:
@@ -139,6 +139,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
         mu_list.append(g2[0])
             
         new_ord_par = M.expec(Psi, a, int(N / 2))
+        print(abs(new_ord_par))
         err = abs((abs(ord_pars[i]) - abs(new_ord_par)) / abs(ord_pars[i]))
         g2[1] = abs(4*new_ord_par*tperp)
         i += 1

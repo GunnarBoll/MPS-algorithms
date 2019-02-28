@@ -330,7 +330,7 @@ class Hamiltonian:
             for oper in operlist:
                 Psi = self.sweep(Psi, oper, algo, forward)
                 forward = not forward
-            if t % 10 == 0 and fast:
+            if t % 20 == 0 and fast:
                 Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                                 algo, forward=forward)
                 forward = not forward
@@ -430,12 +430,10 @@ class Hamiltonian:
         
         vals = abs(np.flip(sq_vals1, 0))
         V = np.flip(V, 1)
-        S = np.sqrt(vals)
+        S = np.sqrt(abs(vals))
         
         chic = min([np.sum(S > 10**-14), self.chi])
         err = np.sum(S[chic:] ** 2)
-        
-        U = (1/S) * np.matmul(phi, V)
         
         while err > max_err and self.chi < self.chi_max:
             self.chi += 1
@@ -443,9 +441,13 @@ class Hamiltonian:
             err = np.sum(S[chic:] ** 2)
         
         S = S[: chic]
-        U = np.reshape(U[:self.d*chia, :chic], (self.d, chia, chic))
-        V = np.reshape(V[:self.d*chib, :chic], (self.d, chib, chic))
+        V = V[:self.d*chib, :chic]
+        U = (1/S) * np.matmul(phi, V)
+        
+        V = np.reshape(V, (self.d, chib, chic))
         V = np.transpose(V, (0, 2, 1))
+        
+        U = np.reshape(U[:self.d*chia, :chic], (self.d, chia, chic))
         
         return [U, S, V, err, chic]
 

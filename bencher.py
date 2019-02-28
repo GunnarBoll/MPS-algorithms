@@ -103,7 +103,7 @@ def main():
             fed.write(str(data) + "\n")
         fed.close()
     
-    # Algorithm
+    # Algorithm calculation of observables
     iter_lists = [dt_list, T_list[1:], chi_max_list[1:], bis_err_list[1:]]
     trunc_err_check = False
     for ind in range(3):

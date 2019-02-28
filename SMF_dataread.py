@@ -17,7 +17,7 @@ def tail(filename):
 
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [20]
+    N_list = [20, 30, 40, 50]
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
         direc = data_direc + name

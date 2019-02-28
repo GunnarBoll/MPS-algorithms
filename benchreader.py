@@ -1,12 +1,20 @@
-
+"""
+Program reads files produced by bencher.py. The data is plotted in a log-log
+window. Data is usually comprised of groundstate energies and correlation
+matrices. When plotted only one element of the correlation matrix is shown.
+"""
 import numpy as np
 import datetime
 from matplotlib import pyplot as plt
 
+# Function for figure closing. Implemented as the closing of matplotlib figures
+# seems to be a little buggy (hangs a lot).
 def figcloser():
     for fignr in range(9, -1, -1):
         plt.close(fignr)
 
+# Function which produces a figure given data. The loglog flag determines if
+# loglog plotting is used or not
 def make_fig(xdat, ydat, xlab, ylab, fignr, loglog=False):
     plt.figure(fignr)
     if not loglog:
@@ -18,12 +26,15 @@ def make_fig(xdat, ydat, xlab, ylab, fignr, loglog=False):
     if not loglog:
         plt.ticklabel_format(style='sci', axis='both', scilimits=(0,0))
 
+# Main program
 def main():
     date = "2019-01-10"
     run_num = "_run#1/"
     direc = ("C:/Users/Gunnar/Documents/Ph.D/Learning/DMRG/Tryout code/output/"
              + date + run_num)
     
+    # The parameters set here must be the same as when data collection was
+    # issued.
     g1 = [1.0, 1.0]
     g2 = [1.0, 0.01]
     dt_list = [0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1]
@@ -40,6 +51,7 @@ def main():
     trunc_err_lists = [[], [], [], []]
     corr_lists = []
     
+    # Extracts Exact diagonalization data
     with open(direc + "ED.txt", "r") as fr:
         read_mat = []
         for line in fr:
@@ -48,6 +60,7 @@ def main():
         ED_corr = np.array(read_mat[1 :]).reshape(N,N)
         fr.close()
     
+    # Extracts algorithm data
     iter_lists = [dt_list, T_list, chi_max_list, bis_err_list]
     for ind in range(3):
         params = [dt_list[0], T_list[0], chi_max_list[0], bis_err_list[0]]
@@ -72,10 +85,13 @@ def main():
                 fr.close()
         corr_lists.append(np.array(corr))
     
+    
     label_list = [r"Time step, $\Delta t$", "Total time, T",
                   r"Bond dimension, $\chi$"]
     
     figcloser()
+    
+    # Set loglog plot and plot all data
     logplot = True
     for i in range(3):
         ener_err = ( abs(np.array(E_lists[i]) - np.array(ED_GSE))
@@ -83,7 +99,6 @@ def main():
                    )
         make_fig(iter_lists[i], ener_err, label_list[i],
                  "Ground state energy error", i+1, loglog=logplot)
-    
     corr_ind1 = 0
     corr_ind2 = 19
     for j in range(3):
@@ -93,7 +108,6 @@ def main():
                    )
         make_fig(iter_lists[j], corr_err, label_list[j], "Correlator error",
                  i+j+2, loglog=logplot)
-    
     
     make_fig(trunc_err_lists[2][:len(E_lists[2])-2],
               E_lists[2][:len(E_lists[2])-2], r"Truncation error",

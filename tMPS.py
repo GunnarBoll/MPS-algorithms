@@ -149,12 +149,13 @@ def main():
     
     if model == "HCboson":
         Free = st.FreeFerm(g1, g2, N)
-        # print("\nFree fermion result:", Free.E_GS)
+        print("\nFree fermion result:", Free.E_GS)
     
     # ener = 0
     # M = st.Measure()
     # for i in range(N):
     #     ener += M.correl()
     
+    print(Psi.err)
     return Psi
 psi2 = main()

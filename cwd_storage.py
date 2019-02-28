@@ -1,3 +1,8 @@
+"""
+A simple function storing data in a directory dname with filename fname. If
+the directory already exists the file is added to the existing directory. If
+the file exists a new directory is created for the file.
+"""
 import pathlib
 import os
 
