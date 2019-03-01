@@ -411,8 +411,9 @@ class Hamiltonian:
                            (0, 2, 1, 3))
         phi = np.reshape(phi, (self.d * chia, self.d * chib))
         
-        # U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
-        U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, Psi.bis_err)
+        U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
+        # U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, 
+		#											Psi.bis_err)
         
         Psi.err += err
         # State update
@@ -424,10 +425,12 @@ class Hamiltonian:
     def svd_truncator(self, phi, chia, chib, max_err):
         try:
             assert np.all(np.isfinite(phi))
-            U, S, V = np.linalg.svd(phi, full_matrices=False)
+            U, S, V = sci.linalg.svd(phi, full_matrices=False,
+									 lapack_driver="gesvd")
         except AssertionError:
             print("AssertionError caught! The matrix contains NaN!")
-            U, S, V = np.linalg.svd(phi, full_matrices=False)
+            U, S, V = sci.linalg.svd(phi, full_matrices=False,
+									 lapack_driver="gesvd")
         V = V.T
         
         chic = min([np.sum(S > 10**-14), self.chi])
