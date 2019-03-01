@@ -385,11 +385,11 @@ class Hamiltonian:
         chib = Psi.B[i + 1].shape[2]
         
         theta = Psi.get_theta(i)
-        # if np.all(Ut[i] == self.I):
-        #     return Psi
-        # else:
-        phi = np.transpose(np.tensordot(Ut[i], theta, ([1, 3], [0, 2])),
-                           (0, 2, 1, 3))
+        if np.all(Ut[i] == self.I):
+            return Psi
+        else:
+            phi = np.transpose(np.tensordot(Ut[i], theta, ([1, 3], [0, 2])),
+                               (0, 2, 1, 3))
         phi = np.reshape(phi, (self.d * chia, self.d * chib))
         
         # Singular value decomposition    
@@ -474,7 +474,12 @@ class Hamiltonian:
         
         S = S[: chic]
         V = V[:self.d*chib, :chic]
-        U = (1/S) * np.matmul(phi, V)
+        try:
+            U = (1/S) * np.matmul(phi, V)
+        except RuntimeWarning:
+            print("Divide by zero")
+            print("Singular values are:", S)
+            raise ZeroDivisionError
         
         V = np.reshape(V, (self.d, chib, chic))
         V = np.transpose(V, (0, 2, 1))
