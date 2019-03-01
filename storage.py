@@ -454,7 +454,7 @@ class Hamiltonian:
     # Do not try to get U and V from different eigh calls.
     def eigen_truncator(self, phi, chia, chib, max_err):
         try:
-            assert np.isfinite(phi)
+            assert np.all(np.isfinite(phi))
         except AssertionError:
             print("Phi matrix has NaN")
             raise AssertionError
