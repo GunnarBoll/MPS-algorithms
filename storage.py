@@ -17,6 +17,7 @@ The class OpChain is for calculation in the FreeFerm class.
 """
 
 import numpy as np
+import scipy as sci
 import itertools
 
 # Class storing the state of a 1-D chain. It is instantiated with a lot of
@@ -452,7 +453,12 @@ class Hamiltonian:
     # Solution: Quad precision? Too slow? Necessary?
     # Do not try to get U and V from different eigh calls.
     def eigen_truncator(self, phi, chia, chib, max_err):
-        sq_vals1, V = np.linalg.eigh(np.matmul(phi.T.conj(), phi))
+        try:
+            assert np.isfinite(phi)
+        except AssertionError:
+            print("Phi matrix has NaN")
+            raise AssertionError
+        sq_vals1, V = sci.linalg.eigh(np.matmul(phi.T.conj(), phi))
         
         vals = abs(np.flip(sq_vals1, 0))
         V = np.flip(V, 1)
