@@ -9,7 +9,7 @@ import numpy as np
 import time
 import datetime
 import pathlib
-import imp
+import importlib as imp
 import os
 
 # Import personal modules
@@ -29,7 +29,7 @@ def run_algo(g1, g2, N, dt, d, chi_max, model, order, T, algo, bis_err,
                        grow_chi=trunc_err_check)
     Psi = st.StateChain(g1, g2, N, d, chi_max, algo, bis_err)
     step_num = int(T / dt)
-    H.time_evolve(Psi, step_num, algo)
+    H.time_evolve(Psi, step_num, algo, fast_run=True)
     return Psi, H
 
 # Function which COMPUTES and writes data to file given a state and
@@ -82,7 +82,7 @@ def main():
     order = "fourth"
     algo = "tDMRG"
     d = 2
-    N = 4
+    N = 20
     
     start = time.process_time()
     start2 = time.time()

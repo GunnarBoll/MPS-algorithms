@@ -426,7 +426,7 @@ class Hamiltonian:
         try:
             assert np.all(np.isfinite(phi))
             U, S, V = sci.linalg.svd(phi, full_matrices=False,
-									 lapack_driver="gesvd")
+									 lapack_driver="gesdd")
         except AssertionError:
             print("AssertionError caught! The matrix contains NaN!")
             U, S, V = sci.linalg.svd(phi, full_matrices=False,
@@ -581,7 +581,7 @@ class Measure:
                         B_right = np.tensordot(Psi.B[ind2],
                                                np.diag(Psi.L[ind2 + 1]),
                                                (2, 0))
-                        Rp = np.tensordot(Rp, Psi.L[ind2 + 1], (2, 0))
+                        Rp = np.tensordot(Rp, np.diag(Psi.L[ind2 + 1]), (2, 0))
                     else:
                         B_right = Psi.B[ind2]
                     Lp = np.tensordot(B_right.conj(), left[ind3], (1, 0))

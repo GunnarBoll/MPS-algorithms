@@ -55,10 +55,10 @@ def main():
     N = int(sys.argv[1])
     U = float(sys.argv[2])
     
+    print("U is:", U)
     dat_list, Psi, mu_dat = mk_dat(U, N)
     
     # Data for ground state
-    print(Psi.g1, Psi.g2)
     GS_mat = ([coup for coup in Psi.g1] + [coup2 for coup2 in Psi.g2]
               + [Psi.N, Psi.d, Psi.err, Psi.notation, Psi.chi])
     for tens in Psi.B:
