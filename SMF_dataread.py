@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import importlib as imp
 
 import storage as st
+from GS_get import get_GS
 
 imp.reload(st)
 
@@ -16,7 +17,20 @@ def tail(filename):
         last_line = lines[-1]
     return float(last_line)
 
-def truncerr_extrap():
+def get_err(filename):
+    with open(filename, 'r') as fr:
+        err = [line for i, line in enumerate(fr) if i == 3]
+    return float(err[0])
+
+def truncerr_extrap(orp, gs_file):
+    Psi = get_GS(gs_file)
+    trunc_errs = [Psi.err]
+    chi_list = range(20, Psi.chi, 10)
+    trunc_errs += [err_gen(chi, Psi) for chi in chi_list]
+    
+    pass
+
+def err_gen():
     pass
 
 def finsiz_extrap():
@@ -26,7 +40,7 @@ def finsiz_extrap():
 # order parameter for each U. Plots the order parameter versus U.
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [20, 30, 40, 50, 60]
+    N_list = [20]
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
         direc = data_direc + name
@@ -35,9 +49,17 @@ def main():
         
         files = [direc+"N="+str(N)+",U="+str(U)+".txt" for U in U_list]
         GS_files = ["GS_"+name for name in files]
+        
+        # trunc_errs = [get_err(file) for file in GS_files]
+        
         ord_par = [tail(file) for file in files]
         
+        new_orp = [truncerr_extrap(ord_par[i], GS_files[i]) for i in
+                   range(len(ord_par))]
+        plt.figure(1)
         plt.plot(U_list, ord_par)
+        plt.figure(2)
+        plt.plot(U_list, new_orp)
     plt.show()
     
     return

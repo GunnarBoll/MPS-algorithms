@@ -432,6 +432,7 @@ class Hamiltonian:
             print("AssertionError caught! The matrix contains NaN!")
             raise AssertionError
         except np.linalg.linalg.LinAlgError:
+            print("Divide and conquer failure. Switching svd solver.")
             U, S, V = sci.linalg.svd(phi, full_matrices=False, 
                                      lapack_driver="gesvd")
         V = V.T
