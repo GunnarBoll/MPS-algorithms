@@ -138,6 +138,7 @@ class Hamiltonian:
         self.model = model
         self.chi_max = chi
         self.Uall = []
+        self.max_bis_err = []
         if model == "Heisen":
             self.Hlist = self.get_heisen(g1, g2)
         elif model == "HCboson":
@@ -429,8 +430,10 @@ class Hamiltonian:
 									 lapack_driver="gesdd")
         except AssertionError:
             print("AssertionError caught! The matrix contains NaN!")
-            U, S, V = sci.linalg.svd(phi, full_matrices=False,
-									 lapack_driver="gesvd")
+            raise AssertionError
+        except np.linalg.linalg.LinAlgError:
+            U, S, V = sci.linalg.svd(phi, full_matrices=False, 
+                                     lapack_driver="gesvd")
         V = V.T
         
         chic = min([np.sum(S > 10**-14), self.chi])

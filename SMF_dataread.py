@@ -16,6 +16,12 @@ def tail(filename):
         last_line = lines[-1]
     return float(last_line)
 
+def truncerr_extrap():
+    pass
+
+def finsiz_extrap():
+    pass
+
 # Main program,for N in N_list and U in U_list calls files and retrieves the
 # order parameter for each U. Plots the order parameter versus U.
 def main():
@@ -28,6 +34,7 @@ def main():
 
         
         files = [direc+"N="+str(N)+",U="+str(U)+".txt" for U in U_list]
+        GS_files = ["GS_"+name for name in files]
         ord_par = [tail(file) for file in files]
         
         plt.plot(U_list, ord_par)
