@@ -27,7 +27,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
     else:
         mu1 = old_mu
         dens1 = start_dens
-    for ind in range(20):
+    for ind in range(30):
         mu_ham = st.Hamiltonian(coup1, coup2, N, dt, d, chi, model, TO=order,
                                 grow_chi=False)
         mu_psi = st.StateChain(coup1, coup2, N, d, chi, "tDMRG")
@@ -50,9 +50,9 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
             mu0 = coup2[0]
             dens0 = mu_dens
         
-        if abs(dens_err) < rho_maxerr or ind == 19:
+        if abs(dens_err) < rho_maxerr or ind == 29:
             mu = coup2[0]
-            if ind == 19:
+            if ind == 29:
                 print("Density error:", dens_err)
             break
         else:
@@ -131,7 +131,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     
     # Loops for at most 100 iterations. Some runs do not converge even at this
     # point.
-    while i < 100 and err > orp_maxerr:
+    while i < 150 and err > orp_maxerr:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(g1, g2, N, d, chi, algo)
@@ -164,7 +164,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
         ord_pars.append(abs(new_ord_par))
         
         # Some print statements to see if the convergence is coming along
-        if i == 20 or i ==40:
+        if i%20 == 0:
             print("Error in order parameter is:", err)
             print("Truncation error:", Psi.err)
     print("Error in order parameter is:", err)

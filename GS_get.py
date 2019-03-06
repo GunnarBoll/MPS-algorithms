@@ -20,7 +20,7 @@ def get_GS(filename):
     
     # Reconstruct parameters of state
     coups = [float(GS_mat.pop(0)) for i in range(4)]
-    g1, g2 = coups[:2] + coups[2:]
+    g1, g2 = coups[:2], coups[2:]
     N = int(GS_mat.pop(0))
     d = int(GS_mat.pop(0))
     err = float(GS_mat.pop(0))
@@ -53,6 +53,7 @@ def get_GS(filename):
     
     # Pass StateChain constructions with load_state flag so data is loaded and
     # not given
-    Psi = st.StateChain(N, d, chi, "tDMRG", load_state=True, load_mat=indata)
+    Psi = st.StateChain(None, None, N, d, chi, "tDMRG", load_state=True, 
+                        load_mat=indata)
     
     return Psi

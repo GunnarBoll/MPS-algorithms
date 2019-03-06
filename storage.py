@@ -18,6 +18,7 @@ The class OpChain is for calculation in the FreeFerm class.
 
 import numpy as np
 import scipy as sci
+from scipy import linalg
 import itertools
 
 # Class storing the state of a 1-D chain. It is instantiated with a lot of
@@ -30,7 +31,7 @@ class StateChain:
         self.N = N
         self.d = d
         self.bis_err = bis_err
-        
+        self.chi = chi
         if load_state:
             self.g1 = load_mat[0]
             self.g2 = load_mat[1]
@@ -43,7 +44,6 @@ class StateChain:
             self.g2 = g2
             self.L = []
             self.B = []
-            self.chi = chi
             self.err = 0
             for i in range(N+1):
                 if i < N:
@@ -124,7 +124,7 @@ class StateChain:
 # available: Heisenberg chain and Hardcore boson chain.
 class Hamiltonian:
     def __init__(self, g1, g2, N, dt, d, chi, model, TO, ED=False,
-                 grow_chi=True):
+                 grow_chi=False):
         self.g1 = g1
         self.g2 = g2
         self.d = d

@@ -35,7 +35,7 @@ def cpden_compile(ord_par, U, tperp, run_nr):
 # Main program, for a certain tperp and run_nr recompiles data for a set of U
 def compile_all(tperp, run_nr):
     orp_list = range(11)
-    U_list = [3.0, 3.5, 4.0, 4.5, 5.0]
+    U_list = [0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75]
     
     for U in U_list:
         for orp in orp_list:
