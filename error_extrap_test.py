@@ -56,7 +56,7 @@ def main():
     order = keylist['order']    #Trotter order
     algo = keylist['algo']      #Which algorithm to use
     
-    chi_list = [26, 28, 30, 32]
+    chi_list = [28, 30, 32, 34]
     err = []
     ener = []
     

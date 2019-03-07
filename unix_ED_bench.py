@@ -35,7 +35,8 @@ def main():
     data = [ED.E_GS] + corr_mat
     
     file_name = "bench_ED.txt"
-    direc_name = "alf=" + str(alf) + date
+    direc_name = "alf=" + str(alf)
     cwd_store(direc_name, file_name, data)
+    print("Success!")
 
 main()

@@ -46,9 +46,10 @@ def main():
     corr_matrix = np.reshape(corr_matrix, (corr_matrix.shape[0] ** 2))
     data += [corr for corr in corr_matrix]
     
-    direc_name = "alf=" + str(alf) + date
+    direc_name = "alf=" + str(alf)
     file_name = "chi=" + str(chi) + ",T=" + str(T) + ",dt=" + str(dt) + ".txt"
     
     cwd_store(direc_name, file_name, data)
+    print("Success!")
     
 main()
