@@ -56,7 +56,7 @@ def main():
     order = keylist['order']    #Trotter order
     algo = keylist['algo']      #Which algorithm to use
     
-    chi_list = [20, 30, 40]
+    chi_list = [26, 28, 30, 32]
     err = []
     ener = []
     
@@ -70,16 +70,24 @@ def main():
         err += [Psi.err]
     
     
-    
+    plt.figure(1)
     plt.plot(err, ener)
+    p = sci.polyfit(err, ener, 1)
+    xran = np.linspace(0, max(err), 20)
+    fitfunc = lambda x: p[0]*x + p[-1]
+    plt.plot(xran, fitfunc(xran))
+    Free = st.FreeFerm(g1, g2, N)
+    gs_list = Free.E_GS*np.ones(len(xran))
+    plt.plot(xran, gs_list)
+    
     plt.show()
     
     print("Algo energies:", ener)
+    print("Errors:", err)
     
-    p = sci.polyfit(err, ener, 1)
+    
     
     print("Extrap energy", p[-1])
     
-    Free = st.FreeFerm(g1, g2, N)
     print("\nFree fermion result:", Free.E_GS)
 main()

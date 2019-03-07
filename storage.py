@@ -348,12 +348,16 @@ class Hamiltonian:
         operlist = order
         E0 = [sum(Psi.get_ener(self.Hchain))]
         while t < step_number:
+            Psi.err = 0
             for oper in operlist:
+                
                 Psi = self.sweep(Psi, oper, algo, forward)
                 forward = not forward
             if t % 20 == 0 and fast:
+                temp_err = Psi.err
                 Psi= self.sweep(Psi, list(itertools.repeat(self.I, self.N-1)),
                                 algo, forward=forward)
+                Psi.err = temp_err
                 forward = not forward
                 E_new = sum(Psi.get_ener(self.Hchain))
                 E_err = abs(E0[-1] - E_new) / abs(E0[-1])
@@ -396,7 +400,7 @@ class Hamiltonian:
         # Singular value decomposition    
         U, S, V, err, chic = self.svd_truncator(phi, chia, chib, Psi.bis_err)
         # Truncation error accumulation
-        Psi.err += err
+        Psi.err = err if err < Psi.err else Psi.err
         # State update
         Psi.update(U, S, V, i, forward)
         return Psi
@@ -416,7 +420,7 @@ class Hamiltonian:
         # U, S, V, err, chic = self.eigen_truncator(phi, chia, chib, 
 		#											Psi.bis_err)
         
-        Psi.err += err
+        Psi.err = err if err > Psi.err else Psi.err
         # State update
         Psi.update(U, S, V, i, forward)
         return Psi

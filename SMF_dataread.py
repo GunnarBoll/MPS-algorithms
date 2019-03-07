@@ -59,9 +59,7 @@ def isize_orp(N_list, orp_list, i, U):
     plt.ylabel("<a>")
     plt.xlabel("1/L")
     plt.legend([dat_plot, quad_plot])
-    fig.savefig("U="+str(U)+".png")
-    
-    
+    # fig.savefig("U="+str(U)+".png")
     
     N_list.reverse()
     orp_list.reverse()
@@ -77,7 +75,7 @@ def namer(N, U):
 # order parameter for each U. Plots the order parameter versus U.
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [20, 30, 40, 50, 60]
+    N_list = [30, 40, 50, 60]
     U_list = [0., 0.5, 1.0, 1.5, 2., 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
     orps_vs_U = []
     for N in N_list:
@@ -108,6 +106,9 @@ def main():
     print(isize_orp_vs_U)
     plt.figure(20)
     plt.plot(U_list, isize_orp_vs_U)
+    plt.ylabel("<a>")
+    plt.xlabel("U")
+    
     
     plt.show()
     
