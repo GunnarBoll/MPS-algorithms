@@ -169,4 +169,6 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
             print("Truncation error:", Psi.err)
     print("Error in order parameter is:", err)
     print("Truncation error:", Psi.err)
+    
+    Psi = H.time_evolve(Psi, 1000, algo, fast_run=False)
     return ord_pars, Psi, mu_list

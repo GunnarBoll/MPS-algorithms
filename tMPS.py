@@ -132,7 +132,7 @@ def main():
     # Time evolve the state (imaginary time)
     start = t.process_time()
     actstart = t.time()
-    Psi = H.time_evolve(Psi, step_number, algo, fast_run=True)
+    Psi = H.time_evolve(Psi, step_number, algo, fast_run=False)
     end = t.process_time()
     actend = t.time()
     print("Process time taken for algorithm is:", end-start)

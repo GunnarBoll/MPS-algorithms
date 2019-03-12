@@ -346,7 +346,7 @@ class Hamiltonian:
                        fast=False):
         t = 0
         operlist = order
-        E0 = [sum(Psi.get_ener(self.Hchain))]
+        E0 = [sum(Psi.get_ener(self.Hchain))] #[int(self.N / 2)]
         while t < step_number:
             Psi.err = 0
             for oper in operlist:
@@ -359,7 +359,7 @@ class Hamiltonian:
                                 algo, forward=forward)
                 Psi.err = temp_err
                 forward = not forward
-                E_new = sum(Psi.get_ener(self.Hchain))
+                E_new = sum(Psi.get_ener(self.Hchain)) #[int(self.N / 2)]
                 E_err = abs(E0[-1] - E_new) / abs(E0[-1])
                 E0.append(E_new)
                 if E_err < 10 ** -6:

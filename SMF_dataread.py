@@ -27,8 +27,7 @@ def get_err(filename):
 def truncerr_extrap(orp, gs_file):
     Psi = get_GS(gs_file)
     trunc_errs = [Psi.err]
-    inc = int((Psi.chi-20) / 4)
-    chi_list = range(Psi.chi, 20, -inc)
+    chi_list = range(Psi.chi-2, Psi.chi-10, -2)
     trunc_errs += [err_gen(chi, Psi) for chi in chi_list]
     
     print(trunc_errs)
@@ -36,7 +35,7 @@ def truncerr_extrap(orp, gs_file):
 
 def err_gen(chi, Psi):
     Psi.chi = chi
-    step_num = 100
+    step_num = 10
     H = st.Hamiltonian(Psi.g1, Psi.g2, Psi.N, 0.1, Psi.d, Psi.chi, 
                        model="HCboson", TO="fourth")
     Psi = H.time_evolve(Psi, step_num, "tDMRG", fast_run=True)
@@ -50,16 +49,18 @@ def isize_orp(N_list, orp_list, i, U):
     inv_N_list = [1/N for N in N_list]
     p = sci.polyfit(inv_N_list, orp_list, 2)
     
+#    if U == 3.0:
     fit = lambda x: p[0]*x**2 + p[1]*x +p[2]
     x_list = np.linspace(0, 0.05, 20)
     
     fig = plt.figure(i)
-    dat_plot, = plt.plot(inv_N_list, orp_list, "ro", label="Data points")
+    dat_plot, = plt.plot(inv_N_list, orp_list, "ro",
+                         label="Data points, U=" + str(U))
     quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
     plt.ylabel("<a>")
     plt.xlabel("1/L")
     plt.legend([dat_plot, quad_plot])
-    # fig.savefig("U="+str(U)+".png")
+#    fig.savefig("U="+str(U)+".png")
     
     N_list.reverse()
     orp_list.reverse()
@@ -75,8 +76,8 @@ def namer(N, U):
 # order parameter for each U. Plots the order parameter versus U.
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [30, 40, 50, 60]
-    U_list = [0., 0.5, 1.0, 1.5, 2., 2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
+    N_list = [i*10 for i in range(3,7)]
+    U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
@@ -95,7 +96,7 @@ def main():
         new_orp = ord_par
         
         orps_vs_U.append(new_orp)
-        plt.figure(19)
+        plt.figure(29)
         plt.plot(U_list, ord_par)
 #        plt.figure(2)
 #        plt.plot(U_list, new_orp)
@@ -104,7 +105,7 @@ def main():
     isize_orp_vs_U = [isize_orp(N_list, orps_vs_N[i], i, U_list[i]) for i in 
                       range(len(U_list))]
     print(isize_orp_vs_U)
-    plt.figure(20)
+    plt.figure(30)
     plt.plot(U_list, isize_orp_vs_U)
     plt.ylabel("<a>")
     plt.xlabel("U")

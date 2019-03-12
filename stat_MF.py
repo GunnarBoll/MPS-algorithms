@@ -38,7 +38,7 @@ def mk_dat(U, N):
     g1 = [1., U]
     g2 = [0., 0.01]
     tperp = 0.05
-    T = 100
+    T = 200
     chi = 50
     
     # Args: (tperp, g1, g2, N, chi, T)
