@@ -40,4 +40,5 @@ def refine():
     cwd_folder = "refined_gsdata"
     
     cwd_store(cwd_folder, fname, gs_mat)
-    
+
+refine()
