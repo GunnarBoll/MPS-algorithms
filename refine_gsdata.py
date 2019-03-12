@@ -26,7 +26,7 @@ def refine():
     dt = 0.1
     hom = os.path.expanduser("~")
     dname = hom + "/Data/Static_MF/SMF_N=" + str(N) + "_1/"
-    fname = "N=" + str(N) + ",U=" + str(U) + ".txt"
+    fname = "GS_N=" + str(N) + ",U=" + str(U) + ".txt"
     
     Psi = get_GS(dname + fname)
     
