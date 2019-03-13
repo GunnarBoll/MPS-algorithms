@@ -344,10 +344,10 @@ class Hamiltonian:
     # 10^-6 and the flag fast is turned on.
     def sweeping_order(self, Psi, step_number, algo, order, forward=True,
                        fast=False):
-        t = 0
+        t = 1
         operlist = order
         E0 = [sum(Psi.get_ener(self.Hchain))] #[int(self.N / 2)]
-        while t < step_number:
+        while t < step_number+1:
             Psi.err = 0
             for oper in operlist:
                 

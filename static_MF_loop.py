@@ -34,7 +34,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
         
         steps = int(T / dt)
         #for ind2 in range(5):
-        mu_psi = mu_ham.time_evolve(mu_psi, steps, "tDMRG", fast_run=True)
+        mu_psi = mu_ham.time_evolve(mu_psi, steps, "tDMRG", fast_run=False)
         
         mu_dens = 0
         for m in range(N):
@@ -108,7 +108,7 @@ def guess_mu(ord_par, U, tperp, over, run_nr=1):
 # Main self-consistency loop. Given maximum allowed errors in density and
 # order parameters calculates an order parameter by looping the algorithm until
 # input order parameter and output order parameter agree.
-def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
+def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-6, orp_maxerr=1e-8):
     dt = 0.1
     model = "HCboson"
     order = "fourth"
@@ -129,13 +129,14 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     mu_list = [g2[0]]
     dens = 1 / 2
     
+    
     # Loops for at most 100 iterations. Some runs do not converge even at this
     # point.
     while i < 150 and err > orp_maxerr:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(g1, g2, N, d, chi, algo)
-        Psi = H.time_evolve(Psi, step_num, algo, fast_run=True)
+        Psi = H.time_evolve(Psi, step_num, algo, fast_run=False)
         
         new_dens = 0
         for k in range(N):
@@ -145,7 +146,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
         # Only finds a new chemical potential if density deviates too much from
         # the goal density. Finds a guess which should lie on the other side
         # of goal density.
-        if abs(new_dens - dens)/dens > rho_maxerr:
+        if abs(new_dens - dens)/new_dens > rho_maxerr:
             if new_dens > dens:
                 over = True
             else:
@@ -171,22 +172,52 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     print("Truncation error:", Psi.err)
     
     
-    Psi = H.time_evolve(Psi, 1000, algo, fast_run=False)
+    # NEW ADDITIONS
+#    Psi = H.time_evolve(Psi, 1000, algo, fast_run=False)
+#    
+#    finaldens = 0
+#    for i in range(N):
+#        finaldens += M.expec(Psi, num_op, i)
+#    finaldens /= N
+#    final_err = 1e-8
+#    if abs(finaldens - dens)/finaldens > final_err:
+#        if finaldens > dens:
+#            over = True
+#        else:
+#            over = False
+#        mu_guess = guess_mu(g2[1], g1[1], tperp, over)
+#        g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op, g2[0],
+#                       finaldens, final_err)
+#        mu_list.append(g2[0])
+#    
+#    finalorp = abs(M.expec(Psi, a, int(N / 2)))
+#    print(finalorp)
+#    
+#    g2[1] = abs(4 * tperp * finalorp)
+#    
+#    # Last loop
+#    H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
+#                       grow_chi=False)
+#    Psi = st.StateChain(g1, g2, N, d, chi, algo)
+#    Psi = H.time_evolve(Psi, step_num, algo, fast_run=False)
+#    
+#    new_dens = 0
+#    for k in range(N):
+#        new_dens += M.expec(Psi, num_op, k)
+#    new_dens /= N
+#    
+#    if abs(new_dens - dens)/new_dens > final_err:
+#        if new_dens > dens:
+#            over = True
+#        else:
+#            over = False
+#        mu_guess = guess_mu(g2[1], g1[1], tperp, over)
+#        g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op,
+#                       g2[0], new_dens, final_err)
+#    
+#    mu_list.append(g2[0])
+#    new_ord_par = M.expec(Psi, a, int(N / 2))
+#    print(abs(new_ord_par))
+#    g2[1] = abs(4*new_ord_par*tperp)
     
-    finaldens = 0
-    for i in range(N):
-        finaldens += M.expec(Psi, num_op, i)
-    finaldens /= N
-    final_err = 1e-8
-    if abs(finaldens - dens)/dens > final_err:
-        if finaldens > dens:
-            over = True
-        else:
-            over = False
-        mu_guess = guess_mu(g2[1], g1[1], tperp, over)
-        g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op, g2[0],
-                       finaldens, final_err)
-        mu_list.append(g2[0])
-        
-    print(abs(M.expec(Psi, a, int(N / 2))))
     return ord_pars, Psi, mu_list
