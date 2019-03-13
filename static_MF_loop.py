@@ -170,5 +170,23 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-5):
     print("Error in order parameter is:", err)
     print("Truncation error:", Psi.err)
     
+    
     Psi = H.time_evolve(Psi, 1000, algo, fast_run=False)
+    
+    finaldens = 0
+    for i in range(N):
+        finaldens += M.expec(Psi, num_op, i)
+    finaldens /= N
+    final_err = 1e-8
+    if abs(finaldens - dens)/dens > final_err:
+        if finaldens > dens:
+            over = True
+        else:
+            over = False
+        mu_guess = guess_mu(g2[1], g1[1], tperp, over)
+        g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op, g2[0],
+                       finaldens, final_err)
+        mu_list.append(g2[0])
+        
+    print(abs(M.expec(Psi, a, int(N / 2))))
     return ord_pars, Psi, mu_list

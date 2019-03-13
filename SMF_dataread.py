@@ -19,6 +19,13 @@ def tail(filename):
         last_line = lines[-1]
     return float(last_line)
 
+def orp_from_GS(filename):
+    Psi = get_GS(filename)
+    M = st.Measure()
+    a = np.array([[0, 0], [1, 0]])
+    
+    return abs(M.expec(Psi, a, int(Psi.N / 2)))
+
 def get_err(filename):
     with open(filename, 'r') as fr:
         err = [line for i, line in enumerate(fr) if i == 3]
@@ -89,6 +96,7 @@ def main():
         # trunc_errs = [get_err(file) for file in GS_files]
         
         ord_par = [tail(file) for file in files]
+        ord_par = [orp_from_GS(file) for file in GS_files]
         
 #        new_orp = [truncerr_extrap(ord_par[i], GS_files[i]) for i in
 #                   range(len(ord_par))]

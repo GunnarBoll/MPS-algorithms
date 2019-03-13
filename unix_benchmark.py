@@ -6,7 +6,6 @@ Created on Thu Mar  7 13:15:50 2019
 """
 import sys
 import importlib as imp
-import datetime
 import numpy as np
 
 import storage as st
@@ -17,7 +16,6 @@ imp.reload(st)
 imp.reload(ed)
 
 def main():
-    date = str(datetime.date.today())
     N = int(sys.argv[1])
     dt = float(sys.argv[2])
     T = int(sys.argv[3])
@@ -42,7 +40,7 @@ def main():
     corr_matrix = M.corr_mat(Psi, adag, a)
     E_GS = sum(Psi.get_ener(H.Hchain))
     
-    data = [E_GS]
+    data = [E_GS, Psi.err]
     corr_matrix = np.reshape(corr_matrix, (corr_matrix.shape[0] ** 2))
     data += [corr for corr in corr_matrix]
     
