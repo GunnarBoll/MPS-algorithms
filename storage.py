@@ -344,10 +344,15 @@ class Hamiltonian:
     # 10^-6 and the flag fast is turned on.
     def sweeping_order(self, Psi, step_number, algo, order, forward=True,
                        fast=False):
-        t = 1
+        t = 0
         operlist = order
-        E0 = [sum(Psi.get_ener(self.Hchain))] #[int(self.N / 2)]
-        while t < step_number+1:
+        M = Measure()
+        a = np.array([[0, 0], [1, 0]])
+        
+#        E0 = [sum(Psi.get_ener(self.Hchain))] #[int(self.N / 2)]
+        
+        orp_tes = [abs(M.expec(Psi, a, int(self.N / 2)))]
+        while t < step_number:
             Psi.err = 0
             for oper in operlist:
                 
@@ -359,10 +364,13 @@ class Hamiltonian:
                                 algo, forward=forward)
                 Psi.err = temp_err
                 forward = not forward
-                E_new = sum(Psi.get_ener(self.Hchain)) #[int(self.N / 2)]
-                E_err = abs(E0[-1] - E_new) / abs(E0[-1])
-                E0.append(E_new)
-                if E_err < 10 ** -6:
+#                E_new = sum(Psi.get_ener(self.Hchain)) #[int(self.N / 2)]
+#                E_err = abs(E0[-1] - E_new) / abs(E0[-1])
+#                E0.append(E_new)
+                orp_new = M.expec(Psi, a, int(self.N / 2))
+                orp_err = abs(orp_tes[-1] - orp_new) / abs(orp_tes[-1])
+                orp_tes.append(orp_new)
+                if orp_err < 1e-6: #E_err < 10 ** -10:
                     break
             t += 1
         if Psi.err > 10**-3:

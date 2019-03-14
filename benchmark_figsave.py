@@ -21,6 +21,7 @@ def make_plot_dat(alf, chi, T, dt, ED_EGS, ED_corr, i, j):
     with open(direc_name+file_name, "r") as fr:
         file_data = [float(line) for line in fr]
     E = file_data.pop(0)
+    err = file_data.pop(0)
     N = int(np.sqrt(len(file_data)))
     corr_mat = np.array(file_data).reshape(N, N)
     corr = corr_mat[i, j]
