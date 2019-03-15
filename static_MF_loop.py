@@ -131,7 +131,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-6):
     
     # Loops for at most 100 iterations. Some runs do not converge even at this
     # point.
-    while i < 150 and err > orp_maxerr:
+    while i < 150 and err > orp_maxerr and ord_pars[-1] > 1e-8:
         H = st.Hamiltonian(g1, g2, N, dt, d, chi, model, TO=order,
                            grow_chi=False)
         Psi = st.StateChain(g1, g2, N, d, chi, algo)
