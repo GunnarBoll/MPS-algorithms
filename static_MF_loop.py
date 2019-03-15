@@ -41,7 +41,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
             mu_dens += Meas.expec(mu_psi, num_op, m)
         mu_dens /= N
         
-        dens_err = (mu_dens - goal_dens) / goal_dens
+        dens_err = abs((mu_dens - goal_dens)) / mu_dens
         
         if mu_dens > goal_dens:
             mu1 = coup2[0]
