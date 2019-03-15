@@ -20,7 +20,7 @@ def main():
     model = "HCboson"
     
     direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    file = "SMF_N=40_1/GS_N=40,U=1.5.txt"
+    file = "SMF_N=60_1/GS_N=60,U=2.5.txt"
     
     Psi = get_GS(direc+file)
     
@@ -42,9 +42,9 @@ def main():
     
     M = st.Measure()
     
-    Psi = H.time_evolve(Psi, 400, algo, fast_run=False)
+#    Psi = H.time_evolve(Psi, 400, algo, fast_run=False)
     
-    chi_list = [Psi.chi-2, Psi.chi-6]
+    chi_list = [Psi.chi-2, Psi.chi-4]
     err = [Psi.err]
     a = np.array([[0, 0], [1, 0]])
     measurement = [abs(M.expec(Psi, a, int(Psi.N / 2)))]
@@ -78,5 +78,5 @@ def main():
     
     print("Extrap measure", p[-1])
     
-#    print("\nFree fermion result:", Free.E_GS)
+    print("\nFree fermion result:", Free.E_GS)
 main()

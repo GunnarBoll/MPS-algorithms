@@ -5,6 +5,7 @@ interaction strength, U. The program reads files with combinations of N and U.
 from matplotlib import pyplot as plt
 import importlib as imp
 import scipy as sci
+import scipy.optimize as sciop
 import numpy as np
 
 import storage as st
@@ -57,10 +58,11 @@ def isize_orp(N_list, orp_list, i, U):
     p = sci.polyfit(inv_N_list, orp_list, 2)
     
 #    if U == 3.0:
-    fit = lambda x: p[0]*x**2 + p[1]*x +p[2]
+    fit = lambda x: p[0]*x**2 + p[1]*x + p[2]
+
     x_list = np.linspace(0, 0.05, 20)
     
-    fig = plt.figure(i)
+    fig = plt.figure()
     dat_plot, = plt.plot(inv_N_list, orp_list, "ro",
                          label="Data points, U=" + str(U))
     quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
@@ -84,7 +86,7 @@ def namer(N, U):
 def main():
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
     N_list = [i*10 for i in range(3,7)]
-    U_list = [i/4 for i in range(21)]
+    U_list = [i/4 for i in range(13)]
     orps_vs_U = []
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
@@ -104,7 +106,7 @@ def main():
         new_orp = ord_par
         
         orps_vs_U.append(new_orp)
-        plt.figure(29)
+        plt.figure(1)
         plt.plot(U_list, ord_par)
 #        plt.figure(2)
 #        plt.plot(U_list, new_orp)
@@ -112,8 +114,8 @@ def main():
                   range(len(U_list))]
     isize_orp_vs_U = [isize_orp(N_list, orps_vs_N[i], i, U_list[i]) for i in 
                       range(len(U_list))]
-    print(isize_orp_vs_U)
-    plt.figure(30)
+#    print(isize_orp_vs_U)
+    plt.figure()
     plt.plot(U_list, isize_orp_vs_U)
     plt.ylabel("<a>")
     plt.xlabel("U")

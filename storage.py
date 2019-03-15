@@ -370,7 +370,7 @@ class Hamiltonian:
                 orp_new = M.expec(Psi, a, int(self.N / 2))
                 orp_err = abs(orp_tes[-1] - orp_new) / abs(orp_tes[-1])
                 orp_tes.append(orp_new)
-                if orp_err < 1e-6: #E_err < 10 ** -10:
+                if orp_err < 1e-6 or orp_new < 1e-8: #E_err < 10 ** -10:
                     break
             t += 1
         if Psi.err > 10**-3:
