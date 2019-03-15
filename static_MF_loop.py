@@ -66,7 +66,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
 # Function which provides a guess at a chemical potential close and on the 
 # opposite side of the chemical potential given by the main loop. This is done
 # with reference data produced by get_chemdens.py
-def guess_mu(ord_par, U, tperp, over, run_nr=1):
+def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
     
     dname = (os.path.expanduser("~") + "/Data/" + "/Density_ref/"
              + "rho_of_mu_tperp=" + str(tperp) + ",U=" + str(U) + "_"
@@ -102,6 +102,8 @@ def guess_mu(ord_par, U, tperp, over, run_nr=1):
         
     if not HF_flag:
         print("No half-filling")
+        print("Density is:", dens)
+        mug = 2.0
     
     return mug
 
@@ -150,7 +152,7 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-6):
                 over = True
             else:
                 over = False
-            mu_guess = guess_mu(g2[1], g1[1], tperp, over)
+            mu_guess = guess_mu(g2[1], g1[1], tperp, over, new_dens)
             g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op,
                            g2[0], new_dens, rho_maxerr)
         
