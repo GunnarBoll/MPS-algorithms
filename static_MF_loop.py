@@ -27,7 +27,7 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
     else:
         mu1 = old_mu
         dens1 = start_dens
-    for ind in range(30):
+    for ind in range(40):
         mu_ham = st.Hamiltonian(coup1, coup2, N, dt, d, chi, model, TO=order,
                                 grow_chi=False)
         mu_psi = st.StateChain(coup1, coup2, N, d, chi, "tDMRG")
@@ -50,9 +50,9 @@ def new_mu(coup1, coup2, N, dt, d, chi, T, num_op, old_mu, start_dens,
             mu0 = coup2[0]
             dens0 = mu_dens
         
-        if abs(dens_err) < rho_maxerr or ind == 29:
+        if abs(dens_err) < rho_maxerr or ind == 39:
             mu = coup2[0]
-            if ind == 29:
+            if ind == 39:
                 print("Density error:", dens_err)
             break
         else:
@@ -103,7 +103,10 @@ def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
     if not HF_flag:
         print("No half-filling")
         print("Density is:", dens)
-        mug = 2.0
+        if over:
+            mug = -1.0
+        else:
+            mug = 5.0
     
     return mug
 
