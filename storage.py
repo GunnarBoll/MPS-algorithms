@@ -367,7 +367,7 @@ class Hamiltonian:
 #                E_new = sum(Psi.get_ener(self.Hchain)) #[int(self.N / 2)]
 #                E_err = abs(E0[-1] - E_new) / abs(E0[-1])
 #                E0.append(E_new)
-                orp_new = M.expec(Psi, a, int(self.N / 2))
+                orp_new = abs(M.expec(Psi, a, int(self.N / 2)))
                 orp_err = abs(orp_tes[-1] - orp_new) / abs(orp_tes[-1])
                 orp_tes.append(orp_new)
                 if orp_err < 1e-6 or orp_new < 1e-8: #E_err < 10 ** -10:

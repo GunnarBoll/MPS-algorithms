@@ -84,9 +84,10 @@ def namer(N, U):
 # Main program,for N in N_list and U in U_list calls files and retrieves the
 # order parameter for each U. Plots the order parameter versus U.
 def main():
+    plt.close("all")
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
     N_list = [i*10 for i in range(3,7)]
-    U_list = [i/4 for i in range(13)]
+    U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"
