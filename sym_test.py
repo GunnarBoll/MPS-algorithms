@@ -15,7 +15,7 @@ imp.reload(st)
 
 def main():
     direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    name = "SMF_N=60_1/GS_N=60,U=1.5.txt"
+    name = "SMF_N=20_1/GS_N=20,U=0.0.txt"
     Psi = get_GS(direc+name)
     
     g1 = Psi.g1

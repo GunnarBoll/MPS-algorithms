@@ -58,7 +58,7 @@ def isize_orp(N_list, orp_list, i, U):
     p = sci.polyfit(inv_N_list, orp_list, 2)
     
 #    if U == 3.0:
-    fit = lambda x: p[0]*x**2 + p[1]*x + p[2]
+    fit = lambda x: p[0]*x**2 + p[1]*x + p[-1]
 
     x_list = np.linspace(0, 0.05, 20)
     
@@ -86,8 +86,8 @@ def namer(N, U):
 def main():
     plt.close("all")
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in range(3,7)]
-    U_list = [i/4 for i in range(21)]
+    N_list = [i*10 for i in [3,4,5,6]] + [i*10 for i in range(8, 11, 2)]
+    U_list = [i/4 for i in range(13)]
     orps_vs_U = []
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_1/"

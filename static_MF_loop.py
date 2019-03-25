@@ -110,6 +110,18 @@ def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
     
     return mug
 
+def orp_meas(Psi, a, num_site):
+    orp_meas = st.Measure()
+    qsite = int(num_site / 4)
+    order_par = 0
+    
+    for orpind in range(qsite, 3*qsite):
+        order_par += abs(orp_meas.expec(Psi, a, orpind))
+    
+    order_par /= num_site/2
+    
+    return order_par
+
 # Main self-consistency loop. Given maximum allowed errors in density and
 # order parameters calculates an order parameter by looping the algorithm until
 # input order parameter and output order parameter agree.
@@ -161,7 +173,9 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-6):
         
         mu_list.append(g2[0])
             
-        new_ord_par = M.expec(Psi, a, int(N / 2))
+#        new_ord_par = M.expec(Psi, a, int(N / 2))
+        new_ord_par = orp_meas(Psi, a, N)
+        
         print(abs(new_ord_par))
         err = abs((abs(ord_pars[i]) - abs(new_ord_par)) / abs(ord_pars[i]))
         g2[1] = abs(4*new_ord_par*tperp)
@@ -175,23 +189,4 @@ def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-6):
     print("Error in order parameter is:", err)
     print("Truncation error:", Psi.err)
     
-    
-#    Psi = H.time_evolve(Psi, 1000, algo, fast_run=False)
-    
-#    finaldens = 0
-#    for i in range(N):
-#        finaldens += M.expec(Psi, num_op, i)
-#    finaldens /= N
-#    final_err = 1e-8
-#    if abs(finaldens - dens)/dens > final_err:
-#        if finaldens > dens:
-#            over = True
-#        else:
-#            over = False
-#        mu_guess = guess_mu(g2[1], g1[1], tperp, over)
-#        g2[0] = new_mu(g1, [mu_guess, g2[1]], N, dt, d, chi, T, num_op, g2[0],
-#                       finaldens, final_err)
-#        mu_list.append(g2[0])
-        
-#    print(abs(M.expec(Psi, a, int(N / 2))))
     return ord_pars, Psi, mu_list

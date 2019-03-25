@@ -18,7 +18,6 @@ The class OpChain is for calculation in the FreeFerm class.
 
 import numpy as np
 import scipy as sci
-from scipy import linalg
 import itertools
 
 # Class storing the state of a 1-D chain. It is instantiated with a lot of
@@ -189,9 +188,9 @@ class Hamiltonian:
         adag = np.array([[0, 1], [0, 0]])
         a = np.array([[0, 0], [1, 0]])
         num_op = np.matmul(adag, a)
-        # num_op = num_op - np.eye(self.d / 2)
-        alp1 = 4 * mu1[1] * 1 / np.sqrt(self.N/2)
-        alp2 = 4 * mu2[1] * 1 / np.sqrt(self.N/2)
+#        num_op = num_op - np.eye(self.d / 2)
+#        alp1 = 4 * mu1[1] * 1 / np.sqrt(self.N/2)
+#        alp2 = 4 * mu2[1] * 1 / np.sqrt(self.N/2)
         
         H = (- t[0] * (np.kron(adag, a)+np.kron(a, adag))
              - mu1[0] * np.kron(num_op, (np.eye(self.d)))
