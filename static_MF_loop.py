@@ -112,13 +112,15 @@ def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
 
 def orp_meas(Psi, a, num_site):
     orp_meas = st.Measure()
-    qsite = int(num_site / 4)
+    qlen = int(num_site / 4)
+    hnum = num_site / 2
+    
     order_par = 0
     
-    for orpind in range(qsite, 3*qsite):
+    for orpind in range(hnum-qlen, hnum+qlen):
         order_par += abs(orp_meas.expec(Psi, a, orpind))
     
-    order_par /= num_site/2
+    order_par /= hnum
     
     return order_par
 

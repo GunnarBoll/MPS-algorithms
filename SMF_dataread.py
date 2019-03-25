@@ -94,7 +94,7 @@ def main():
     
     run_nr = 2
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in [4,5,6]]
+    N_list = [i*10 for i in [4,5,6,7]]
     U_list = [1.5] #[i/4 for i in range(13)]
     orps_vs_U = []
     for N in N_list:
