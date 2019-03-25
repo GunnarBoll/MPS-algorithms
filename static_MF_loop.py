@@ -125,7 +125,7 @@ def orp_meas(Psi, a, num_site):
 # Main self-consistency loop. Given maximum allowed errors in density and
 # order parameters calculates an order parameter by looping the algorithm until
 # input order parameter and output order parameter agree.
-def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-4, orp_maxerr=1e-6):
+def SMF_loop(tperp, g1, g2, N, chi, T, rho_maxerr=1e-6, orp_maxerr=1e-6):
     dt = 0.1
     model = "HCboson"
     order = "fourth"

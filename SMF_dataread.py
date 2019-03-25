@@ -24,8 +24,14 @@ def orp_from_GS(filename):
     Psi = get_GS(filename)
     M = st.Measure()
     a = np.array([[0, 0], [1, 0]])
+    orp = 0
+    qlen = int(Psi.N/4)
     
-    return abs(M.expec(Psi, a, int(Psi.N / 2)))
+    for orpind in range(qlen, 3*qlen):
+        orp += abs(M.expec(Psi, a, orpind))
+    orp /= Psi.N/2
+    
+    return orp
 
 def get_err(filename):
     with open(filename, 'r') as fr:
@@ -60,7 +66,7 @@ def isize_orp(N_list, orp_list, i, U):
 #    if U == 3.0:
     fit = lambda x: p[0]*x**2 + p[1]*x + p[-1]
 
-    x_list = np.linspace(0, 0.05, 20)
+    x_list = np.linspace(0, 0.05, 50)
     
     fig = plt.figure()
     dat_plot, = plt.plot(inv_N_list, orp_list, "ro",
@@ -85,12 +91,14 @@ def namer(N, U):
 # order parameter for each U. Plots the order parameter versus U.
 def main():
     plt.close("all")
+    
+    run_nr = 2
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in [3,4,5,6]] + [i*10 for i in range(8, 11, 2)]
-    U_list = [i/4 for i in range(13)]
+    N_list = [i*10 for i in [4,5,6]]
+    U_list = [1.5] #[i/4 for i in range(13)]
     orps_vs_U = []
     for N in N_list:
-        name = "SMF_"+"N="+str(N)+"_1/"
+        name = "SMF_"+"N="+str(N)+"_" + str(run_nr) + "/"
         direc = data_direc + name
         
         files = [direc+namer(N,U) for U in U_list]
@@ -99,7 +107,7 @@ def main():
         # trunc_errs = [get_err(file) for file in GS_files]
         
         ord_par = [tail(file) for file in files]
-        ord_par = [orp_from_GS(file) for file in GS_files]
+#        ord_par = [orp_from_GS(file) for file in GS_files]
         
 #        new_orp = [truncerr_extrap(ord_par[i], GS_files[i]) for i in
 #                   range(len(ord_par))]
@@ -109,6 +117,7 @@ def main():
         orps_vs_U.append(new_orp)
         plt.figure(1)
         plt.plot(U_list, ord_par)
+        print(ord_par)
 #        plt.figure(2)
 #        plt.plot(U_list, new_orp)
     orps_vs_N = [[orps_vs_U[j][i] for j in range(len(N_list))] for i in 
