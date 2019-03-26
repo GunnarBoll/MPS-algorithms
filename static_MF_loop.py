@@ -113,7 +113,7 @@ def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
 def orp_meas(Psi, a, num_site):
     orp_meas = st.Measure()
     qlen = int(num_site / 4)
-    hnum = num_site / 2
+    hnum = int(num_site / 2)
     
     order_par = 0
     av_num_sites = 0
