@@ -116,11 +116,13 @@ def orp_meas(Psi, a, num_site):
     hnum = num_site / 2
     
     order_par = 0
+    av_num_sites = 0
     
     for orpind in range(hnum-qlen, hnum+qlen):
+        av_num_sites += 1
         order_par += abs(orp_meas.expec(Psi, a, orpind))
     
-    order_par /= hnum
+    order_par /= av_num_sites
     
     return order_par
 
