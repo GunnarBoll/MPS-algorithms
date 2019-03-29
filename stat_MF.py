@@ -42,7 +42,7 @@ def mk_dat(U, N):
     chi = 50
     
     # Args: (tperp, g1, g2, N, chi, T)
-    ord_pars, Psi, mus = SMF_loop(tperp, g1, g2, N, chi, T)        
+    ord_pars, Psi, mus = SMF_loop(tperp, g1, g2, N, chi, T)   
     file_name = "N=" + str(N) + ",U=" + str(U)
     return [ord_pars + [file_name], Psi, mus]
 
