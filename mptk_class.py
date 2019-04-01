@@ -25,17 +25,16 @@ class MPTKState:
 
     def mptk_run(self):
         if not self.finish:
-            args = ["/home/gunbo249/bin/mptk_script.sh"] + self.call_string
-            stdo = bash_call(args)
+            scr_name = "/home/gunbo249/bin/mptk_script.sh"
+            stdo = bash_call(scr_name, self.call_string)
             self.finish = True
         else:
             print("There already exists an MPTK folder")
     
     def expec(self, oper, loc):
         oper_call = self.direc + "/lattice:" + oper + "(" + str(loc) + ")"
-        args = ["/home/gunbo249/bin/mp-expectation", oper_call]
-        
-        exval = eval(bash_call(args)[0])
+        expec_scr = "/home/gunbo249/bin/mp-expectation"        
+        exval = eval(bash_call(expec_scr, [oper_call])[0])
         
         return exval
     
