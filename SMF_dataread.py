@@ -99,10 +99,10 @@ def fitfunc(x, a, b):
 def main():
     plt.close("all")
     
-    run_nr = 2
+    run_nr = 1
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in [4,5,6,7]]
-    U_list = [1.5] #[i/4 for i in range(13)]
+    N_list = [i*10 for i in [4,5,6]]
+    U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
         name = "SMF_"+"N="+str(N)+"_" + str(run_nr) + "/"
