@@ -139,7 +139,7 @@ def mptk_SMF():
     
     if cl_flag:
         home = "mptk_states/"
-        mpsol.copy_solution(home + "N=" + str(N) + "_U=" + str(U) + "_tperp="
+        mpsol.copy_solution(home + "SMF_N=" + str(N) + ",U=" + str(U) + ",tperp="
                             + str(tperp))
     
     return orp_list, mu_list
