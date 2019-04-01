@@ -61,8 +61,8 @@ def isize_orp(N_list, orp_list, i, U):
     N_list.reverse()
     
     inv_N_list = [1/N for N in N_list]
-#    p = sci.polyfit(inv_N_list, orp_list, 2)
-    p, cov = sci.optimize.curve_fit(fitfunc, inv_N_list, orp_list)
+    p = sci.polyfit(inv_N_list, orp_list, 2)
+#    p, cov = sci.optimize.curve_fit(fitfunc, inv_N_list, orp_list)
     
 #    if U == 3.0:
     fit = lambda x: p[0]*x**2 + p[1]*x + p[-1]
@@ -72,9 +72,9 @@ def isize_orp(N_list, orp_list, i, U):
     fig = plt.figure()
     dat_plot, = plt.plot(inv_N_list, orp_list, "ro",
                          label="Data points, U=" + str(U))
-#    quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
-    quad_plot, = plt.plot(x_list, fitfunc(x_list, p[0], p[1]),
-                          label="Quadratic fit")
+    quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
+#    quad_plot, = plt.plot(x_list, fitfunc(x_list, p[0], p[1]),
+#                          label="Quadratic fit")
     plt.ylabel("<a>")
     plt.xlabel("1/L")
     plt.legend([dat_plot, quad_plot])
@@ -101,7 +101,7 @@ def main():
     
     run_nr = 2
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in [4,5,6,7,8]]
+    N_list = [i*10 for i in [4,5,6,7]]
     U_list = [1.5] #[i/4 for i in range(13)]
     orps_vs_U = []
     for N in N_list:

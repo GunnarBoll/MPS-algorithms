@@ -7,10 +7,14 @@ Created on Thu Mar 28 11:41:36 2019
 import sys
 import math
 import subprocess as subp
+import importlib as imp
 
+import mptk_class as mp
 from guess_mu import guess_mu
 
-def new_mu(U, mu_gu, alp, mu_old, new_dens, bargs, rtol):
+imp.reload(mp)
+
+def new_mu(N, U, mu_gu, alp, mu_old, new_dens, dname, rtol):
     goal_dens = 1 / 2
     err = abs(new_dens - goal_dens) / abs(new_dens)
     
@@ -22,14 +26,15 @@ def new_mu(U, mu_gu, alp, mu_old, new_dens, bargs, rtol):
         dens1 = new_dens
     
     ind = 0
+    direc = lambda i: dname + "/mu_" + str(i)
     
     
     while ind < 40 and err > rtol:
-        args_mu = [bargs[0] + "/mu_" + str(ind), bargs[1], str(U), str(mu_gu),
-                   str(alp)]
-        out = bash_call("toolkit_runs/mptk_script.sh", args_mu)
+
+        musol = mp.MPTKState(direc(ind), [N, U, mu_gu, alp], model="SMF")
+        musol.mptk_run()
         
-        mu_dens = get_av_expec(args_mu[0], "N", 1, int(args_mu[1])+1)
+        mu_dens = get_av_expec(musol, "N", 1, N+1)
         
         dens_err = abs(mu_dens - goal_dens) / abs(mu_dens)
         
@@ -63,25 +68,13 @@ def man_interp(x, xdat, ydat):
     interp_val = k*x + m
     return interp_val
 
-def bash_call(scr_name, argv):
-    arg_list = ["/home/gunbo249/" + scr_name] + [str(arg) for arg in argv]
-    
-    res = subp.check_output(arg_list)
-    
-    return res
-
-def get_av_expec(dname, oper, start, end):    
+def get_av_expec(mpsol, oper, start, end):    
     expec = 0
     av_num_sites = 0
-    
-    scr = "bin/mp-expectation"
-    arg0 = dname + "/GS_file.psi.12"
-    arg1 = lambda ind: dname + "/lattice:" + str(oper) + "(" + str(ind) + ")"
         
     for orpind in range(start, end):
         av_num_sites += 1
-        res = bash_call(scr, [arg0, arg1(orpind)])
-        expec += eval(res)[0]
+        expec += mpsol.expec(oper, orpind)
     
     expec /= av_num_sites
     
@@ -109,11 +102,12 @@ def mptk_SMF():
     
     
     while err > orp_max_err and i < 150:
-        arg_list = [direc(i), str(N), str(U), str(mu), str(alp)]
+        arg_list = [N, U, mu, alp]
         
-        stdo = bash_call("toolkit_runs/mptk_script.sh", arg_list)
+        mpsol = mp.MPTKState(direc(i), arg_list, model="SMF")
+        mpsol.mptk_run()
         
-        new_dens = get_av_expec(arg_list[0], "N", 1, N+1)
+        new_dens = get_av_expec(mpsol, "N", 1, N+1)
         
         if abs(new_dens - dens)/dens > rho_max_err:
             if new_dens > dens:
@@ -121,13 +115,14 @@ def mptk_SMF():
             else:
                 over = False
             mu_guess = guess_mu(alp, U, tperp, over, new_dens)
-            mu = new_mu(U, mu_guess, alp, mu, new_dens, arg_list, rho_max_err)
+            mu = new_mu(N, U, mu_guess, alp, mu, new_dens, direc(i), 
+                        rho_max_err)
         
         
         av_start = int(N/2)-int(N/4) + 1
         av_end = int(N/2) + int(N/4) + 1 if N%2==0 else int(N/2) + int(N/4) + 2
                 
-        new_orp = abs(get_av_expec(arg_list[0], "B", av_start, av_end))
+        new_orp = abs(get_av_expec(mpsol, "B", av_start, av_end))
         err = abs(new_orp - orp_list[-1]) / abs(new_orp)
         print(new_orp)
         
