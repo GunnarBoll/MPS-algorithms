@@ -10,6 +10,7 @@ import importlib as imp
 
 import mptk_class as mp
 from guess_mu import guess_mu
+from cwd_storage import cwd_store
 
 imp.reload(mp)
 
@@ -139,8 +140,13 @@ def mptk_SMF():
     
     if cl_flag:
         home = "mptk_states/"
-        mpsol.copy_solution(home + "SMF_N=" + str(N) + ",U=" + str(U) + ",tperp="
-                            + str(tperp))
+        mpsol.copy_solution(home + "mptk_SMF_N=" + str(N) + ",U=" + str(U) +
+                            ",tperp=" + str(tperp))
+    
+    fol = "transf/SMF_N="+str(N)
+    fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
+    cwd_store(fol, fnam, orp_list)
+    cwd_store(fol, "mu_" + fnam, mu_list)
     
     return orp_list, mu_list
 mptk_SMF()
