@@ -54,7 +54,7 @@ class MPTKState:
         cmd = "cp"
         loc = self.home + new_name
         
-        self.bash_call(cmd, [self.direc, loc], with_home=False)
+        self.bash_call(cmd, ["-r", self.direc, loc], with_home=False)
     
     def delete_solution():
         pass
