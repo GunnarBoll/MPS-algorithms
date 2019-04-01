@@ -12,12 +12,12 @@ class MPTKState:
     def __init__(self, dname, params, model, cluster):
         self.finish = False
         
-        self.home = os.environ.get("HOME")
+        self.home = os.environ.get("HOME") + "/"
         
         if cluster:
             self.write_direc = os.environ.get("SNIC_TMP") + "/"
         else:
-            self.write_direc = self.home + "/mptk_states/"
+            self.write_direc = self.home + "mptk_states/"
         
         self.direc = self.write_direc + dname
         self.model = model
@@ -52,7 +52,7 @@ class MPTKState:
     
     def copy_solution(self, new_name):
         cmd = "cp"
-        loc = self.home + "/" + new_name
+        loc = self.home + new_name
         
         self.bash_call(cmd, [self.direc, loc])
     
