@@ -138,7 +138,9 @@ def mptk_SMF():
     print("Final error in order param. is", err)
     
     if cl_flag:
-        pass
+        home = "mptk_states/"
+        mpsol.copy_solution(home + "N=" + str(N) + "_U=" + str(U) + "_tperp="
+                            + str(tperp))
     
     return orp_list, mu_list
 mptk_SMF()

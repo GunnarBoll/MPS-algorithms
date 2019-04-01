@@ -11,11 +11,15 @@ import os
 class MPTKState:
     def __init__(self, dname, params, model, cluster):
         self.finish = False
+        
+        self.home = os.environ.get("HOME")
+        
         if cluster:
-            self.home = os.environ.get("SNIC_TMP") + "/"
+            self.write_direc = os.environ.get("SNIC_TMP") + "/"
         else:
-            self.home = os.environ.get("HOME") + "/"
-        self.direc = self.home + dname
+            self.write_direc = self.home + "/mptk_states/"
+        
+        self.direc = self.write_direc + dname
         self.model = model
         
         if model == "SMF":
@@ -45,6 +49,12 @@ class MPTKState:
     
     def correl(oper1, oper2, loc1, loc2):
         pass
+    
+    def copy_solution(self, new_name):
+        cmd = "cp"
+        loc = self.home + "/" + new_name
+        
+        self.bash_call(cmd, [self.direc, loc])
     
     def delete_solution():
         pass
