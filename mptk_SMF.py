@@ -89,7 +89,7 @@ def mptk_SMF():
     U = float(sys.argv[3])
     tperp = float(sys.argv[4])
     cl_flag = bool(sys.argv[5])
-    print(sys.argv[5])
+    print(str(sys.argv[5]))
     print(cl_flag)
     mu = 0
     orp_guess = 1 / math.sqrt(2)
