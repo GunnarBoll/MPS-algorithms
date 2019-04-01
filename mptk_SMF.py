@@ -116,7 +116,7 @@ def mptk_SMF():
             else:
                 over = False
             mu_guess = guess_mu(alp, U, tperp, over, new_dens)
-            mu = new_mu(N, U, mu_guess, alp, mu, new_dens, direc(i), 
+            mu = new_mu(N, U, mu_guess, alp, mu, new_dens, direc(i), cl_flag,
                         rho_max_err)
         
         
