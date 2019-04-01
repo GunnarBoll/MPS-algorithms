@@ -6,7 +6,6 @@ Created on Thu Mar 28 11:41:36 2019
 """
 import sys
 import math
-import subprocess as subp
 import importlib as imp
 
 import mptk_class as mp
@@ -14,7 +13,7 @@ from guess_mu import guess_mu
 
 imp.reload(mp)
 
-def new_mu(N, U, mu_gu, alp, mu_old, new_dens, dname, rtol):
+def new_mu(N, U, mu_gu, alp, mu_old, new_dens, dname, cl_flag, rtol):
     goal_dens = 1 / 2
     err = abs(new_dens - goal_dens) / abs(new_dens)
     
@@ -31,7 +30,8 @@ def new_mu(N, U, mu_gu, alp, mu_old, new_dens, dname, rtol):
     
     while ind < 40 and err > rtol:
 
-        musol = mp.MPTKState(direc(ind), [N, U, mu_gu, alp], model="SMF")
+        musol = mp.MPTKState(direc(ind), [N, U, mu_gu, alp], model="SMF", 
+                             cluster=cl_flag)
         musol.mptk_run()
         
         mu_dens = get_av_expec(musol, "N", 1, N+1)
@@ -88,6 +88,7 @@ def mptk_SMF():
     N = int(sys.argv[2])
     U = float(sys.argv[3])
     tperp = float(sys.argv[4])
+    cl_flag = bool(sys.argv[5])
     mu = 0
     orp_guess = 1 / math.sqrt(2)
     alp = 4 * tperp * orp_guess
@@ -104,7 +105,7 @@ def mptk_SMF():
     while err > orp_max_err and i < 150:
         arg_list = [N, U, mu, alp]
         
-        mpsol = mp.MPTKState(direc(i), arg_list, model="SMF")
+        mpsol = mp.MPTKState(direc(i), arg_list, model="SMF", cluster=cl_flag)
         mpsol.mptk_run()
         
         new_dens = get_av_expec(mpsol, "N", 1, N+1)
@@ -135,6 +136,9 @@ def mptk_SMF():
         
         i += 1
     print("Final error in order param. is", err)
+    
+    if cl_flag:
+        pass
     
     return orp_list, mu_list
 mptk_SMF()

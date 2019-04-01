@@ -9,9 +9,13 @@ import subprocess as subp
 import os
 
 class MPTKState:
-    def __init__(self, dname, params, model):
+    def __init__(self, dname, params, model, cluster):
         self.finish = False
-        self.direc = "/home/gunbo249/mptk_states/" + dname
+        if cluster:
+            self.home = "$SNIC_TMP/"
+        else:
+            self.home = "$HOME/"
+        self.direc = self.home + dname
         self.model = model
         
         if model == "SMF":
@@ -26,7 +30,7 @@ class MPTKState:
     def mptk_run(self):
         if not self.finish:
             scr_name = "bin/mptk_script.sh"
-            stdo = bash_call(scr_name, self.call_string)
+            stdo = self.bash_call(scr_name, self.call_string)
             self.finish = True
         else:
             print("There already exists an MPTK folder")
@@ -35,7 +39,7 @@ class MPTKState:
         state = self.direc + "/GS_file.psi." + "12"
         oper_call = self.direc + "/lattice:" + oper + "(" + str(loc) + ")"
         expec_scr = "bin/mp-expectation"        
-        exval = eval(bash_call(expec_scr, [state, oper_call]))[0]
+        exval = eval(self.bash_call(expec_scr, [state, oper_call]))[0]
         
         return exval
     
@@ -45,9 +49,9 @@ class MPTKState:
     def delete_solution():
         pass
 
-def bash_call(scr_name, argv):
-    arg_list = ["/home/gunbo249/" + scr_name] + [str(arg) for arg in argv]
-    
-    res = subp.check_output(arg_list)
-    
-    return res
+    def bash_call(self, scr_name, argv):
+        arg_list = [self.home + scr_name] + [str(arg) for arg in argv]
+        
+        res = subp.check_output(arg_list)
+        
+        return res
