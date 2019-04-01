@@ -11,10 +11,10 @@ import os
 class MPTKState:
     def __init__(self, dname, params, model, cluster):
         self.finish = False
-        if cluster:
-            self.home = os.environ.get("SNIC_TMP")
-        else:
-            self.home = os.environ.get("HOME")
+#        if cluster:
+#            self.home = os.environ.get("SNIC_TMP") + "/"
+#        else:
+        self.home = os.environ.get("HOME") + "/"
         self.direc = self.home + dname
         self.model = model
         
