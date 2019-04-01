@@ -25,7 +25,7 @@ class MPTKState:
 
     def mptk_run(self):
         if not self.finish:
-            scr_name = "/home/gunbo249/bin/mptk_script.sh"
+            scr_name = "bin/mptk_script.sh"
             stdo = bash_call(scr_name, self.call_string)
             self.finish = True
         else:
@@ -33,7 +33,7 @@ class MPTKState:
     
     def expec(self, oper, loc):
         oper_call = self.direc + "/lattice:" + oper + "(" + str(loc) + ")"
-        expec_scr = "/home/gunbo249/bin/mp-expectation"        
+        expec_scr = "bin/mp-expectation"        
         exval = eval(bash_call(expec_scr, [oper_call])[0])
         
         return exval
