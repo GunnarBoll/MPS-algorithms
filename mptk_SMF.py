@@ -103,7 +103,7 @@ def mptk_SMF():
     direc = lambda ind: dname + "_" + str(ind)
     
     
-    while err > orp_max_err and i < 150 and orp_list[-1] > 1e-8:
+    while err > orp_max_err and i < 300 and orp_list[-1] > 1e-8:
         arg_list = [N, U, mu, alp]
         
         mpsol = mp.MPTKState(direc(i), arg_list, model="SMF", cluster=cl_flag)

@@ -100,8 +100,8 @@ def main():
     plt.close("all")
     
     run_nr = 1
-    data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/"
-    N_list = [i*10 for i in [4,5,6]]
+    data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/" + "MPTK/"
+    N_list = [i*10 for i in [5,6,8,10]]
     U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
@@ -114,7 +114,6 @@ def main():
         # trunc_errs = [get_err(file) for file in GS_files]
         
         ord_par = [tail(file) for file in files]
-#        ord_par = [orp_from_GS(file) for file in GS_files]
         
 #        new_orp = [truncerr_extrap(ord_par[i], GS_files[i]) for i in
 #                   range(len(ord_par))]
@@ -124,14 +123,12 @@ def main():
         orps_vs_U.append(new_orp)
         plt.figure(1)
         plt.plot(U_list, ord_par)
-        print(ord_par)
 #        plt.figure(2)
 #        plt.plot(U_list, new_orp)
     orps_vs_N = [[orps_vs_U[j][i] for j in range(len(N_list))] for i in 
                   range(len(U_list))]
     isize_orp_vs_U = [isize_orp(N_list, orps_vs_N[i], i, U_list[i]) for i in 
                       range(len(U_list))]
-#    print(isize_orp_vs_U)
     plt.figure()
     plt.plot(U_list, isize_orp_vs_U)
     plt.ylabel("<a>")
