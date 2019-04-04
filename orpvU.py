@@ -14,7 +14,7 @@ from cwd_storage import cwd_store
 imp.reload(mp)
 
 def get_dat(sol_name, op, N):
-    sol = mp.MPTKState(sol_name)
+    sol = mp.MPTKState("/proj/snic2019-8-26/" + sol_name)
     orp = get_orp(op, sol, N)
     trunc_err = sol.get_trunc_err()
     return orp, trunc_err

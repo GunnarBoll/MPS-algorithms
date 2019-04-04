@@ -7,11 +7,13 @@ Created on Mon Apr  1 08:59:24 2019
 
 import subprocess as subp
 import os
+import pathlib
 
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
         self.home = os.environ.get("HOME") + "/"
+        self.proj = "/proj/snic2019-8-26/"
         self.params = params
         self.loc = dname
         self.run_script =  run_script
@@ -61,7 +63,10 @@ class MPTKState:
     
     def copy_solution(self, new_name):
         cmd = "cp"
-        loc = self.home + new_name
+        loc = self.proj + new_name
+        
+        if not os.path.exists(loc):
+            pathlib.Path(loc).mkdir(parents=True, exist_ok=False)
         
         self.bash_call(cmd, ["-r", self.direc, loc], with_home=False)
     
