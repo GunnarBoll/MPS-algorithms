@@ -12,7 +12,7 @@ import pathlib
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
-        self.loc = dname
+        self.loc = dname + "/"
         self.home = os.environ.get("HOME") + "/"
         self.proj = "/proj/snic2019-8-26/"
         self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
@@ -53,8 +53,8 @@ class MPTKState:
             print("There already exists an MPTK folder")
     
     def expec(self, oper, loc):
-        state = self.direc + "/GS_file.psi." + "1"
-        oper_call = self.direc + "/lattice:" + oper + "(" + str(loc) + ")"
+        state = self.direc + "GS_file.psi." + "1"
+        oper_call = self.direc + "lattice:" + oper + "(" + str(loc) + ")"
         expec_scr = "bin/mp-expectation"        
         exval = eval(self.bash_call(expec_scr, [state, oper_call]))[0]
         
