@@ -36,9 +36,9 @@ class MPTKState:
             self.finish = True
         else:
             self.finish = False
+            self.call_string = [self.direc] + self.call_string
         
         self.direc = self.write_direc + self.loc
-        self.call_string = [self.direc] + self.call_string
         self.model = model
         return
     
