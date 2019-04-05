@@ -25,7 +25,7 @@ class MPTKState:
         
         if os.path.exists(self.proj + self.loc):
             self.finish = True
-            self.direc = self.proj + self.loc "/"
+            self.direc = self.proj + self.loc + "/"
             
         else:
             self.finish = False
