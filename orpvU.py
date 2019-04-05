@@ -40,5 +40,4 @@ def get_orp_vs_U():
     cwd_store(dname, "order_param", orpl)    
     cwd_store(dname, "trunc_err", trunc_err)
     
-    
-    
+get_orp_vs_U()
