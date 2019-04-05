@@ -36,7 +36,7 @@ def get_orp_vs_U():
         truncl.append(trunc_err)
     
     dname = ("orp_vs_U/tperp=" + str(tperp) + "/N=" + str(N) + "/chi=" 
-             + str(chi) + "/")
+             + str(chi))
     cwd_store(dname, "order_param", orpl)    
     cwd_store(dname, "trunc_err", trunc_err)
     

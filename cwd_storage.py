@@ -11,7 +11,7 @@ def cwd_store(dname, fname, data):
     run_nr = 1
     path_direc = (os.getcwd() + "/" + dname)
     while True:
-        if run_nr > 10:
+        if run_nr > 20:
             break
         try:
             direc = path_direc + "_" + str(run_nr) + "/"
