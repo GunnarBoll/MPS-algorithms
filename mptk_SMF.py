@@ -117,7 +117,7 @@ def mptk_SMF():
                                     + str(p2) + "/U=" + str(p3) + "/chi=" 
                                     + str(p4))
     
-    while i < 300 and orp_list[-1] > 1e-8:
+    while True:
         arg_list = [N, U, mu, alp, chi]
         
         mpsol = mp.MPTKState(dname(N, tperp, U, chi), run_script, arg_list,
@@ -149,7 +149,7 @@ def mptk_SMF():
         if i%20 == 0:
             print("Error in order param. is", err)
         
-        if err < orp_max_err or i == 299:
+        if err < orp_max_err or i == 299 or orp_list[-1] < 1e-8:
             break
         else:
             mpsol.delete_solution()
