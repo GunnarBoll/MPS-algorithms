@@ -36,7 +36,7 @@ def new_mu(mu_gu, new_dens, mpsol, rtol):
         dens1 = new_dens
     
     ind = 0
-    direc = lambda i: mpsol.direc + "/mu_" + str(i)
+    direc = lambda i: mpsol.loc + "/mu_" + str(i)
     
     
     while ind < 40 and err > rtol:

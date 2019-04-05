@@ -12,7 +12,7 @@ import pathlib
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
-        self.loc = dname + "/"
+        self.loc = dname
         self.home = os.environ.get("HOME") + "/"
         self.proj = "/proj/snic2019-8-26/"
         self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
@@ -25,11 +25,11 @@ class MPTKState:
         
         if os.path.exists(self.proj + self.loc):
             self.finish = True
-            self.direc = self.proj + self.loc
+            self.direc = self.proj + self.loc "/"
             
         else:
             self.finish = False
-            self.direc = self.write_direc + self.loc
+            self.direc = self.write_direc + self.loc + "/"
             
         self.call_string = [self.direc]
         self.params = params
