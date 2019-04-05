@@ -53,3 +53,5 @@ def main():
     cwd_store(save_dir, save_file)
     
     return
+
+main()
