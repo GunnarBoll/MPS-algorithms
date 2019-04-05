@@ -4,47 +4,52 @@ Created on Wed Apr  3 12:26:26 2019
 
 @author: Gunnar
 """
-import importlib as imp
 import sys
 import scipy as sci
 
-import mptk_class as mp
-from avorp import get_orp
+from cwd_storage import cwd_store
 
-imp.reload(mp)
-
-def get_dat(sol_name, op, N):
+def get_measure(direc, ind):
+    forp = "order_param"
+    ferr = "trunc_err"
     
-    sol = mp.MPTKState(sol_name)
-    orp = get_orp(op, sol, N)
-    trunc_err = sol.get_trunc_err()
+    with open(direc+forp, 'r') as fr:
+        orpvU = fr.read().splitlines()
+        orp = orpvU[ind]
+    with open(direc+ferr, 'r') as fr:
+        truncs = fr.read().splitlines()
+        trunc_err = truncs[ind]
+    
     return orp, trunc_err
 
 def lin_extr(xdat, ydat):
     p = sci.polyfit(xdat, ydat, deg=1)
     return p[-1]
 
-def save_data():
-    pass
-
 def main():
     extr_orp = []
     
-    U = float(sys.argv[1])
+    N = int(sys.argv[1])
     tperp = float(sys.argv[2])
     chi_max = int(sys.argv[3])
+    U_list = [i/4 for i in range(21)]
     
-    for N in [80, 60, 50, 40, 30, 20]:
+    for ind, U in enumerate(U_list):
         orpl = []
         trunc_l = []
         for chi in range(chi_max, chi_max-9, -2):
-            solname = ("mptk_states/N=" + str(N) + ",tperp=" + str(tperp)
-                       + "/U=" + str(U) + "/chi=" + str(chi))
-            orp, trunc_err = get_dat(solname, "B", N)
+            data_direc = ("/proj/snic2019-8-26/orp_vs_U/tperp=" + str(tperp)
+                          + "/N=" + str(N) + "/chi=" + str(chi) + "/")
+            orp, trunc_err = get_measure(data_direc, ind)
             orpl.append(orp)
             trunc_l.append(trunc_err)
         extr_orp.append(lin_extr(trunc_l, orpl))
     
-    save_data()
+    save_dir = ("/proj/snic2019-8-26/extr_orp_vs_U/tperp=" + str(tperp)
+                + "/N=" + str(N))
+    
+    save_file = "order_param"
+    
+    cwd_store(save_dir, save_file)
     
     return
