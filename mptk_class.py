@@ -16,6 +16,7 @@ class MPTKState:
         self.home = os.environ.get("HOME") + "/"
         self.proj = "/proj/snic2019-8-26/"
         self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
+        self.cluster = cluster
         
         if cluster:
             self.write_direc = self.tmp_dir

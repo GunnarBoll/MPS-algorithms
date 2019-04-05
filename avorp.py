@@ -14,7 +14,7 @@ def get_orp(oper, mpsol, N):
         
     for orpind in range(start, end):
         av_num_sites += 1
-        orp += mpsol.expec(oper, orpind)
+        orp += abs(mpsol.expec(oper, orpind))
     
     orp /= av_num_sites
     
