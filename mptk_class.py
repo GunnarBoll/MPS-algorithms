@@ -12,15 +12,27 @@ import pathlib
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
+        self.loc = dname
         self.home = os.environ.get("HOME") + "/"
         self.proj = "/proj/snic2019-8-26/"
+        self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
+        
+        if cluster:
+            self.write_direc = self.tmp_dir
+        else:
+            self.write_direc = self.home
+        
+        if os.path.exists(self.proj + self.loc):
+            self.finish = True
+            self.direc = self.proj + self.loc
+        else:
+            self.finish = False
+            self.direc = self.write_direc + self.loc
+            self.call_string = [self.direc]
+        
         self.params = params
-        self.loc = dname
         self.run_script =  run_script
         self.model = model
-        self.call_string = []
-        self.direc = ""
-
         
         if model == "SMF":
             self.N = params[0]
@@ -28,22 +40,8 @@ class MPTKState:
             self.mu = params[2]
             self.alp = params[3]
             self.chi = params[4]
-            
-            self.call_string = [self.N, self.U, self.mu, self.alp, self.chi]
+            self.call_string += [self.N, self.U, self.mu, self.alp, self.chi]
                 
-        if cluster:
-            self.write_direc = os.environ.get("SNIC_TMP") + "/"
-        else:
-            self.write_direc = self.home
-        
-        self.direc = self.write_direc + self.loc
-        
-        if os.path.exists(self.proj + self.loc):
-            self.finish = True
-        else:
-            self.finish = False
-            self.call_string = [self.direc] + self.call_string
-        
         return
     
     def mptk_run(self):
