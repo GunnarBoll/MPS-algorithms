@@ -74,7 +74,7 @@ class MPTKState:
         self.bash_call(cmd, ["-r", self.direc, loc], with_home=False)
     
     def delete_solution(self):
-        self.bash_call("rm", ["-r", self.write_direc+self.loc])
+        self.bash_call("rm", ["-r", self.direc])
     
     def get_trunc_err(self):
         file = self.direc + "GS_file.sweep"

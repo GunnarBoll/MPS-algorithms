@@ -149,12 +149,11 @@ def mptk_SMF():
         if i%20 == 0:
             print("Error in order param. is", err)
         
-        if err < orp_max_err:
+        if err < orp_max_err or i == 299:
             break
-        
-        if i > 0:
+        else:
             mpsol.delete_solution()
-        
+                
         i += 1
     print("Final error in order param. is", err)
     
