@@ -26,11 +26,12 @@ class MPTKState:
         if os.path.exists(self.proj + self.loc):
             self.finish = True
             self.direc = self.proj + self.loc
+            
         else:
             self.finish = False
             self.direc = self.write_direc + self.loc
-            self.call_string = [self.direc]
-        
+            
+        self.call_string = [self.direc]
         self.params = params
         self.run_script =  run_script
         self.model = model
@@ -74,7 +75,7 @@ class MPTKState:
         self.bash_call(cmd, ["-r", self.direc, loc], with_home=False)
     
     def delete_solution(self):
-        self.bash_call("rm", ["-r", self.direc])
+        self.bash_call("rm", ["-r", self.direc], with_home=False)
     
     def get_trunc_err(self):
         file = self.direc + "GS_file.sweep"
