@@ -32,7 +32,7 @@ class MPTKState:
         else:
             self.write_direc = self.home
         
-        if os.path.exists(self.home + self.loc):
+        if os.path.exists(self.proj + self.loc):
             self.finish = True
         else:
             self.finish = False
