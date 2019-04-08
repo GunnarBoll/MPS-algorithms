@@ -40,7 +40,7 @@ def main():
         orp = quad_extr(inv_N, orp_v_N)
         isize_orp.append(orp)
     
-    dname = "tperp=" + str(tperp)
+    dname = "tperp=" + str(tperp) + "/"
     fname = "order_param"
     
     proj_store(dname, fname, isize_orp)
