@@ -15,10 +15,10 @@ def get_measure(direc, ind):
     
     with open(direc+forp, 'r') as fr:
         orpvU = fr.read().splitlines()
-        orp = orpvU[ind]
+        orp = eval(orpvU[ind])
     with open(direc+ferr, 'r') as fr:
         truncs = fr.read().splitlines()
-        trunc_err = truncs[ind]
+        trunc_err = eval(truncs[ind])
     
     return orp, trunc_err
 
@@ -54,7 +54,7 @@ def main():
     
     save_file = "order_param"
     
-    proj_store(save_dir, save_file)
+    proj_store(save_dir, save_file, extr_orp)
     
     return
 
