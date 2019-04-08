@@ -9,7 +9,7 @@ import sys
 
 import mptk_class as mp
 from avorp import get_orp
-from cwd_storage import cwd_store
+from proj_storage import proj_store
 
 imp.reload(mp)
 
@@ -36,8 +36,8 @@ def get_orp_vs_U():
         truncl.append(trunc_err)
     
     dname = ("orp_vs_U/tperp=" + str(tperp) + "/N=" + str(N) + "/chi=" 
-             + str(chi))
-    cwd_store(dname, "order_param", orpl)    
-    cwd_store(dname, "trunc_err", truncl)
+             + str(chi) + "/")
+    proj_store(dname, "order_param", orpl)    
+    proj_store(dname, "trunc_err", truncl)
     
 get_orp_vs_U()

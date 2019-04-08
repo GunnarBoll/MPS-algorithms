@@ -7,7 +7,7 @@ Created on Wed Apr  3 12:26:26 2019
 import sys
 import scipy as sci
 
-from cwd_storage import cwd_store
+from proj_storage import proj_store
 
 def get_measure(direc, ind):
     forp = "order_param"
@@ -17,9 +17,6 @@ def get_measure(direc, ind):
         orpvU = fr.read().splitlines()
         orp = orpvU[ind]
     with open(direc+ferr, 'r') as fr:
-        thing = fr.read().strip('\r\n')
-        print(type(thing))
-        print(thing)
         truncs = fr.read().splitlines()
         trunc_err = truncs[ind]
     
@@ -44,8 +41,8 @@ def main():
             data_direc = ("/proj/snic2019-8-26/orp_vs_U/tperp=" + str(tperp)
                           + "/N=" + str(N) + "/chi=" + str(chi) + "/")
             
-            data_direc = ("C:/Users/Gunnar/Documents/N=80/chi=" + str(chi) 
-                          + "/")
+#            data_direc = ("C:/Users/Gunnar/Documents/N=80/chi=" + str(chi) 
+#                          + "/")
             
             orp, trunc_err = get_measure(data_direc, ind)
             orpl.append(orp)
@@ -57,7 +54,7 @@ def main():
     
     save_file = "order_param"
     
-    cwd_store(save_dir, save_file)
+    proj_store(save_dir, save_file)
     
     return
 
