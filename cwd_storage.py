@@ -14,7 +14,7 @@ def cwd_store(dname, fname, data):
     while True:
         if run_nr > 20:
             break
-        try:
+        try:        
             pathlib.Path(direc).mkdir(parents=True, exist_ok=True)
             with open(direc+fname, "x") as fw:
                 for mat in data:

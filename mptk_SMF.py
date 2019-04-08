@@ -149,7 +149,7 @@ def mptk_SMF():
         if i%20 == 0:
             print("Error in order param. is", err)
         
-        if err < orp_max_err or i == 299 or orp_list[-1] < 1e-8:
+        if err < orp_max_err or i == 500 or orp_list[-1] < 1e-8:
             break
         else:
             mpsol.delete_solution()
@@ -160,7 +160,7 @@ def mptk_SMF():
     if cl_flag:
         mpsol.copy_solution(mpsol.loc)
     
-    fol = "transf/SMF_N="+str(N)
+    fol = "transf/SMF_N="+str(N)+"/"
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
     cwd_store(fol, fnam, orp_list)
     cwd_store(fol, "mu_" + fnam, mu_list)
