@@ -17,6 +17,9 @@ def get_measure(direc, ind):
         orpvU = fr.read().splitlines()
         orp = orpvU[ind]
     with open(direc+ferr, 'r') as fr:
+        thing = fr.read().strip('\r\n')
+        print(type(thing))
+        print(thing)
         truncs = fr.read().splitlines()
         trunc_err = truncs[ind]
     
@@ -40,6 +43,10 @@ def main():
         for chi in range(chi_max, chi_max-9, -2):
             data_direc = ("/proj/snic2019-8-26/orp_vs_U/tperp=" + str(tperp)
                           + "/N=" + str(N) + "/chi=" + str(chi) + "/")
+            
+            data_direc = ("C:/Users/Gunnar/Documents/N=80/chi=" + str(chi) 
+                          + "/")
+            
             orp, trunc_err = get_measure(data_direc, ind)
             orpl.append(orp)
             trunc_l.append(trunc_err)

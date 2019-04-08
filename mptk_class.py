@@ -83,6 +83,9 @@ class MPTKState:
             lines = fr.read().splitlines()
             last = lines[-1]
             trunc_err = last.split(" ")[6]
+        
+        trunc_err.replace('\n', '')
+        eval(trunc_err)
         return trunc_err
         
     def bash_call(self, scr_name, argv, with_home=True):
