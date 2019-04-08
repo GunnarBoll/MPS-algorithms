@@ -49,8 +49,7 @@ def main():
             trunc_l.append(trunc_err)
         extr_orp.append(lin_extr(trunc_l, orpl))
     
-    save_dir = ("/proj/snic2019-8-26/extr_orp_vs_U/tperp=" + str(tperp)
-                + "/N=" + str(N))
+    save_dir = ("extr_orp_vs_U/tperp=" + str(tperp)+ "/N=" + str(N))
     
     save_file = "order_param"
     
