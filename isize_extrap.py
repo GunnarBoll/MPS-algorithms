@@ -14,7 +14,7 @@ def get_extr_dat(N, tperp, ind):
             + str(N) + "/order_param")
     with open(name, 'r') as fr:
         orps = fr.read().splitlines()
-        orp = orps[ind]
+        orp = eval(orps[ind])
     return orp
 
 def quad_extr(xdat, ydat):
