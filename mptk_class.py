@@ -86,7 +86,7 @@ class MPTKState:
             print("There already exists an MPTK folder")
     
     def expec(self, oper):
-        state = self.direc + "GS_file.psi." + "1"
+        state = self.direc + "GS_file.psi." + "1" #1 is the name of the state
         oper_call = self.direc + "lattice:" + oper
         expec_scr = "bin/mp-expectation"        
         exval = eval(self.bash_call(expec_scr, [state, oper_call]))[0]
