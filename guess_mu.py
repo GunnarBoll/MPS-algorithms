@@ -6,7 +6,7 @@ Created on Fri Mar 29 08:42:44 2019
 """
 import os
 
-def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
+def guess_mu(ord_par, U, tperp, over, dens, goal_dens=0.5, run_nr=1):
     
     dname = (os.path.expanduser("~") + "/Data/" + "/Density_ref/"
              + "rho_of_mu_tperp=" + str(tperp) + ",U=" + str(U) + "_"
@@ -29,19 +29,18 @@ def guess_mu(ord_par, U, tperp, over, dens, run_nr=1):
         den_list.reverse()
         mu_list.reverse()
         for i in range(len(den_list)):
-            if den_list[i] < 0.49:
+            if den_list[i] < goal_dens-0.01:
                 mug = mu_list[i]
                 HF_flag = True
                 break
     else:
         for i in range(len(den_list)):
-            if den_list[i] > 0.51:
+            if den_list[i] > goal_dens+0.01:
                 mug = mu_list[i]
                 HF_flag = True
                 break
         
     if not HF_flag:
-        print("No half-filling")
         print("Density is:", dens)
         if over:
             mug = -10.0
