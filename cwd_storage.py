@@ -10,7 +10,7 @@ def cwd_store(dname, fname, data):
     
     run_nr = 1
     path_direc = (os.getcwd() + "/" + dname)
-    direc = path_direc
+    direc = path_direc  + "_" + str(run_nr) + "/"
     while True:
         if run_nr > 20:
             break
@@ -21,7 +21,7 @@ def cwd_store(dname, fname, data):
                     fw.write(str(mat) + "\n")
             break
         except FileExistsError:
-            direc = path_direc + "_" + str(run_nr) + "/"
             run_nr += 1
+            direc = path_direc + "_" + str(run_nr) + "/"
     
     return
