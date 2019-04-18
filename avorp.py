@@ -11,10 +11,11 @@ def get_orp(oper, mpsol, N):
     
     orp = 0
     av_num_sites = 0
+    op_func = lambda ind: oper + "(" + str(ind) + ")"
         
     for orpind in range(start, end):
         av_num_sites += 1
-        orp += abs(mpsol.expec(oper, orpind))
+        orp += abs(mpsol.expec(op_func(orpind)))
     
     orp /= av_num_sites
     

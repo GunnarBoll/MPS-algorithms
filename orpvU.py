@@ -23,9 +23,9 @@ def get_orp_vs_U():
     orpl = []
     truncl = []
     
-    N = int(sys.argv[1])
-    chi = int(sys.argv[2])
-    tperp = float(sys.argv[3])
+    N = eval(sys.argv[1])
+    chi = eval(sys.argv[2])
+    tperp = eval(sys.argv[3])
     U_list = [i/4 for i in range(21)]
     
     for U in U_list:

@@ -29,9 +29,9 @@ def lin_extr(xdat, ydat):
 def main():
     extr_orp = []
     
-    N = int(sys.argv[1])
-    tperp = float(sys.argv[2])
-    chi_max = int(sys.argv[3])
+    N = eval(sys.argv[1])
+    tperp = eval(sys.argv[2])
+    chi_max = eval(sys.argv[3])
     U_list = [i/4 for i in range(21)]
     
     for ind, U in enumerate(U_list):

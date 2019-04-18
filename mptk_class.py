@@ -36,15 +36,46 @@ class MPTKState:
         self.run_script =  run_script
         self.model = model
         
-        if model == "SMF":
-            self.N = params[0]
-            self.U = params[1]
-            self.mu = params[2]
-            self.alp = params[3]
-            self.chi = params[4]
-            self.call_string += [self.N, self.U, self.mu, self.alp, self.chi]
+        if self.finish:
+            self.get_hamil()
+        else:
+            if model == "SMF":
+                self.N = params[0]
+                self.U = params[1]
+                self.mu = params[2]
+                self.alp = params[3]
+                self.chi = params[4]
+                self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
+                                + "*H_mu+" + str(self.alp) + "*H_SMF")
+                self.call_string += [self.N, self.U, self.mu, self.alp,
+                                     self.chi]
                 
         return
+    
+    def get_hamil(self):
+        hamils = ["H_V", "H_mu", "H_SMF"]
+        params = []
+        with open(self.direc+"GS_file.params", 'r') as fr:
+            call = fr.read()
+            ind = call.find(":H") + 2
+            call = call[ind:]
+            for ham in hamils:
+                ind = call.find(ham)
+                params.append(eval(call[:ind-1]))
+                call = call[ind+len(ham)+1 :]
+            
+            self.U = params[0]
+            self.mu = params[1]
+            self.alp = params[2]
+        
+        with open(self.direc+"GS_file.conf", 'r') as fr:
+            chi_opt = fr.read().splitlines()[5]
+            ind1 = chi_opt.find("=") + 2
+            ind2 = chi_opt.find("ws")
+            self.chi = eval(chi_opt[ind1:ind2])
+        
+        self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
+                        + "*H_mu+" + str(self.alp) + "*H_SMF")
     
     def mptk_run(self):
         if not self.finish:
@@ -54,9 +85,9 @@ class MPTKState:
         else:
             print("There already exists an MPTK folder")
     
-    def expec(self, oper, loc):
+    def expec(self, oper):
         state = self.direc + "GS_file.psi." + "1"
-        oper_call = self.direc + "lattice:" + oper + "(" + str(loc) + ")"
+        oper_call = self.direc + "lattice:" + oper
         expec_scr = "bin/mp-expectation"        
         exval = eval(self.bash_call(expec_scr, [state, oper_call]))[0]
         

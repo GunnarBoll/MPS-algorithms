@@ -5,7 +5,7 @@ Created on Mon Apr  8 15:51:38 2019
 @author: Gunnar
 """
 import sys
-import scipy as sci
+import scipy.optimize as sci
 
 from proj_storage import proj_store
 
@@ -18,7 +18,8 @@ def get_extr_dat(N, tperp, ind):
     return orp
 
 def quad_extr(xdat, ydat):
-    p = sci.polyfit(xdat, ydat, deg=2)
+    fitfunc = lambda x, a, b, c: a*x**(b) + c
+    p, cov = sci.curve_fit(fitfunc, xdat, ydat)
     return p[-1]
 
 def main():
@@ -40,7 +41,7 @@ def main():
         orp = quad_extr(inv_N, orp_v_N)
         isize_orp.append(orp)
     
-    dname = "tperp=" + str(tperp) + "/"
+    dname = "isize_orp/tperp=" + str(tperp) + "/"
     fname = "order_param"
     
     proj_store(dname, fname, isize_orp)

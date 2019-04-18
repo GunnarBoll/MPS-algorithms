@@ -15,8 +15,7 @@ from cwd_storage import cwd_store
 
 imp.reload(mp)
 
-def new_mu(mu_gu, new_dens, mpsol, rtol):
-    goal_dens = 1 / 2
+def new_mu(mu_gu, new_dens, goal_dens, mpsol, rtol):
     
     err = abs(new_dens - goal_dens) / abs(new_dens)
     
@@ -81,31 +80,33 @@ def man_interp(x, xdat, ydat):
     return interp_val
 
 def get_av_expec(mpsol, oper, start, end):    
-    expec = 0
+    avexpec = 0
     av_num_sites = 0
+    op_func = lambda ind: oper + "(" + str(ind) + ")"
         
     for orpind in range(start, end):
         av_num_sites += 1
-        expec += mpsol.expec(oper, orpind)
+        avexpec += mpsol.expec(op_func(orpind))
     
-    expec /= av_num_sites
+    avexpec /= av_num_sites
     
-    return expec
+    return avexpec
 
 def mptk_SMF():
     rho_max_err = 1e-5
     orp_max_err = 1e-6
     
-    N = int(sys.argv[1])
-    U = float(sys.argv[2])
-    tperp = float(sys.argv[3])
-    chi = int(sys.argv[4])
-    cl_flag = bool(int(sys.argv[5]))
+    N = eval(sys.argv[1])
+    U = eval(sys.argv[2])
+    tperp = eval(sys.argv[3])
+    chi = eval(sys.argv[4])
+    num_bos = eval(sys.argv[5])
+    cl_flag = bool(int(sys.argv[6]))
     
     mu = 0
     orp_guess = 1 / math.sqrt(2)
     alp = 4 * tperp * orp_guess
-    dens = 1 / 2
+    dens = num_bos / N
     
     mu_list = [0]
     orp_list = [orp_guess]
@@ -113,15 +114,15 @@ def mptk_SMF():
     i = 0
     
     run_script = "bin/mptk_script.sh"
-    dname = lambda p1, p2, p3, p4: ("mptk_states/N=" + str(p1) + ",tperp=" 
-                                    + str(p2) + "/U=" + str(p3) + "/chi=" 
-                                    + str(p4))
+    dname = lambda p1, p2, p3, p4, p5: ("mptk_states/N=" + str(p1) + ",n="
+                                    + str(p2) + ",tperp=" + str(p3)
+                                    + "/U=" + str(p4) + "/chi=" + str(p5))
     
     while True:
         arg_list = [N, U, mu, alp, chi]
         
-        mpsol = mp.MPTKState(dname(N, tperp, U, chi), run_script, arg_list,
-                             model="SMF", cluster=cl_flag)
+        mpsol = mp.MPTKState(dname(N, num_bos, tperp, U, chi), run_script,
+                             arg_list, model="SMF", cluster=cl_flag)
         mpsol.mptk_run()
         
         new_dens = get_av_expec(mpsol, "N", 1, N+1)
@@ -132,7 +133,7 @@ def mptk_SMF():
             else:
                 over = False
             mu_guess = guess_mu(alp, U, tperp, over, new_dens)
-            mu = new_mu(mu_guess, new_dens, mpsol, rho_max_err)
+            mu = new_mu(mu_guess, new_dens, dens, mpsol, rho_max_err)
         
         
         av_start = int(N/2)-int(N/4) + 1
@@ -160,7 +161,7 @@ def mptk_SMF():
     if cl_flag:
         mpsol.copy_solution(mpsol.loc)
     
-    fol = "transf/SMF_N="+str(N)+"/"
+    fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)+"/"
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
     cwd_store(fol, fnam, orp_list)
     cwd_store(fol, "mu_" + fnam, mu_list)

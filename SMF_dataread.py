@@ -61,20 +61,20 @@ def isize_orp(N_list, orp_list, i, U):
     N_list.reverse()
     
     inv_N_list = [1/N for N in N_list]
-    p = sci.polyfit(inv_N_list, orp_list, 2)
-#    p, cov = sci.optimize.curve_fit(fitfunc, inv_N_list, orp_list)
+#    p = sci.polyfit(inv_N_list, orp_list, 2)
+    p, cov = sci.optimize.curve_fit(fitfunc, inv_N_list, orp_list)
     
 #    if U == 3.0:
-    fit = lambda x: p[0]*x**2 + p[1]*x + p[-1]
+#    fit = lambda x: p[0]*x**2 + p[1]*x + p[-1]
 
     x_list = np.linspace(0, 0.05, 50)
     
     fig = plt.figure()
     dat_plot, = plt.plot(inv_N_list, orp_list, "ro",
                          label="Data points, U=" + str(U))
-    quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
-#    quad_plot, = plt.plot(x_list, fitfunc(x_list, p[0], p[1]),
-#                          label="Quadratic fit")
+#    quad_plot, = plt.plot(x_list, fit(x_list), label="Quadratic fit")
+    quad_plot, = plt.plot(x_list, fitfunc(x_list, p[0], p[1], p[2]),
+                          label="Quadratic fit")
     plt.ylabel("<a>")
     plt.xlabel("1/L")
     plt.legend([dat_plot, quad_plot])
@@ -91,8 +91,8 @@ def namer(N, U):
     name = "N=" + str(N) + ",U=" + str(U) + ".txt"
     return name
 
-def fitfunc(x, a, b):
-    return a*x**2 + b
+def fitfunc(x, a, b, c):
+    return a*x**(b) + c
     
 # Main program,for N in N_list and U in U_list calls files and retrieves the
 # order parameter for each U. Plots the order parameter versus U.
@@ -101,7 +101,7 @@ def main():
     
     run_nr = 1
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/" + "MPTK/"
-    N_list = [i*10 for i in [5,6,8,10]]
+    N_list = [i*10 for i in [3,5,6,8]]
     U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
@@ -128,9 +128,9 @@ def main():
     orps_vs_N = [[orps_vs_U[j][i] for j in range(len(N_list))] for i in 
                   range(len(U_list))]
     isize_orp_vs_U = [isize_orp(N_list, orps_vs_N[i], i, U_list[i]) for i in 
-                      range(len(U_list))]
+                      range(len(U_list)) if U_list[i] < 3.25]
     plt.figure()
-    plt.plot(U_list, isize_orp_vs_U)
+    plt.plot(U_list[:21], isize_orp_vs_U + orps_vs_U[-1][13:])
     plt.ylabel("<a>")
     plt.xlabel("U")
     
