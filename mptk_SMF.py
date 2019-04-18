@@ -161,7 +161,7 @@ def mptk_SMF():
     if cl_flag:
         mpsol.copy_solution(mpsol.loc)
     
-    fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)+"/"
+    fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
     cwd_store(fol, fnam, orp_list)
     cwd_store(fol, "mu_" + fnam, mu_list)
