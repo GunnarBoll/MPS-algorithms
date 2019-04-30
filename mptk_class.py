@@ -9,6 +9,7 @@ import subprocess as subp
 import os
 import pathlib
 
+# Class that feature functions for ease of use with the MPToolkit
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
@@ -52,6 +53,7 @@ class MPTKState:
                 
         return
     
+    # Retrieves the exact Hamiltonian operator (string) of the ground state
     def get_hamil(self):
         hamils = ["H_V", "H_mu", "H_SMF"]
         params = []
@@ -77,6 +79,8 @@ class MPTKState:
         self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
                         + "*H_mu+" + str(self.alp) + "*H_SMF")
     
+    # Runs the algorithm with given parameters. Uses a list of arguments
+    # required in the bash function call
     def mptk_run(self):
         if not self.finish:
             scr_name = self.run_script
@@ -85,6 +89,7 @@ class MPTKState:
         else:
             print("There already exists an MPTK folder")
     
+    # Returns the expectation value of an operator (string).
     def expec(self, oper):
         state = self.direc + "GS_file.psi." + "1" #1 is the name of the state
         oper_call = self.direc + "lattice:" + oper
@@ -93,9 +98,12 @@ class MPTKState:
         
         return exval
     
+    # Would return correlators
     def correl(oper1, oper2, loc1, loc2):
         pass
     
+    # Copies the solution from the working directory into a directory of given
+    # name.
     def copy_solution(self, new_name):
         cmd = "cp"
         loc = self.proj + new_name
@@ -105,9 +113,11 @@ class MPTKState:
         
         self.bash_call(cmd, ["-r", self.direc, loc], with_home=False)
     
+    # Deletes the solution in the local directory
     def delete_solution(self):
         self.bash_call("rm", ["-r", self.direc], with_home=False)
     
+    # Retrieves truncation error from the MPToolkit files
     def get_trunc_err(self):
         file = self.direc + "GS_file.sweep"
         with open(file, "r") as fr:
@@ -118,7 +128,9 @@ class MPTKState:
         trunc_err.replace('\n', '')
         eval(trunc_err)
         return trunc_err
-        
+    
+    # Makes a call to bash terminal with function in scr_name and options in
+    # argv.
     def bash_call(self, scr_name, argv, with_home=True):
         if with_home:
             call_name = self.home + scr_name

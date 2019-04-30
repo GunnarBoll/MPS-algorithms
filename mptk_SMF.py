@@ -160,7 +160,7 @@ def mptk_SMF():
     
     if cl_flag:
         mpsol.copy_solution("/mptk_states/N=" + str(N) + ",n=" + str(num_bos)
-                            + ",tperp=" + str(tperp) + ",U=" + str(U) + "/")
+                            + ",tperp=" + str(tperp) + "/U=" + str(U) + "/")
     
     fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
