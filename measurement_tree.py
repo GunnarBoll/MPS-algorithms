@@ -13,9 +13,7 @@ from proj_storage import proj_store
 
 imp.reload(mp)
 
-def measure_tree_builder():
-    proj_direc = "/proj/snic2019-8-26/mptk_states/"
-    
+def measure_tree_builder():    
     tperp = eval(sys.argv[1])
     N = eval(sys.argv[2])
     numb = eval(sys.argv[3])
@@ -23,7 +21,7 @@ def measure_tree_builder():
     chi = eval(sys.argv[5])
     obser = str(sys.argv[6])
     
-    state_direc = (proj_direc + "tperp=" + str(tperp) + "/N=" + str(N) + "/n="
+    state_direc = ("mptk_states/tperp=" + str(tperp) + "/N=" + str(N) + "/n="
                    + str(numb) + "/U=" + str(U) + "/chi=" + str(chi) + "/")
     
     sol = mp.MPTKState(state_direc)
