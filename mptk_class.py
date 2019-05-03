@@ -125,7 +125,7 @@ class MPTKState:
     def get_dens(self):
         oper = lambda ind: self.num + "(" + str(ind) + ")"
         dens = 0
-        for densind in range(self.N):
+        for densind in range(1, self.N+1):
             dens += self.expec(oper(densind))
         dens /= self.N
         return dens
