@@ -13,7 +13,7 @@ def sum_string(strl):
         summed += item + '/'
     return summed
 
-def proj_store(dname, fname, data):
+def proj_store(dname, fname, data, replace=False):
     
     folders = dname.split("/")
     root = folders[0]
@@ -32,6 +32,11 @@ def proj_store(dname, fname, data):
                     fw.write(str(mat) + "\n")
             break
         except FileExistsError:
-            direc = proj + root + "_" + str(run_nr) + "/" + rest_name
+            if replace:
+                with open(direc+fname, 'w') as fw:
+                    for mat in data:
+                        fw.write(str(mat) + "\n")
+            else:
+                direc = proj + root + "_" + str(run_nr) + "/" + rest_name
     
     return
