@@ -37,6 +37,6 @@ def measure_tree_builder():
     save_direc = ("measurements/tperp=" + str(tperp) + "/N=" + str(N) + "/n="
                   + str(numb) + "/U=" + str(U) + "/chi=" + str(chi) + "/")
     
-    proj_store(save_direc, obser, measure, replace=True)
+    proj_store(save_direc, obser + ".dat", measure, replace=True)
     
 measure_tree_builder()
