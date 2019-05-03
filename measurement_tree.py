@@ -21,7 +21,7 @@ def measure_tree_builder():
     obser = str(sys.argv[6])
     
     state_direc = ("mptk_states/tperp=" + str(tperp) + "/N=" + str(N) + "/n="
-                   + str(numb) + "/U=" + str(U) + "/chi=" + str(chi))
+                   + str(numb) + "/U=" + str(U) + "/chi=" + str(chi) + "/")
     
     sol = mp.MPTKState(state_direc)
     
