@@ -17,7 +17,7 @@ def get_extr_dat(N, tperp, ind):
         orp = eval(orps[ind])
     return orp
 
-def quad_extr(xdat, ydat):
+def powlaw_extr(xdat, ydat):
     fitfunc = lambda x, a, b, c: a*x**(b) + c
     p, cov = sci.curve_fit(fitfunc, xdat, ydat)
     return p[-1]
@@ -38,7 +38,7 @@ def main():
         for N in N_list:    
             orp_v_N.append(get_extr_dat(N, tperp, ind))
         orp_v_N.reverse()
-        orp = quad_extr(inv_N, orp_v_N)
+        orp = powlaw_extr(inv_N, orp_v_N)
         isize_orp.append(orp)
     
     dname = "isize_orp/tperp=" + str(tperp) + "/"

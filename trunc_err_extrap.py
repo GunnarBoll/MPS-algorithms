@@ -27,33 +27,49 @@ def lin_extr(xdat, ydat):
     return p[-1]
 
 def main():
-    extr_orp = []
+    extr_meas = []
     
     N = eval(sys.argv[1])
-    tperp = eval(sys.argv[2])
-    chi_max = eval(sys.argv[3])
-    U_list = [i/4 for i in range(21)]
+    chi_max = eval(sys.argv[2])
+    tperp = eval(sys.argv[3])
+    relb = eval(sys.argv[4])
+    U_start = eval(sys.argv[5])
+    U_end = eval(sys.argv[6])
+    num_points = eval(sys.argv[7])
+    measure = str(sys.argv[8])
+    
+    U_list = [U_start + i*(U_end-U_start)/num_points
+              for i in range(num_points)]
+    
+    num_boson = N + relb
     
     for ind, U in enumerate(U_list):
-        orpl = []
-        trunc_l = []
+        meas_list = []
+        trunc_list = []
         for chi in range(chi_max, chi_max-9, -2):
-            data_direc = ("/proj/snic2019-8-26/orp_vs_U/tperp=" + str(tperp)
-                          + "/N=" + str(N) + "/chi=" + str(chi) + "/")
+            data_direc = ("/proj/snic2019-8-26/mptk_states/N=" + str(N)
+                          + ",n=" + str(num_boson) + "/tperp=" + str(tperp)
+                          + "/U=" + str(U) + "/chi=" + str(chi) + "/")
             
 #            data_direc = ("C:/Users/Gunnar/Documents/N=80/chi=" + str(chi) 
 #                          + "/")
             
-            orp, trunc_err = get_measure(data_direc, ind)
-            orpl.append(orp)
-            trunc_l.append(trunc_err)
-        extr_orp.append(lin_extr(trunc_l, orpl))
+            meas, trunc_err = get_measure(data_direc, ind)
+            meas_list.append(meas)
+            trunc_list.append(trunc_err)
+        extr_meas.append(lin_extr(trunc_list, meas_list))
     
-    save_dir = ("extr_orp_vs_U/tperp=" + str(tperp)+ "/N=" + str(N) + "/")
     
-    save_file = "order_param"
+    save_dir = ("/proj/snic2019-8-26/mptk_states/N=" + str(N)
+                + "/n=" + str(num_boson) + "/tperp=" + str(tperp)
+                + "/U=" + str(U) + "/")
     
-    proj_store(save_dir, save_file, extr_orp)
+    save_dir = ("/proj/snic2019-8-26/measurements/tperp=" + str(tperp) 
+                + "/N=" + str(N) + "/")
+    
+    save_file = measure + "_vs_U" + ".dat"
+    
+    proj_store(save_dir, save_file, extr_meas)
     
     return
 

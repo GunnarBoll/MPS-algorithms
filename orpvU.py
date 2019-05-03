@@ -8,14 +8,13 @@ import importlib as imp
 import sys
 
 import mptk_class as mp
-from avorp import get_orp
 from proj_storage import proj_store
 
 imp.reload(mp)
 
 def get_dat(sol_name, op, N):
     sol = mp.MPTKState(sol_name)
-    orp = get_orp(op, sol, N)
+    orp = sol.get_orp()
     trunc_err = sol.get_trunc_err()
     return orp, trunc_err
 

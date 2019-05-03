@@ -19,6 +19,10 @@ class MPTKState:
         self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
         self.cluster = cluster
         
+        # Operators (to be made more modal)
+        self.orp = "B"
+        self.num = "N"
+        
         if cluster:
             self.write_direc = self.tmp_dir
         else:
@@ -79,6 +83,37 @@ class MPTKState:
         self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
                         + "*H_mu+" + str(self.alp) + "*H_SMF")
     
+    # Retrieves the state energy with the string "ener_op"
+    def get_ener(self):
+        E = self.expec(self.ener_op)
+        return E
+    
+    # Retrieves the order parameter by averaging over the expectation value
+    # of the annihilation operator over the central sites
+    def get_orp(self):
+        N=self.N
+        start = int(N/2)-int(N/4) + 1
+        end = int(N/2) + int(N/4) + 1 if N%2==0 else int(N/2) + int(N/4) + 2
+        
+        orp = 0
+        av_num_sites = 0
+        op_func = lambda ind: self.orp + "(" + str(ind) + ")"
+            
+        for orpind in range(start, end):
+            av_num_sites += 1
+            orp += abs(self.expec(op_func(orpind)))
+        
+        orp /= av_num_sites
+        return orp
+    
+    def get_dens(self):
+        oper = lambda ind: self.num + "(" + str(ind) + ")"
+        dens = 0
+        for densind in range(self.N):
+            dens += self.expec(oper(densind))
+        dens /= self.N
+        return dens
+
     # Runs the algorithm with given parameters. Uses a list of arguments
     # required in the bash function call
     def mptk_run(self):
