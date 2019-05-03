@@ -8,6 +8,7 @@ Created on Mon Apr  1 08:59:24 2019
 import subprocess as subp
 import os
 import pathlib
+import re
 
 # Class that feature functions for ease of use with the MPToolkit
 class MPTKState:
@@ -43,6 +44,7 @@ class MPTKState:
         
         if self.finish:
             self.get_hamil()
+            self.get_params()
         else:
             if model == "SMF":
                 self.N = params[0]
@@ -56,6 +58,18 @@ class MPTKState:
                                      self.chi]
                 
         return
+    
+    # Retrieves the model parameters
+    def get_params(self):
+        split_direc = re.split("/|=", self.loc)
+        
+        N_ind = split_direc.index("N") + 1
+        self.N = eval(split_direc[N_ind])
+        
+        chi_ind = split_direc.index("chi") + 1
+        self.chi = eval(split_direc[chi_ind])
+        
+        
     
     # Retrieves the exact Hamiltonian operator (string) of the ground state
     def get_hamil(self):
@@ -74,14 +88,16 @@ class MPTKState:
             self.mu = params[1]
             self.alp = params[2]
         
-        with open(self.direc+"GS_file.conf", 'r') as fr:
-            chi_opt = fr.read().splitlines()[5]
-            ind1 = chi_opt.find("=") + 2
-            ind2 = chi_opt.find("ws")
-            self.chi = eval(chi_opt[ind1:ind2])
+#        with open(self.direc+"GS_file.conf", 'r') as fr:
+#            lines = fr.read().splitlines()
+#            chi_opt = lines[5]
+#            ind1 = chi_opt.find("=") + 2
+#            ind2 = chi_opt.find("ws")
+#            self.chi = eval(chi_opt[ind1:ind2])
         
         self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
                         + "*H_mu+" + str(self.alp) + "*H_SMF")
+        
     
     # Retrieves the state energy with the string "ener_op"
     def get_ener(self):

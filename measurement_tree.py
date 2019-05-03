@@ -5,7 +5,6 @@ Created on Fri May  3 08:52:22 2019
 @author: Gunnar
 """
 import sys
-import numpy as np
 import importlib as imp
 
 import mptk_class as mp
@@ -27,14 +26,14 @@ def measure_tree_builder():
     sol = mp.MPTKState(state_direc)
     
     if obser == "Energy":
-        handle = sol.get_ener
+        measure = [sol.get_ener()]
     elif obser == "OrderPar":
-        handle = sol.get_orp
+        measure = [sol.get_orp()]
     elif obser == "Density":
-        handle = sol.get_dens
-    
-    measure = handle()
-    
+        measure = [sol.get_dens()]
+    elif obser == "Trunc_err":
+        measure = [sol.get_trunc_err()]
+        
     save_direc = ("measurements/tperp=" + str(tperp) + "/N=" + str(N) + "/n="
                   + str(numb) + "/U=" + str(U) + "/chi=" + str(chi) + "/")
     
