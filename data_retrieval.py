@@ -30,9 +30,9 @@ def get_plot_data():
     right_params = fix_params[var_param_index:]
     
     # Create the actual left/partition of the folder name
-    Lp = [fixpar + "=" + str(left_params[i]) + "/"
-          for i, fixpar in enumerate(left_folders)]
-    Rp = [fixpar + "=" + str(right_params[j]) + "/"
+    Lp = ([fixpar + "=" + str(left_params[i]) + "/" for i, fixpar in
+          enumerate(left_folders)] + [folder_order[var_param_index] + '='])
+    Rp = ['/'] + [fixpar + "=" + str(right_params[j]) + "/"
           for j, fixpar in enumerate(right_folders)]
     
     print(Lp, Rp)
