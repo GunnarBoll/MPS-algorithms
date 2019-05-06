@@ -19,14 +19,12 @@ def get_plot_data(*args):
     meas_folder = "/proj/snic2019-8-26/measurements/"
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
-    if args is not None:
-        argv = [''] + args
-    else:
-        argv = sys.argv
+    if len(sys.argv) > 1:
+        args = sys.argv[1:]
     
-    obser = str(argv[1])
-    var_param = str(argv[2])
-    fix_params = [eval(par) for par in argv[3:7]]
+    obser = str(args[0])
+    var_param = str(args[1])
+    fix_params = [eval(par) for par in args[2:6]]
     
     # Create left/right folder partition list
     var_param_index = folder_order.index(var_param)
