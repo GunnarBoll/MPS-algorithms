@@ -15,13 +15,18 @@ def concatenate_string(stringlist):
         fullword += word
     return fullword
 
-def get_plot_data():
+def get_plot_data(*args):
     meas_folder = "/proj/snic2019-8-26/measurements/"
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
-    obser = str(sys.argv[1])
-    var_param = str(sys.argv[2])
-    fix_params = [eval(par) for par in sys.argv[3:7]]
+    if args is not None:
+        argv = [''] + args
+    else:
+        argv = sys.argv
+    
+    obser = str(argv[1])
+    var_param = str(argv[2])
+    fix_params = [eval(par) for par in argv[3:7]]
     
     # Create left/right folder partition list
     var_param_index = folder_order.index(var_param)
@@ -58,6 +63,6 @@ def get_plot_data():
     cwd_store('plotdat', 'ydat', obser_vals)
     cwd_store('plotdat', 'xdat', var_param_vals)
     
-    return obser_vals, var_param_vals
+    return var_param_vals, obser_vals
 
 get_plot_data()
