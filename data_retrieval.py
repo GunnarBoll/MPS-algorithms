@@ -45,8 +45,8 @@ def get_plot_data():
     var_param_vals.sort()
     
     obser_vals = []
-    file_loc = (lambda p: Lp +  + folder_order[var_param_index] + '='
-                + str(p) + Rp)
+    file_loc = (lambda p: 
+                Lp +  + folder_order[var_param_index] + '=' + str(p) + Rp)
     
     # Collect the data specified in variable "obser"
     for val in var_param_vals:
