@@ -13,7 +13,7 @@ def concatenate_string(stringlist):
         fullword += word
     return fullword
 
-def trunc_extrap():
+def get_plot_data():
     meas_folder = "/proj/snic2019-8-26/measurement/"
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
@@ -21,7 +21,7 @@ def trunc_extrap():
     var_param = str(sys.argv[2])
     fix_params = [eval(par) for par in sys.argv[3:7]]
     
-    # Create left/right folder partition
+    # Create left/right folder partition list
     var_param_index = folder_order.index(var_param)
     left_folders = folder_order[:var_param_index]
     right_folders = folder_order[var_param_index+1:]
@@ -29,6 +29,7 @@ def trunc_extrap():
     left_params = fix_params[:var_param_index]
     right_params = fix_params[var_param_index:]
     
+    # Create the actual left/partition of the folder name
     Lp = [fixpar + "=" + str(left_params[i]) + "/"
           for i, fixpar in enumerate(left_folders)]
     Rp = [fixpar + "=" + str(right_params[j]) + "/"
@@ -45,11 +46,12 @@ def trunc_extrap():
     obser_vals = []
     file_loc = lambda p: Lp + str(p) + Rp
     
-    # Collect relevant data
+    # Collect the data specified in variable "obser"
     for val in var_param_vals:
         file = file_loc(val) + obser + ".dat"
         with open(file, 'r') as fr:
             obser_vals.append(eval(fr.readline()))
     
     return obser_vals, var_param_vals
-        
+
+get_plot_data()
