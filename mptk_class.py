@@ -10,7 +10,7 @@ import os
 import pathlib
 import re
 
-# Class that feature functions for ease of use with the MPToolkit
+# Class that features functions for ease of use with the MPToolkit
 class MPTKState:
     def __init__(self, dname, run_script=None, params=None, model=None,
                  cluster=False):
@@ -29,13 +29,12 @@ class MPTKState:
         else:
             self.write_direc = self.home
         
-        
+        # Check if the GS already exists
         if os.path.exists(self.proj + self.loc):
             self.finish = True
             self.direc = self.proj + self.loc + "/"
             
         else:
-            print(self.proj + self.loc)
             self.finish = False
             self.direc = self.write_direc + self.loc + "/"
             
@@ -44,6 +43,7 @@ class MPTKState:
         self.run_script =  run_script
         self.model = model
         
+        # Either retreive GS setup for creation
         if self.finish:
             self.get_hamil()
             self.get_params()
@@ -89,13 +89,6 @@ class MPTKState:
             self.U = params[0]
             self.mu = params[1]
             self.alp = params[2]
-        
-#        with open(self.direc+"GS_file.conf", 'r') as fr:
-#            lines = fr.read().splitlines()
-#            chi_opt = lines[5]
-#            ind1 = chi_opt.find("=") + 2
-#            ind2 = chi_opt.find("ws")
-#            self.chi = eval(chi_opt[ind1:ind2])
         
         self.ener_op = ("H+" + str(self.U) + "*H_V-" + str(self.mu)
                         + "*H_mu+" + str(self.alp) + "*H_SMF")
@@ -179,7 +172,7 @@ class MPTKState:
             trunc_err = last.split(" ")[6]
         
         trunc_err.replace('\n', '')
-        eval(trunc_err)
+        trunc_err = eval(trunc_err)
         return trunc_err
     
     # Makes a call to bash terminal with function in scr_name and options in

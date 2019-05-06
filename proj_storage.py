@@ -36,6 +36,7 @@ def proj_store(dname, fname, data, replace=False):
                 with open(direc+fname, 'w') as fw:
                     for mat in data:
                         fw.write(str(mat) + "\n")
+                break
             else:
                 direc = proj + root + "_" + str(run_nr) + "/" + rest_name
     
