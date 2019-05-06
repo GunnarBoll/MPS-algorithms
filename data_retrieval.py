@@ -8,7 +8,7 @@ import sys
 import os
 
 def concatenate_string(stringlist):
-    fullword = 0
+    fullword = ''
     for word in stringlist:
         fullword += word
     return fullword
