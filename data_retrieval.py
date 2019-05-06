@@ -14,7 +14,7 @@ def concatenate_string(stringlist):
     return fullword
 
 def get_plot_data():
-    meas_folder = "/proj/snic2019-8-26/measurement/"
+    meas_folder = "/proj/snic2019-8-26/measurements/"
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
     obser = str(sys.argv[1])
