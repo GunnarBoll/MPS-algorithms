@@ -35,7 +35,6 @@ def get_plot_data():
     Rp = ['/'] + [fixpar + "=" + str(right_params[j]) + "/"
           for j, fixpar in enumerate(right_folders)]
     
-    print(Lp, Rp)
     Lp = concatenate_string(Lp)
     Rp = concatenate_string(Rp)
     
@@ -53,6 +52,7 @@ def get_plot_data():
         file = file_loc(val) + obser + ".dat"
         with open(file, 'r') as fr:
             obser_vals.append(eval(fr.readline()))
+    print(obser_vals, var_param_vals)
     
     return obser_vals, var_param_vals
 
