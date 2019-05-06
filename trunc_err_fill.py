@@ -15,7 +15,7 @@ def lin_extrap(xdat, ydat):
     return p[-1]
 
 def treefill_trunc_extrap(*args, **kwargs):
-    if args == []:
+    if args == ():
         args = sys.argv[1:]
     
     obser = str(args[0])

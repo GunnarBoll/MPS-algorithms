@@ -20,7 +20,7 @@ def get_plot_data(*args, **kwargs):
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
     print(args)
-    if args == []:
+    if args == ():
         args = sys.argv[1:]
     print(args)
     
