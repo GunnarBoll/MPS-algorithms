@@ -14,8 +14,8 @@ def lin_extrap(xdat, ydat):
     p = sci.polyfit(xdat, ydat, deg=1)
     return p[-1]
 
-def treefill_trunc_extrap(*args):
-    if len(sys.argv) > 1:
+def treefill_trunc_extrap(*args, **kwargs):
+    if args == []:
         args = sys.argv[1:]
     
     obser = str(args[0])

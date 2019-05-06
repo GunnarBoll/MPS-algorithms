@@ -15,12 +15,13 @@ def concatenate_string(stringlist):
         fullword += word
     return fullword
 
-def get_plot_data(*args):
+def get_plot_data(*args, **kwargs):
     meas_folder = "/proj/snic2019-8-26/measurements/"
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
-    if len(sys.argv) > 1:
+    if args == []:
         args = sys.argv[1:]
+        
     
     obser = str(args[0])
     var_param = str(args[1])
