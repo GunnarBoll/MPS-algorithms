@@ -20,7 +20,6 @@ def get_plot_data(*args, **kwargs):
     folder_order = ["tperp", "N", "n", "U", "chi"]
     
     if args == ():
-        print(args)
         args = sys.argv[1:]
     
     obser = str(args[0])
@@ -63,5 +62,3 @@ def get_plot_data(*args, **kwargs):
     cwd_store('plotdat', 'xdat', var_param_vals)
     
     return var_param_vals, obser_vals
-
-get_plot_data()
