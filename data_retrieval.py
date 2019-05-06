@@ -31,7 +31,7 @@ def get_plot_data():
     
     # Create the actual left/partition of the folder name
     Lp = ([fixpar + "=" + str(left_params[i]) + "/" for i, fixpar in
-          enumerate(left_folders)] + [folder_order[var_param_index] + '='])
+          enumerate(left_folders)])
     Rp = ['/'] + [fixpar + "=" + str(right_params[j]) + "/"
           for j, fixpar in enumerate(right_folders)]
     
@@ -45,7 +45,8 @@ def get_plot_data():
     var_param_vals.sort()
     
     obser_vals = []
-    file_loc = lambda p: Lp + str(p) + Rp
+    file_loc = (lambda p: Lp +  + folder_order[var_param_index] + '='
+                + str(p) + Rp)
     
     # Collect the data specified in variable "obser"
     for val in var_param_vals:
