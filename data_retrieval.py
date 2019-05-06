@@ -7,6 +7,8 @@ Created on Fri May  3 15:29:17 2019
 import sys
 import os
 
+from cwd_storage import cwd_store
+
 def concatenate_string(stringlist):
     fullword = ''
     for word in stringlist:
@@ -52,7 +54,9 @@ def get_plot_data():
         file = file_loc(val) + obser + ".dat"
         with open(file, 'r') as fr:
             obser_vals.append(eval(fr.readline()))
-    print(obser_vals, var_param_vals)
+    
+    cwd_store('plotdat', 'ydat', obser_vals)
+    cwd_store('plotdat', 'xdat', var_param_vals)
     
     return obser_vals, var_param_vals
 
