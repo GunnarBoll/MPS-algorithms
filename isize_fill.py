@@ -5,6 +5,16 @@ Created on Mon May  6 14:37:14 2019
 @author: Gunnar
 """
 import sys
+import scipy.optimize as sciop
+from numpy import inf
+
+from data_retrieval import get_plot_data
+from proj_storage import proj_store
+
+def powlaw_extr(xdat, ydat):
+    fitfunc = lambda x, a, b, c: a*x**(-b) + c
+    p, cov = sciop.curve_fit(fitfunc, xdat, ydat)
+    return p[-1]
 
 def treefill_isize(*args):
     if args == ():
@@ -14,8 +24,25 @@ def treefill_isize(*args):
     tperp = eval(args[1])
     n = eval(args[2])
     U = eval(args[3])
-    try:
-        chi = eval(args[4])
-    except NameError:
-        chi = str(args[4])
+    chi = eval(args[4])
     
+    N_dat1, obser_dat = get_plot_data(obser, 'N', tperp, n, U, chi)
+    
+    if inf in N_dat1: obser_dat.pop()
+    
+    inv_N = [1/size for size in N_dat1]
+    inv_N.reverse()
+    obser_dat.reverse()
+    
+    try:
+        isize_obser = powlaw_extr(inv_N, obser_dat)
+    except RuntimeError:
+        print("Unable to fit to power law. U is ", U)
+        isize_obser = obser_dat[0]
+    
+    folder = ('/measurements/tperp=' + str(tperp) + '/N=inf' + '/n='
+              + str(n) + '/U=' + str(U) + '/chi=' + str(chi) + '/')
+    
+    proj_store(folder, obser + '.dat', isize_obser, replace=True)
+    
+treefill_isize()

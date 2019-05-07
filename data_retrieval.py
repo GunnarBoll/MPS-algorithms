@@ -47,7 +47,9 @@ def get_plot_data(*args, **kwargs):
     
     # os.walk is an iterator which contains a 3-tuple 
     # (top directory, directories, files) at each iteration. It
-    # starts in cwd and works its way downward.
+    # starts in cwd and works its way downward. If a folder fails to contain
+    # the relevant observable it is removed from the considered varied
+    # parameters.
     for ind, contents in enumerate(os.walk(meas_folder + Lp)):
         if ind == 0:
             var_par_folder_contents = contents[1]
