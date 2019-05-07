@@ -28,7 +28,7 @@ def get_plot_data(*args, **kwargs):
     # If N is the varied parameter the number of bosons usually should be
     # varied with it and is thus treated specially
     if var_param == "N":
-        n_ind = folder_order.find('n')
+        n_ind = folder_order.index('n')
         folder_order.remove('n')
         n = fix_params.pop(n_ind-1)
     
