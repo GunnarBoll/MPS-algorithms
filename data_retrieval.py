@@ -48,8 +48,10 @@ def get_plot_data(*args, **kwargs):
     
     # Concatenate lists of strings such that the form becomes 
     # Lp = 'C:/Users/Gunnar/'
+    
     Lp = concatenate_string(Lp)
     Rp = concatenate_string(Rp)
+    print(Lp, Rp)
     
     # os.walk is an iterator which contains a 3-tuple 
     # (top directory, directories, files) at each iteration. It
