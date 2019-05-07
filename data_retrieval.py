@@ -25,7 +25,7 @@ def get_plot_data(*args, **kwargs):
     print(args)
     obser = str(args[0])
     var_param = str(args[1])
-    fix_params = [eval(par) for par in args[2:6]]
+    fix_params = [eval(par) if type(par) == str else par for par in args[2:6]]
     
     # Create left/right folder partition list
     var_param_index = folder_order.index(var_param)
