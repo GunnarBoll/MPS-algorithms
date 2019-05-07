@@ -36,3 +36,4 @@ def treefill_trunc_extrap(*args, **kwargs):
               + str(n) + '/U=' + str(U) + "/chi=inf")
     
     proj_store(folder, obser, extrap_val, replace=True)
+treefill_trunc_extrap()

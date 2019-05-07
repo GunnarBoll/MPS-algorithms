@@ -7,7 +7,7 @@ Created on Mon May  6 14:37:14 2019
 import sys
 
 def treefill_isize(*args):
-    if len(sys.argv) > 1:
+    if args == ():
         args = sys.argv[1:]
         
     obser = str(args[0])
