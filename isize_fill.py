@@ -34,12 +34,14 @@ def treefill_isize(*args):
     inv_N.reverse()
     obser_dat.reverse()
     
+    print(obser_dat)
     try:
         isize_obser = powlaw_extr(inv_N, obser_dat)
     except RuntimeError:
         print("Unable to fit to power law. U is ", U)
         isize_obser = obser_dat[0]
     
+    print(isize_obser)
     folder = ('/measurements/tperp=' + str(tperp) + '/N=inf' + '/n='
               + str(n) + '/U=' + str(U) + '/chi=' + str(chi) + '/')
     
