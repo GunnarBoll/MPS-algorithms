@@ -61,7 +61,4 @@ def get_plot_data(*args, **kwargs):
         with open(file, 'r') as fr:
             obser_vals.append(eval(fr.readline()))
     
-    cwd_store('plotdat', 'ydat', obser_vals)
-    cwd_store('plotdat', 'xdat', var_param_vals)
-    
     return var_param_vals, obser_vals
