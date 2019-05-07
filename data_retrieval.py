@@ -33,18 +33,32 @@ def get_plot_data(*args, **kwargs):
     left_params = fix_params[:var_param_index]
     right_params = fix_params[var_param_index:]
     
-    # Create the actual left/partition of the folder name
+    # Create the actual left/partition of the folder name as a list e.g.
+    # Lp = ['C:/', 'Users/', 'Gunnar/']
     Lp = ([fixpar + "=" + str(left_params[i]) + "/" for i, fixpar in
           enumerate(left_folders)])
     Rp = ['/'] + [fixpar + "=" + str(right_params[j]) + "/"
           for j, fixpar in enumerate(right_folders)]
     
+    # Concatenate lists of strings such that the form becomes 
+    # Lp = 'C:/Users/Gunnar/'
     Lp = concatenate_string(Lp)
     Rp = concatenate_string(Rp)
     
-    for r, d, f in os.walk(meas_folder + Lp): 
-        var_par_folder_contents = d
-        break
+    # os.walk is an iterator which contains a 3-tuple 
+    # (top directory, directories, files) at each iteration. It
+    # starts in cwd and works its way downward.
+    for ind, contents in enumerate(os.walk(meas_folder + Lp)):
+        if ind == 0:
+            var_par_folder_contents = contents[1]
+            num_dirs = len(var_par_folder_contents)
+        elif ind > num_dirs:
+            break
+        else:
+            if (obser + '.dat' not in contents[2] or
+                var_param + '.dat' not in contents[2]):
+                var_par_folder_contents.remove(contents[0])
+                print(contents[0] + "does not contain the appropriate files")
     
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
                       for var_par_str in var_par_folder_contents]
