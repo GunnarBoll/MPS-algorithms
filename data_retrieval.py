@@ -43,7 +43,10 @@ def get_plot_data(*args, **kwargs):
     Lp = concatenate_string(Lp)
     Rp = concatenate_string(Rp)
     
-    var_par_folder_contents = os.listdir(meas_folder + Lp)
+    for r, d, f in os.walk(meas_folder + Lp): 
+        var_par_folder_contents = d
+        break
+    print(var_par_folder_contents)
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
                       for var_par_str in var_par_folder_contents]
     var_param_vals.sort()

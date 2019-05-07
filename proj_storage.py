@@ -40,6 +40,7 @@ def proj_store(dname, fname, data, replace=False):
                         fw.write(str(mat) + "\n")
                 break
             else:
+                run_nr += 1
                 direc = proj + root + "_" + str(run_nr) + "/" + rest_name
     
     return

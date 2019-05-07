@@ -33,7 +33,7 @@ def treefill_trunc_extrap(*args, **kwargs):
     extrap_val = lin_extrap(trunc_err, obser_dat)
     
     folder = ('/measurements/tperp=' + str(tperp) + '/N=' + str(N) + '/n='
-              + str(n) + '/U=' + str(U) + "/chi=inf")
+              + str(n) + '/U=' + str(U) + "/chi=inf/")
     
     proj_store(folder, obser, extrap_val, replace=True)
 treefill_trunc_extrap()
