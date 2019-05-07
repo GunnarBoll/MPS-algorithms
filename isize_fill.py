@@ -28,6 +28,7 @@ def treefill_isize(*args):
     
     N_dat1, obser_dat = get_plot_data(obser, 'N', tperp, n, U, chi)
     
+    print(N_dat1)
     if inf in N_dat1: obser_dat.pop()
     
     inv_N = [1/size for size in N_dat1]
