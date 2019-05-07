@@ -29,6 +29,7 @@ def treefill_trunc_extrap(*args, **kwargs):
     chidat, obser_dat = get_plot_data(obser, "chi", tperp, N, n, U)
     
     if inf in chidat:
+        print("Found inf in chidat!")
         trunc_err.pop()
         obser_dat.pop()
     
