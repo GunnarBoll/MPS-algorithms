@@ -56,18 +56,11 @@ def get_plot_data(*args, **kwargs):
     
     # os.walk is an iterator which contains a 3-tuple 
     # (top directory, directories, files) at each iteration. It
-    # starts in cwd and works its way downward. If a folder fails to contain
-    # the relevant observable it is removed from the considered varied
-    # parameters.
-    for ind, contents in enumerate(os.walk(meas_folder + Lp)):
-        if ind == 0:
-            var_par_folder_contents = contents[1]
-            num_dirs = len(var_par_folder_contents)
-        elif ind > num_dirs:
-            break
-        else:
-            if obser + '.dat' not in contents[2]:
-                var_par_folder_contents.pop(ind-1)
+    # starts in cwd and works its way downward. We stop at the top since we
+    # only want the top directories.
+    for contents in os.walk(meas_folder + Lp):
+        var_par_folder_contents = contents[1]
+        break
     
     print(var_par_folder_contents)
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
@@ -85,7 +78,10 @@ def get_plot_data(*args, **kwargs):
     # Collect the data specified in variable "obser"
     for val in var_param_vals:
         file = file_loc(val) + obser + ".dat"
-        with open(file, 'r') as fr:
-            obser_vals.append(eval(fr.readline()))
+        try:
+            with open(file, 'r') as fr:
+                obser_vals.append(eval(fr.readline()))
+        except FileNotFoundError:
+            var_param_vals.remove(val)
     
     return var_param_vals, obser_vals
