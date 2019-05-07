@@ -57,8 +57,8 @@ def get_plot_data(*args, **kwargs):
         else:
             if (obser + '.dat' not in contents[2] or
                 var_param + '.dat' not in contents[2]):
-                var_par_folder_contents.remove(contents[0])
                 print(contents[0] + "does not contain the appropriate files")
+                var_par_folder_contents.remove(contents[0])
     
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
                       for var_par_str in var_par_folder_contents]
