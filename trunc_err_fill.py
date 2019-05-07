@@ -6,6 +6,7 @@ Created on Mon May  6 13:55:03 2019
 """
 import sys
 import scipy as sci
+from numpy import inf
 
 from data_retrieval import get_plot_data
 from proj_storage import proj_store
@@ -26,6 +27,10 @@ def treefill_trunc_extrap(*args, **kwargs):
     
     chidat, trunc_err = get_plot_data("Trunc_err", "chi", tperp, N, n, U)
     chidat, obser_dat = get_plot_data(obser, "chi", tperp, N, n, U)
+    
+    if inf in chidat:
+        trunc_err.pop()
+        obser_dat.pop()
     
     trunc_err.reverse()
     obser_dat.reverse()
