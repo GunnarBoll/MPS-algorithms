@@ -24,8 +24,8 @@ def treefill_trunc_extrap(*args, **kwargs):
     n = eval(args[3])
     U = eval(args[4])
     
-    trunc_err, chidat = get_plot_data("Trunc_err", "chi", tperp, N, n, U)
-    obser_dat, chidat = get_plot_data(obser, "chi", tperp, N, n, U)
+    chidat, trunc_err = get_plot_data("Trunc_err", "chi", tperp, N, n, U)
+    chidat, obser_dat = get_plot_data(obser, "chi", tperp, N, n, U)
     
     trunc_err.reverse()
     obser_dat.reverse()

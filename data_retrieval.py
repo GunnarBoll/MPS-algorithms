@@ -6,8 +6,7 @@ Created on Fri May  3 15:29:17 2019
 """
 import sys
 import os
-
-from cwd_storage import cwd_store
+from numpy import inf
 
 def concatenate_string(stringlist):
     fullword = ''
