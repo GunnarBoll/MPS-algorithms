@@ -45,7 +45,7 @@ def get_plot_data(*args, **kwargs):
     for r, d, f in os.walk(meas_folder + Lp): 
         var_par_folder_contents = d
         break
-    print(var_par_folder_contents)
+    
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
                       for var_par_str in var_par_folder_contents]
     var_param_vals.sort()
