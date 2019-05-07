@@ -22,6 +22,7 @@ def get_plot_data(*args, **kwargs):
     if args == ():
         args = sys.argv[1:]
     
+    print(args)
     obser = str(args[0])
     var_param = str(args[1])
     fix_params = [eval(par) for par in args[2:6]]
