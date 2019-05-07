@@ -12,7 +12,7 @@ from data_retrieval import get_plot_data
 from proj_storage import proj_store
 
 def powlaw_extr(xdat, ydat):
-    fitfunc = lambda x, a, b, c: a*x**(-b) + c
+    fitfunc = lambda x, a, b, c: a*x**(b) + c
     p, cov = sciop.curve_fit(fitfunc, xdat, ydat)
     return p[-1]
 
