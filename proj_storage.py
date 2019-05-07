@@ -14,6 +14,8 @@ def sum_string(strl):
     return summed
 
 def proj_store(dname, fname, data, replace=False):
+    if type(data) != list:
+        data = [data]
     
     folders = dname.split("/")
     root = folders[0]
