@@ -75,8 +75,8 @@ def get_plot_data(*args, **kwargs):
     
     obser_vals = []
     if var_param == 'N':
-        file_loc = (lambda p: meas_folder + Lp + 'N=' + str(p) + 'n='
-                    + str(p/2 + n) + Rp)
+        file_loc = (lambda p: meas_folder + Lp + 'N=' + str(p) + '/n='
+                    + str(int(p/2 + n)) + Rp)
     else:
         file_loc = (lambda p: meas_folder + Lp + folder_order[var_param_index] 
                     + '=' + str(p) + Rp)
