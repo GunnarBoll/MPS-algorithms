@@ -128,7 +128,7 @@ def main():
     orps_vs_N = [[orps_vs_U[j][i] for j in range(len(N_list))] for i in 
                   range(len(U_list))]
     isize_orp_vs_U = [isize_orp(N_list, orps_vs_N[i], i, U_list[i]) for i in 
-                      range(len(U_list)) if U_list[i] < 3.5]
+                      range(len(U_list)) if U_list[i] < 3.25]
     plt.figure()
     plt.plot(U_list[:21], isize_orp_vs_U + orps_vs_U[-1][13:])
     plt.ylabel("<a>")

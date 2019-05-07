@@ -25,6 +25,12 @@ def get_plot_data(*args, **kwargs):
     var_param = str(args[1])
     fix_params = [eval(par) if type(par) == str else par for par in args[2:6]]
     
+    # If N is the varied parameter the number of bosons usually should be
+    # varied with it and is thus treated specially
+    if var_param == "N":
+        folder_order.remove('n')
+        n = fix_params.pop(0)
+    
     # Create left/right folder partition list
     var_param_index = folder_order.index(var_param)
     left_folders = folder_order[:var_param_index]
@@ -65,8 +71,12 @@ def get_plot_data(*args, **kwargs):
     var_param_vals.sort()
     
     obser_vals = []
-    file_loc = (lambda p: meas_folder + Lp + folder_order[var_param_index] 
-                + '=' + str(p) + Rp)
+    if var_param == 'N':
+        file_loc = (lambda p: meas_folder + Lp + 'N=' + str(p) + 'n='
+                    + str(p/2 + n) + Rp)
+    else:
+        file_loc = (lambda p: meas_folder + Lp + folder_order[var_param_index] 
+                    + '=' + str(p) + Rp)
     
     # Collect the data specified in variable "obser"
     for val in var_param_vals:
