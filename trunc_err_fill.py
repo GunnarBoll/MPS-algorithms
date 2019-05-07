@@ -25,13 +25,11 @@ def treefill_trunc_extrap(*args, **kwargs):
     n = eval(args[3])
     U = eval(args[4])
     
-    chidat, trunc_err = get_plot_data("Trunc_err", "chi", tperp, N, n, U)
-    chidat, obser_dat = get_plot_data(obser, "chi", tperp, N, n, U)
+    chidat1, trunc_err = get_plot_data("Trunc_err", "chi", tperp, N, n, U)
+    chidat2, obser_dat = get_plot_data(obser, "chi", tperp, N, n, U)
     
-    if inf in chidat:
-        print("Found inf in chidat!")
-        trunc_err.pop()
-        obser_dat.pop()
+    if inf in chidat1: trunc_err.pop()
+    if inf in chidat2: obser_dat.pop()
     
     trunc_err.reverse()
     obser_dat.reverse()
