@@ -101,7 +101,7 @@ def main():
     
     run_nr = 1
     data_direc = "C:/Users/Gunnar/Documents/Ph.D/Data/Static_MF/" + "MPTK/"
-    N_list = [i*10 for i in [3,5,6,8]]
+    N_list = [i*10 for i in [4,5,6,8,10]]
     U_list = [i/4 for i in range(21)]
     orps_vs_U = []
     for N in N_list:
