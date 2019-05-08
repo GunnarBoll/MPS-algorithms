@@ -50,7 +50,6 @@ def treefill_isize(*args):
     
     N_dat1, obser_dat = get_plot_data(obser, 'N', tperp, n, U, chi)
     
-    print(N_dat1)
     if inf in N_dat1: 
         obser_dat.pop()
         N_dat1.pop()
@@ -61,14 +60,12 @@ def treefill_isize(*args):
     
     inv_N, obser_dat, extrap_function = obs_treatment(inv_N, obser_dat, obser)
     
-    print(obser_dat)
     try:
         isize_obser = extrap_function(inv_N, obser_dat)
     except RuntimeError:
         print("Unable to fit to suggested function. U is ", U)
         isize_obser = obser_dat[0]
     
-    print(isize_obser)
     folder = ('/measurements/tperp=' + str(tperp) + '/N=inf' + '/n='
               + str(n) + '/U=' + str(U) + '/chi=' + str(chi) + '/')
     

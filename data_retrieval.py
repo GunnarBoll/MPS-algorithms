@@ -52,7 +52,6 @@ def get_plot_data(*args, **kwargs):
     
     Lp = concatenate_string(Lp)
     Rp = concatenate_string(Rp)
-    print(Lp, Rp)
     
     # os.walk is an iterator which contains a 3-tuple 
     # (top directory, directories, files) at each iteration. It
@@ -62,7 +61,6 @@ def get_plot_data(*args, **kwargs):
         var_par_folder_contents = contents[1]
         break
     
-    print(var_par_folder_contents)
     var_param_vals = [eval(var_par_str.replace(var_param+"=",''))
                       for var_par_str in var_par_folder_contents]
     var_param_vals.sort()
