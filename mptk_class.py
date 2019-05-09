@@ -132,8 +132,10 @@ class MPTKState:
             scr_name = self.run_script
             stdo = self.bash_call(scr_name, self.call_string)
             self.finish = True
+            return False
         else:
             print("There already exists an MPTK folder")
+            return True
     
     # Returns the expectation value of an operator (string).
     def expec(self, oper):

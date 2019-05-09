@@ -114,16 +114,19 @@ def mptk_SMF():
     i = 0
     
     run_script = "bin/mptk_script.sh"
-    dname = lambda p1, p2, p3, p4, p5: ("mptk_states/N=" + str(p1) + ",n="
-                                    + str(p2) + ",tperp=" + str(p3)
-                                    + "/U=" + str(p4) + "/chi=" + str(p5))
+    dname = lambda p1, p2, p3, p4, p5: ("mptk_states/tperp=" + str(p1) + "/N="
+                                        + str(p2) + "/n=" + str(p3) + "/U="
+                                        + str(p4) + "/chi=" + str(p5))
     
     while True:
         arg_list = [N, U, mu, alp, chi]
         
-        mpsol = mp.MPTKState(dname(N, num_bos, tperp, U, chi), run_script,
+        mpsol = mp.MPTKState(dname(tperp, N, num_bos, U, chi), run_script,
                              arg_list, model="SMF", cluster=cl_flag)
-        mpsol.mptk_run()
+        
+        is_finished = mpsol.mptk_run()
+        if is_finished:
+            return
         
         new_dens = get_av_expec(mpsol, "N", 1, N+1)
         
@@ -158,9 +161,10 @@ def mptk_SMF():
         i += 1
     print("Final error in order param. is", err)
     
-    if cl_flag:
-        mpsol.copy_solution("/mptk_states/N=" + str(N) + ",n=" + str(num_bos)
-                            + ",tperp=" + str(tperp) + "/U=" + str(U) + "/")
+    if cl_flag and not is_finished:
+        mpsol.copy_solution("/mptk_states/tperp=" + str(tperp) + "/N=" + str(N)
+                            + "/n=" + str(num_bos) + "/U=" + str(U) + "/chi="
+                            + str(chi) + "/")
     
     fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"
