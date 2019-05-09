@@ -129,8 +129,9 @@ def mptk_SMF():
             return
         
         new_dens = get_av_expec(mpsol, "N", 1, N+1)
+        density_err = abs(new_dens - dens)/dens
         
-        if abs(new_dens - dens)/dens > rho_max_err:
+        if density_err > rho_max_err:
             if new_dens > dens:
                 over = True
             else:
@@ -153,7 +154,8 @@ def mptk_SMF():
         if i%20 == 0:
             print("Error in order param. is", err)
         
-        if err < orp_max_err or i == 500 or orp_list[-1] < 1e-8:
+        if ( (err < orp_max_err and density_err < rho_max_err) or i == 500
+            or orp_list[-1] < 1e-8 ):
             break
         else:
             mpsol.delete_solution()
