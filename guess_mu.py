@@ -29,13 +29,13 @@ def guess_mu(ord_par, U, tperp, over, dens, goal_dens=0.5, run_nr=1):
         den_list.reverse()
         mu_list.reverse()
         for i in range(len(den_list)):
-            if den_list[i] < goal_dens-0.01:
+            if den_list[i] < goal_dens-0.02:
                 mug = mu_list[i]
                 HF_flag = True
                 break
     else:
         for i in range(len(den_list)):
-            if den_list[i] > goal_dens+0.01:
+            if den_list[i] > goal_dens+0.02:
                 mug = mu_list[i]
                 HF_flag = True
                 break
@@ -45,6 +45,6 @@ def guess_mu(ord_par, U, tperp, over, dens, goal_dens=0.5, run_nr=1):
         if over:
             mug = -10.0
         else:
-            mug = 10.0
+            mug = 20.0
     
     return mug
