@@ -164,9 +164,10 @@ def mptk_SMF():
     print("Final error in order param. is", err)
     
     if cl_flag and not is_finished:
+#        Do NOT add chi at the end: it will create a chi=$chi/chi=$chi 
+#        structure
         mpsol.copy_solution("/mptk_states/tperp=" + str(tperp) + "/N=" + str(N)
-                            + "/n=" + str(num_bos) + "/U=" + str(U) + "/chi="
-                            + str(chi) + "/")
+                            + "/n=" + str(num_bos) + "/U=" + str(U) + "/")
     
     fol = "transf_n=" + str(num_bos) + "/SMF_N="+str(N)
     fnam = "N=" + str(N) + ",U=" + str(U) + ".txt"

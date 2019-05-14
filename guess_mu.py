@@ -25,17 +25,20 @@ def guess_mu(ord_par, U, tperp, over, dens, goal_dens=0.5, run_nr=1):
     mu_list = data[listlen:]
     
     HF_flag = False
+    
+#    Set margin larger if the grid underestimates the required mu
+    margin = 0.05
     if over:
         den_list.reverse()
         mu_list.reverse()
         for i in range(len(den_list)):
-            if den_list[i] < goal_dens-0.02:
+            if den_list[i] < goal_dens-margin:
                 mug = mu_list[i]
                 HF_flag = True
                 break
     else:
         for i in range(len(den_list)):
-            if den_list[i] > goal_dens+0.02:
+            if den_list[i] > goal_dens+margin:
                 mug = mu_list[i]
                 HF_flag = True
                 break

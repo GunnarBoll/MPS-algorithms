@@ -16,7 +16,8 @@ class MPTKState:
                  cluster=False):
         self.loc = dname
         self.home = os.environ.get("HOME") + "/"
-        self.proj = "/proj/snic2019-8-26/"
+#        self.proj = "/proj/snic2019-8-26/"
+        self.proj = "/proj/uppstore2019070/"
         self.tmp_dir = os.environ.get("SNIC_TMP") + "/"
         self.cluster = cluster
         
