@@ -20,6 +20,7 @@ def charge_gap_fill(*args):
     U = eval(args[2])
     chi = eval(args[3])
     
+    print(args)
     energies, fillings = get_plot_data('Energy', 'n', *args)
     
     gap = energies[0] + energies[2] - 2*energies[1]
