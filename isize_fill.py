@@ -23,11 +23,7 @@ def quad_extr(xdat, ydat):
 
 def obs_treatment(inv_N, obsdat, obs):
     N_list = [1/iN for iN in inv_N]
-    if obs == "Energy":
-        obsdat = [obsdat[ind]/N_list[ind] for ind in range(len(obsdat))]
-        extr_func = quad_extr
-        
-    elif obs == "OrderPar":
+    if obs == "OrderPar":
         removed_vals = []
         for obs in obsdat:
             if abs(obs) < 1e-6:
