@@ -29,3 +29,5 @@ def charge_gap_fill(*args):
               + str(int(N/2)) + '/U=' + str(U) + '/chi=' + str(chi) + '/')
     
     proj_store(folder, 'ChargeGap.dat', [gap], replace=True)
+
+charge_gap_fill()
