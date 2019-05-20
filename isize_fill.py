@@ -72,6 +72,5 @@ def treefill_isize(*args):
               + str(n) + '/U=' + str(U) + '/chi=' + str(chi) + '/')
     
     proj_store(folder, obser + '.dat', isize_obser, replace=True)
-    cwd_store()
     
 treefill_isize()
