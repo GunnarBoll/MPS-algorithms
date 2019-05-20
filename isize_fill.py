@@ -32,9 +32,10 @@ def obs_treatment(inv_N, obsdat, obs):
                 obser_dict.pop(obs)
         inv_N = list(obser_dict.keys())
         obsdat = list(obser_dict.values())
+        print(inv_N)
+        print(obsdat)
         extr_func = powlaw_extr
     elif obs == "ChargeGap":
-        print('check')
         extr_func = quad_extr
         
     return inv_N, obsdat, extr_func
