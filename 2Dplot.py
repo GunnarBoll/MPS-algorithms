@@ -15,9 +15,13 @@ def plotdat_2D(*args):
     
     xdat, ydat = get_plot_data(*args)
     
+    plt.figure()
     plt.plot(xdat, ydat)
+    print(ydat)
     
     return
 
+plt.close("all")
 plotdat_2D('Energy', 'U', 0.05, 100, 49, 'inf')
 plotdat_2D('OrderPar', 'U', 0.05, 'inf', 0, 'inf')
+#plotdat_2D('ChargeGap', 'U', 0.05, 100, 50, 'inf')
