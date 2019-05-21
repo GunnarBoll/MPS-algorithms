@@ -26,9 +26,7 @@ def obs_treatment(inv_N, obsdat, obs):
     if obs == "OrderPar":
         obser_dict = dict(zip(obsdat, inv_N))
         for obs in obsdat:
-            if abs(obs) < 1e-6:
-                obser_dict.pop(obs)
-            elif obser_dict[obs] == 1/20 or obser_dict[obs] == 1/30:
+            if obser_dict[obs] == 1/20 or obser_dict[obs] == 1/30:
                 obser_dict.pop(obs)
         inv_N = list(obser_dict.keys())
         obsdat = list(obser_dict.values())
